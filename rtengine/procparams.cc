@@ -681,7 +681,10 @@ void WaveletParams::setDefaults()
     Backmethod           = "grey";
     Dirmethod        = "all";
     Tilesmethod          = "full";
+    usharpmethod          = "none";
     daubcoeffmethod          = "4_";
+    mergeL = 0;
+    mergeC = 0;
     rescon      = 0;
     resconH      = 0;
     reschro      = 0;
@@ -2591,6 +2594,10 @@ int ProcParams::save (Glib::ustring fname, Glib::ustring fname2, bool fnameAbsol
         keyFile.set_string  ("Wavelet", "TilesMethod",  wavelet.Tilesmethod);
     }
 
+    if (!pedited || pedited->wavelet.usharpmethod) {
+        keyFile.set_string  ("Wavelet", "usharpMethod",  wavelet.usharpmethod);
+    }
+
     if (!pedited || pedited->wavelet.daubcoeffmethod) {
         keyFile.set_string  ("Wavelet", "DaubMethod",  wavelet.daubcoeffmethod);
     }
@@ -2895,6 +2902,14 @@ int ProcParams::save (Glib::ustring fname, Glib::ustring fname2, bool fnameAbsol
 
     if (!pedited || pedited->wavelet.rescon) {
         keyFile.set_integer  ("Wavelet", "ResidualcontShadow",  wavelet.rescon);
+    }
+
+    if (!pedited || pedited->wavelet.mergeL) {
+        keyFile.set_integer  ("Wavelet", "mergeL",  wavelet.mergeL);
+    }
+
+    if (!pedited || pedited->wavelet.mergeC) {
+        keyFile.set_integer  ("Wavelet", "mergeC",  wavelet.mergeC);
     }
 
     if (!pedited || pedited->wavelet.resconH) {
@@ -5877,6 +5892,14 @@ int ProcParams::load (Glib::ustring fname, ParamsEdited* pedited)
                 }
             }
 
+            if (keyFile.has_key ("Wavelet", "usharpMethod"))     {
+                wavelet.usharpmethod  = keyFile.get_string  ("Wavelet", "usharpMethod");
+
+                if (pedited) {
+                    pedited->wavelet.usharpmethod = true;
+                }
+            }
+
             if (keyFile.has_key ("Wavelet", "DaubMethod"))     {
                 wavelet.daubcoeffmethod  = keyFile.get_string  ("Wavelet", "DaubMethod");
 
@@ -5962,6 +5985,22 @@ int ProcParams::load (Glib::ustring fname, ParamsEdited* pedited)
 
                 if (pedited) {
                     pedited->wavelet.rescon = true;
+                }
+            }
+
+            if (keyFile.has_key ("Wavelet", "mergeL"))     {
+                wavelet.mergeL  = keyFile.get_integer  ("Wavelet", "mergeL");
+
+                if (pedited) {
+                    pedited->wavelet.mergeL = true;
+                }
+            }
+
+            if (keyFile.has_key ("Wavelet", "mergeC"))     {
+                wavelet.mergeC  = keyFile.get_integer  ("Wavelet", "mergeC");
+
+                if (pedited) {
+                    pedited->wavelet.mergeC = true;
                 }
             }
 
@@ -7595,6 +7634,7 @@ bool ProcParams::operator== (const ProcParams& other)
         && wavelet.CLmethod == other.wavelet.CLmethod
         && wavelet.Backmethod == other.wavelet.Backmethod
         && wavelet.Tilesmethod == other.wavelet.Tilesmethod
+        && wavelet.usharpmethod == other.wavelet.usharpmethod
         && wavelet.daubcoeffmethod == other.wavelet.daubcoeffmethod
         && wavelet.CHmethod == other.wavelet.CHmethod
         && wavelet.CHSLmethod == other.wavelet.CHSLmethod
@@ -7605,6 +7645,8 @@ bool ProcParams::operator== (const ProcParams& other)
         && wavelet.HSmethod == other.wavelet.HSmethod
         && wavelet.Dirmethod == other.wavelet.Dirmethod
         && wavelet.rescon == other.wavelet.rescon
+        && wavelet.mergeL == other.wavelet.mergeC
+        && wavelet.mergeC == other.wavelet.mergeL
         && wavelet.resconH == other.wavelet.resconH
         && wavelet.reschro == other.wavelet.reschro
         && wavelet.tmrs == other.wavelet.tmrs

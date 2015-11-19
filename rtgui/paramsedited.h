@@ -542,6 +542,8 @@ class WaveletParamsEdited
 public:
     bool enabled;
     bool strength;
+    bool mergeL;
+    bool mergeC;
     bool balance;
     bool iter;
     bool median;
@@ -565,6 +567,7 @@ public:
     bool CLmethod;
     bool Backmethod;
     bool Tilesmethod;
+    bool usharpmethod;
     bool daubcoeffmethod;
     bool Dirmethod;
     bool rescon;

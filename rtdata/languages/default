@@ -1761,6 +1761,7 @@ TP_WAVELET_B0;Black
 TP_WAVELET_B1;Grey
 TP_WAVELET_B2;Residual
 TP_WAVELET_BACKGROUND;Background
+TP_WAVELET_BACK_TOOLTIP;Use 'black' in association with Process='below or equal' or 'onelevel' to generate an Unsharp mask with low radius\nUse 'Residual' in association with Process='above the level' to generate an Unsharp mash with very high radius
 TP_WAVELET_BACUR;Curve
 TP_WAVELET_BALANCE;Contrast balance d/v-h
 TP_WAVELET_BALANCE_TOOLTIP;Alters the balance between the wavelet directions: vertical-horizontal and diagonal.\nIf contrast, chroma or residual tone mapping are activated, the effect due to balance is amplified.
@@ -1909,6 +1910,13 @@ TP_WAVELET_TMSTRENGTH;Compression strength
 TP_WAVELET_TMSTRENGTH_TOOLTIP;Control the strength of tone mapping or contrast compression of the residual image. When the value is different from 0, the Strength and Gamma sliders of the Tone Mapping tool in the Exposure tab will become grayed out.
 TP_WAVELET_TMTYPE;Compression method
 TP_WAVELET_TON;Toning
+TP_WAVELET_USHARP;Unsharp method
+TP_WAVELET_USHARP_TOOLTIP;Generate a Mask and Unsharp image with 2 methods\n*Origin : the source file is the file before Wavelet\n*Wavelet : the source file is the file including wavelet\n*if background=black and process='below or equal' or 'one level' you generate an Unsharp mash with low 'radius'\n*if background=Residual and Process="Above the level" you generate an Unsharp mask with very high 'radius' 
+TP_WAVELET_USHARNONE;None
+TP_WAVELET_USHARORIG;Source origin
+TP_WAVELET_USHARWAVE;Source wavelet
+TP_WAVELET_MERGEL;Merge Luma
+TP_WAVELET_MERGEC;Merge Chroma
 TP_WBALANCE_AUTO;Auto
 TP_WBALANCE_CAMERA;Camera
 TP_WBALANCE_CLOUDY;Cloudy

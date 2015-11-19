@@ -154,12 +154,15 @@ struct cont_params {
     float edgampl;
     int neigh;
     bool lipp;
+    int mrgL;
+    int mrgC;
+    int usharm;
 };
 
 int wavNestedLevels = 1;
 
 
-SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int kall, const procparams::WaveletParams & waparams, const WavCurve & wavCLVCcurve, const WavOpacityCurveRG & waOpacityCurveRG, const WavOpacityCurveBY & waOpacityCurveBY,  const WavOpacityCurveW & waOpacityCurveW, const WavOpacityCurveWL & waOpacityCurveWL, LUTf &wavclCurve, bool wavcontlutili, int skip)
+SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int ush, int kall, const procparams::WaveletParams & waparams, const WavCurve & wavCLVCcurve, const WavOpacityCurveRG & waOpacityCurveRG, const WavOpacityCurveBY & waOpacityCurveBY,  const WavOpacityCurveW & waOpacityCurveW, const WavOpacityCurveWL & waOpacityCurveWL, LUTf &wavclCurve, bool wavcontlutili, int skip)
 
 
 {
@@ -180,6 +183,8 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
     struct cont_params cp;
     cp.avoi = params->wavelet.avoid;
 
+    
+    
     if(params->wavelet.Medgreinf == "more") {
         cp.reinforce = 1;
     }
@@ -206,13 +211,28 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
         cp.neigh = 1;
     }
 
+ //   if(ush==1) params->wavelet.CLmethod = "all";
+    
     cp.lipp = params->wavelet.lipst;
     cp.diag = params->wavelet.tmr;
     cp.balan = (float)params->wavelet.balance;
     cp.ite = params->wavelet.iter;
     cp.tonemap = false;
     cp.bam = false;
+    cp.mrgL = params->wavelet.mergeL; 
+    cp.mrgC = params->wavelet.mergeC; 
+    if(params->wavelet.usharpmethod == "none") {
+        cp.usharm = 0;
+    }
+    if(params->wavelet.usharpmethod == "orig") {
+        cp.usharm = 1;
+    }
+    if(params->wavelet.usharpmethod == "wave") {
+        cp.usharm = 2;
+    }
 
+
+   
     if(params->wavelet.tmrs == 0) {
         cp.tonemap = false;
     } else {

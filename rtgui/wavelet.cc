@@ -151,6 +151,7 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     backgroundLabel = Gtk::manage (new Gtk::Label (M("TP_WAVELET_BACKGROUND") + ":"));
     backgroundHBox->pack_start(*backgroundLabel, Gtk::PACK_SHRINK, 4);
     backgroundHBox->pack_start(*Backmethod);
+    Backmethod->set_tooltip_text (M("TP_WAVELET_BACK_TOOLTIP"));
 
     levdirMainHBox = Gtk::manage (new Gtk::HBox());
     CLmethod = Gtk::manage (new MyComboBoxText ());
@@ -190,6 +191,24 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     levdirSubHBox->pack_start(*Lmethod);
     levdirSubHBox->pack_start(*Dirmethod, Gtk::PACK_EXPAND_WIDGET, 2); // same, but 2 not 4?
 
+    usharpHBox = Gtk::manage (new Gtk::HBox());
+    usharpLabel = Gtk::manage (new Gtk::Label (M("TP_WAVELET_USHARP") + ":"));
+    //tilesizeLabel->set_alignment(Gtk::ALIGN_START);
+    usharpmethod = Gtk::manage (new MyComboBoxText ());
+    usharpmethod->append_text (M("TP_WAVELET_USHARNONE"));
+    usharpmethod->append_text (M("TP_WAVELET_USHARORIG"));
+    usharpmethod->append_text (M("TP_WAVELET_USHARWAVE"));
+    usharpmethodconn = usharpmethod->signal_changed().connect ( sigc::mem_fun(*this, &Wavelet::usharpmethodChanged) );
+    usharpmethod->set_tooltip_text (M("TP_WAVELET_USHARP_TOOLTIP"));
+    usharpHBox->pack_start(*usharpLabel, Gtk::PACK_SHRINK, 4);
+    usharpHBox->pack_start(*usharpmethod);
+
+    mergeL  = Gtk::manage (new Adjuster (M("TP_WAVELET_MERGEL"), -50, 100, 1, 0));
+    mergeL->setAdjusterListener (this);
+    mergeC  = Gtk::manage (new Adjuster (M("TP_WAVELET_MERGEC"), -50, 100, 1, 0));
+    mergeC->setAdjusterListener (this);
+
+
     settingsVBox->pack_start(*strength);
     settingsVBox->pack_start(*thres);
     settingsVBox->pack_start(*tilesizeHBox);
@@ -197,6 +216,13 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     settingsVBox->pack_start(*backgroundHBox);
     settingsVBox->pack_start(*levdirMainHBox);
     settingsVBox->pack_start(*levdirSubHBox);
+    settingsVBox->pack_start(*usharpHBox);
+    settingsVBox->pack_start(*mergeL);
+    settingsVBox->pack_start(*mergeC);
+
+
+    nextmergeL=mergeL->getValue();
+    nextmergeC=mergeC->getValue();
 
 // Contrast
     Gtk::VBox * levBox = Gtk::manage (new Gtk::VBox());
@@ -984,6 +1010,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
     CLmethodconn.block(true);
     Backmethodconn.block(true);
     Tilesmethodconn.block(true);
+    usharpmethodconn.block(true);
     daubcoeffmethodconn.block(true);
     Dirmethodconn.block(true);
     CHmethodconn.block(true);
@@ -1128,6 +1155,15 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
         Dirmethod->set_active (3);
     }
 
+    //usharpmethod
+    if (pp->wavelet.usharpmethod == "none") {
+        usharpmethod->set_active (0);
+    } else if (pp->wavelet.usharpmethod == "orig") {
+        usharpmethod->set_active (1);
+    } else if (pp->wavelet.usharpmethod == "wave") {
+        usharpmethod->set_active (2);
+    }
+
     int selectedLevel = atoi(pp->wavelet.Lmethod.data()) - 1;
     Lmethod->set_active (selectedLevel == -1 ? 4 : selectedLevel);
 
@@ -1227,6 +1263,10 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
     strength->setValue(pp->wavelet.strength);
     balance->setValue(pp->wavelet.balance);
     iter->setValue(pp->wavelet.iter);
+    mergeL->setValue(pp->wavelet.mergeL);
+    mergeC->setValue(pp->wavelet.mergeC);
+    nextmergeL=pp->wavelet.mergeL;
+    nextmergeC=pp->wavelet.mergeC;
 
     for (int i = 0; i < 9; i++) {
         correction[i]->setValue(pp->wavelet.c[i]);
@@ -1257,6 +1297,10 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
 
         if (!pedited->wavelet.Tilesmethod) {
             Tilesmethod->set_active_text(M("GENERAL_UNCHANGED"));
+        }
+
+        if (!pedited->wavelet.usharpmethod) {
+            usharpmethod->set_active_text(M("GENERAL_UNCHANGED"));
         }
 
         if (!pedited->wavelet.daubcoeffmethod) {
@@ -1369,6 +1413,8 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
         level1noise->setEditedState     (pedited->wavelet.level1noise ? Edited : UnEdited);
         level2noise->setEditedState     (pedited->wavelet.level2noise ? Edited : UnEdited);
         level3noise->setEditedState     (pedited->wavelet.level3noise ? Edited : UnEdited);
+        mergeL->setEditedState(pedited->wavelet.mergeL ? Edited : UnEdited);
+        mergeC->setEditedState(pedited->wavelet.mergeC ? Edited : UnEdited);
 
         for(int i = 0; i < 9; i++) {
             correction[i]->setEditedState (pedited->wavelet.c[i] ? Edited : UnEdited);
@@ -1445,6 +1491,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
     CLmethodconn.block(false);
     Backmethodconn.block(false);
     Tilesmethodconn.block(false);
+    usharpmethodconn.block(false);
     daubcoeffmethodconn.block(false);
     CHmethodconn.block(false);
     CHSLmethodconn.block(false);
@@ -1541,6 +1588,10 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
     pp->wavelet.satlev         = satlev->getValue<int> ();
     pp->wavelet.strength       = (int) strength->getValue();
     pp->wavelet.balance        = (int) balance->getValue();
+    pp->wavelet.mergeL       = (int) mergeL->getValue();
+    pp->wavelet.mergeC       = (int) mergeC->getValue();
+    nextmergeL = pp->wavelet.mergeL;
+    nextmergeC = pp->wavelet.mergeC;
 
     pp->wavelet.greenlow       = greenlow->getValue ();
     pp->wavelet.bluelow        = bluelow->getValue ();
@@ -1581,6 +1632,7 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
         pedited->wavelet.CLmethod        = CLmethod->get_active_text() != M("GENERAL_UNCHANGED");
         pedited->wavelet.Backmethod      = Backmethod->get_active_text() != M("GENERAL_UNCHANGED");
         pedited->wavelet.Tilesmethod     = Tilesmethod->get_active_text() != M("GENERAL_UNCHANGED");
+        pedited->wavelet.usharpmethod     = usharpmethod->get_active_text() != M("GENERAL_UNCHANGED");
         pedited->wavelet.daubcoeffmethod = daubcoeffmethod->get_active_text() != M("GENERAL_UNCHANGED");
         pedited->wavelet.CHmethod        = CHmethod->get_active_text() != M("GENERAL_UNCHANGED");
         pedited->wavelet.CHSLmethod      = CHSLmethod->get_active_text() != M("GENERAL_UNCHANGED");
@@ -1633,6 +1685,8 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
         pedited->wavelet.pastlev         = pastlev->getEditedState ();
         pedited->wavelet.satlev          = satlev->getEditedState ();
         pedited->wavelet.strength        = strength->getEditedState ();
+        pedited->wavelet.mergeL        = mergeL->getEditedState ();
+        pedited->wavelet.mergeC        = mergeC->getEditedState ();
         pedited->wavelet.greenlow        = greenlow->getEditedState ();
         pedited->wavelet.bluelow         = bluelow->getEditedState ();
         pedited->wavelet.greenmed        = greenmed->getEditedState ();
@@ -1767,6 +1821,14 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
         pp->wavelet.Dirmethod = "all";
     }
 
+    if (usharpmethod->get_active_row_number() == 0) {
+        pp->wavelet.usharpmethod = "none";
+    } else if (usharpmethod->get_active_row_number() == 1) {
+        pp->wavelet.usharpmethod = "orig";
+    } else if (usharpmethod->get_active_row_number() == 2) {
+        pp->wavelet.usharpmethod = "wave";
+    }
+
     char lMethod[3]; // one additional char to avoid buffer overrun if someone increases number of levels > 9
     sprintf(lMethod, "%d", Lmethod->get_active_row_number() + 1);
     pp->wavelet.Lmethod = lMethod;
@@ -1808,6 +1870,8 @@ void Wavelet::setDefaults (const ProcParams* defParams, const ParamsEdited* pedi
     }
 
     strength->setDefault(defParams->wavelet.strength );
+    mergeL->setDefault(defParams->wavelet.mergeL );
+    mergeC->setDefault(defParams->wavelet.mergeC );
     balance->setDefault(defParams->wavelet.balance );
     iter->setDefault(defParams->wavelet.iter );
     rescon->setDefault (defParams->wavelet.rescon);
@@ -1892,6 +1956,8 @@ void Wavelet::setDefaults (const ProcParams* defParams, const ParamsEdited* pedi
         satlev->setDefaultEditedState(pedited->wavelet.satlev ? Edited : UnEdited);
         edgcont->setDefaultEditedState(pedited->wavelet.edgcont ? Edited : UnEdited);
         strength->setDefaultEditedState(pedited->wavelet.strength ? Edited : UnEdited);
+        mergeL->setDefaultEditedState(pedited->wavelet.mergeL ? Edited : UnEdited);
+        mergeC->setDefaultEditedState(pedited->wavelet.mergeC ? Edited : UnEdited);
         balance->setDefaultEditedState(pedited->wavelet.balance ? Edited : UnEdited);
         iter->setDefaultEditedState(pedited->wavelet.iter ? Edited : UnEdited);
         level0noise->setDefaultEditedState(pedited->wavelet.level0noise ? Edited : UnEdited);
@@ -1943,6 +2009,8 @@ void Wavelet::setDefaults (const ProcParams* defParams, const ParamsEdited* pedi
         pastlev->setDefaultEditedState (Irrelevant);
         satlev->setDefaultEditedState (Irrelevant);
         strength->setDefaultEditedState (Irrelevant);
+        mergeL->setDefaultEditedState (Irrelevant);
+        mergeC->setDefaultEditedState (Irrelevant);
         balance->setDefaultEditedState (Irrelevant);
         iter->setDefaultEditedState (Irrelevant);
 
@@ -2229,23 +2297,47 @@ void Wavelet::BackmethodChanged()
 
 void Wavelet::CLmethodUpdateUI()
 {
+
     if (!batchMode) {
         if (CLmethod->get_active_row_number() == 0) {
             CLmethod->set_active (0);
             Lmethod->set_sensitive(true);
             Dirmethod->set_sensitive(true);
+            usharpmethod->set_sensitive(true);
+            mergeL->setValue (nextmergeL);
+            mergeC->setValue (nextmergeC);
+            mergeL->set_sensitive(true);
+            mergeC->set_sensitive(true);
         } else if (CLmethod->get_active_row_number() == 1) {
             CLmethod->set_active (1);
             Lmethod->set_sensitive(true);
             Dirmethod->set_sensitive(true);
+            usharpmethod->set_sensitive(true);
+            mergeL->setValue (nextmergeL);
+            mergeC->setValue (nextmergeC);
+            mergeL->set_sensitive(true);
+            mergeC->set_sensitive(true);
         } else if (CLmethod->get_active_row_number() == 2) {
             CLmethod->set_active (2);
             Lmethod->set_sensitive(true);
             Dirmethod->set_sensitive(true);
+            usharpmethod->set_sensitive(true);
+            mergeL->set_sensitive(true);
+            mergeC->set_sensitive(true);
+            mergeL->setValue (nextmergeL);
+            mergeC->setValue (nextmergeC);
         } else if (CLmethod->get_active_row_number() == 3) {
             CLmethod->set_active (3);
             Lmethod->set_sensitive(false);
             Dirmethod->set_sensitive(false);
+            usharpmethod->set_sensitive(false);
+            nextmergeL = mergeL->getValue();
+            nextmergeC = mergeC->getValue();
+            nextL = mergeL->getValue();
+            //  mergeL->setValue (0);
+            //  mergeC->setValue (0);
+            mergeL->set_sensitive(false);
+            mergeC->set_sensitive(false);
         }
     }
 }
@@ -2268,9 +2360,26 @@ void Wavelet::TilesmethodUpdateUI() {
 
 void Wavelet::TilesmethodChanged()
 {
+
     //TilesmethodUpdateUI();
     if (listener && (multiImage || getEnabled()) ) {
         listener->panelChanged (EvWavTilesmet, Tilesmethod->get_active_text ());
+    }
+}
+
+void Wavelet::usharpmethodChanged()
+{
+    if (usharpmethod->get_active_row_number() == 0) {
+        mergeL->hide();
+        mergeC->hide();
+    }
+    else {
+        mergeL->show();
+        mergeC->show();
+    }
+
+    if (listener && (multiImage || getEnabled()) ) {
+        listener->panelChanged (EvWavusharpmet, usharpmethod->get_active_text ());
     }
 }
 
@@ -2335,6 +2444,7 @@ void Wavelet::setBatchMode (bool batchMode)
     CLmethod->append_text (M("GENERAL_UNCHANGED"));
     Backmethod->append_text (M("GENERAL_UNCHANGED"));
     Tilesmethod->append_text (M("GENERAL_UNCHANGED"));
+    usharpmethod->append_text (M("GENERAL_UNCHANGED"));
     daubcoeffmethod->append_text (M("GENERAL_UNCHANGED"));
     CHmethod->append_text (M("GENERAL_UNCHANGED"));
     Medgreinf->append_text (M("GENERAL_UNCHANGED"));
@@ -2384,6 +2494,8 @@ void Wavelet::setBatchMode (bool batchMode)
     satlev->showEditedCB ();
     edgcont->showEditedCB ();
     strength->showEditedCB ();
+    mergeL->showEditedCB ();
+    mergeC->showEditedCB ();
     balance->showEditedCB ();
     iter->showEditedCB ();
     level0noise->showEditedCB ();
@@ -2503,6 +2615,10 @@ void Wavelet::adjusterChanged (Adjuster* a, double newval)
             listener->panelChanged (EvWavSkin, skinprotect->getTextValue());
         } else if (a == strength) {
             listener->panelChanged (EvWavStrength, strength->getTextValue());
+        } else if (a == mergeL) {
+            listener->panelChanged (EvWavmergeL, mergeL->getTextValue());
+        } else if (a == mergeC) {
+            listener->panelChanged (EvWavmergeC, mergeC->getTextValue());
         } else if (a == balance) {
             listener->panelChanged (EvWavbalance, balance->getTextValue());
         } else if (a == iter) {

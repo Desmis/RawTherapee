@@ -928,8 +928,73 @@ void Crop::update (int todo)
             LUTu dummy;
 
             params.wavelet.getCurves(wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW, waOpacityCurveWL);
+            LabImage *unshar;
+            Glib::ustring provis;
+            if(WaveParams.usharpmethod != "none"  && WaveParams.CLmethod != "all") {
+                unshar = new LabImage (labnCrop->W, labnCrop->H);
 
-            parent->ipf.ip_wavelet(labnCrop, labnCrop, kall, WaveParams, wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW, waOpacityCurveWL, parent->wavclCurve, wavcontlutili, skip);
+                if(WaveParams.usharpmethod == "orig") {
+#ifdef _OPENMP
+                    #pragma omp parallel for
+#endif
+                    for (int x = 0; x < labnCrop->H; x++)
+                        for (int y = 0; y < labnCrop->W; y++) {
+                            unshar->L[x][y]=labnCrop->L[x][y];
+                            unshar->a[x][y]=labnCrop->a[x][y];
+                            unshar->b[x][y]=labnCrop->b[x][y];
+                        }
+                }  else if(WaveParams.usharpmethod == "wave") {
+                    provis = params.wavelet.CLmethod;
+                    params.wavelet.CLmethod = "all";
+
+                    parent->ipf.ip_wavelet(labnCrop, labnCrop, 1, kall, WaveParams, wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW, waOpacityCurveWL, parent->wavclCurve, wavcontlutili, skip);
+#ifdef _OPENMP
+                    #pragma omp parallel for
+#endif
+                    for (int x = 0; x < labnCrop->H; x++)
+                        for (int y = 0; y < labnCrop->W; y++) {
+                            unshar->L[x][y]=labnCrop->L[x][y];
+                            unshar->a[x][y]=labnCrop->a[x][y];
+                            unshar->b[x][y]=labnCrop->b[x][y];
+                        }
+                    params.wavelet.CLmethod = provis;
+                }
+
+            }
+
+            parent->ipf.ip_wavelet(labnCrop, labnCrop, 0, kall, WaveParams, wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW, waOpacityCurveWL, parent->wavclCurve, wavcontlutili, skip);
+            if(WaveParams.usharpmethod != "none"  && WaveParams.CLmethod != "all") {
+                float mL = (float) (WaveParams.mergeL/100.f);
+                float mC = (float) (WaveParams.mergeC/100.f);
+                float mL0;
+                float mC0;
+
+                if((WaveParams.CLmethod == "one" || WaveParams.CLmethod == "inf")  && WaveParams.Backmethod == "black") {
+                    mL0=mC0=0.f;
+                    mL=-mL;
+                    mC=-mC;
+                }
+                else if(WaveParams.CLmethod == "sup" && WaveParams.Backmethod == "resid") {
+                    mL0=mL;
+                    mC0=mC;
+                }
+                else {
+                    mL0=mL=mC0=mC=0.f;
+                }
+#ifdef _OPENMP
+                #pragma omp parallel for
+#endif
+                for (int x = 0; x < labnCrop->H; x++)
+                    for (int y = 0; y < labnCrop->W; y++) {
+                        labnCrop->L[x][y]=(1.f + mL0)*(unshar->L[x][y]) - mL*labnCrop->L[x][y];
+                        labnCrop->a[x][y]=(1.f + mC0)*(unshar->a[x][y]) - mC*labnCrop->a[x][y];
+                        labnCrop->b[x][y]=(1.f + mC0)*(unshar->b[x][y]) - mC*labnCrop->b[x][y];
+                    }
+                delete unshar;
+                unshar    = NULL;
+
+            }
+
         }
 
         //     }

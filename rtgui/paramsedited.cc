@@ -399,6 +399,9 @@ void ParamsEdited::set (bool v)
     wavelet.CLmethod = v;
     wavelet.Backmethod = v;
     wavelet.Tilesmethod = v;
+    wavelet.mergeL = v;
+    wavelet.mergeC = v;
+    wavelet.usharpmethod = v;
     wavelet.daubcoeffmethod = v;
     wavelet.CHmethod = v;
     wavelet.CHSLmethod = v;
@@ -856,6 +859,8 @@ void ParamsEdited::initFrom (const std::vector<rtengine::procparams::ProcParams>
         raw.exPreser = raw.exPreser && p.raw.preser == other.raw.preser;
         wavelet.enabled = wavelet.enabled && p.wavelet.enabled == other.wavelet.enabled;
         wavelet.strength = wavelet.strength && p.wavelet.strength == other.wavelet.strength;
+        wavelet.mergeL = wavelet.mergeL && p.wavelet.mergeL == other.wavelet.mergeL;
+        wavelet.mergeC = wavelet.mergeC && p.wavelet.mergeC == other.wavelet.mergeC;
         wavelet.balance = wavelet.balance && p.wavelet.balance == other.wavelet.balance;
         wavelet.iter = wavelet.iter && p.wavelet.iter == other.wavelet.iter;
         wavelet.median = wavelet.median && p.wavelet.median == other.wavelet.median;
@@ -876,6 +881,7 @@ void ParamsEdited::initFrom (const std::vector<rtengine::procparams::ProcParams>
         wavelet.CLmethod = wavelet.CLmethod && p.wavelet.CLmethod == other.wavelet.CLmethod;
         wavelet.Backmethod = wavelet.Backmethod && p.wavelet.Backmethod == other.wavelet.Backmethod;
         wavelet.Tilesmethod = wavelet.Tilesmethod && p.wavelet.Tilesmethod == other.wavelet.Tilesmethod;
+        wavelet.usharpmethod = wavelet.usharpmethod && p.wavelet.usharpmethod == other.wavelet.usharpmethod;
         wavelet.daubcoeffmethod = wavelet.daubcoeffmethod && p.wavelet.daubcoeffmethod == other.wavelet.daubcoeffmethod;
         wavelet.CHmethod = wavelet.CHmethod && p.wavelet.CHmethod == other.wavelet.CHmethod;
         wavelet.CHSLmethod = wavelet.CHSLmethod && p.wavelet.CHSLmethod == other.wavelet.CHSLmethod;
@@ -2278,6 +2284,14 @@ void ParamsEdited::combine (rtengine::procparams::ProcParams& toEdit, const rten
         toEdit.wavelet.strength   = mods.wavelet.strength;
     }
 
+    if (wavelet.mergeL) {
+        toEdit.wavelet.mergeL   = mods.wavelet.mergeL;
+    }
+
+    if (wavelet.mergeC) {
+        toEdit.wavelet.mergeC   = mods.wavelet.mergeC;
+    }
+
     if (wavelet.balance) {
         toEdit.wavelet.balance   = mods.wavelet.balance;
     }
@@ -2356,6 +2370,10 @@ void ParamsEdited::combine (rtengine::procparams::ProcParams& toEdit, const rten
 
     if (wavelet.Tilesmethod) {
         toEdit.wavelet.Tilesmethod        = mods.wavelet.Tilesmethod;
+    }
+
+    if (wavelet.usharpmethod) {
+        toEdit.wavelet.usharpmethod        = mods.wavelet.usharpmethod;
     }
 
     if (wavelet.daubcoeffmethod) {

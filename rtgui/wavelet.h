@@ -96,6 +96,9 @@ protected:
     Adjuster* edgval;
     Adjuster* edgthresh;
     Adjuster* strength;
+    Adjuster* mergeL;
+    Adjuster* mergeC;
+
     Adjuster* balance;
     Adjuster* iter;
     Adjuster* greenlow;
@@ -146,6 +149,8 @@ protected:
     sigc::connection  Backmethodconn;
     MyComboBoxText*   Tilesmethod;
     sigc::connection  Tilesmethodconn;
+    MyComboBoxText*   usharpmethod;
+    sigc::connection  usharpmethodconn;
     MyComboBoxText*   daubcoeffmethod;
     sigc::connection  daubcoeffmethodconn;
     MyComboBoxText*   Dirmethod;
@@ -202,6 +207,7 @@ protected:
     Gtk::HBox* levdirMainHBox;
     Gtk::HBox* levdirSubHBox;
     Gtk::HBox* tilesizeHBox;
+    Gtk::HBox* usharpHBox;
 
     Gtk::HBox* ctboxFI;
     Gtk::HBox* ctboxNP;
@@ -212,6 +218,7 @@ protected:
     Gtk::VBox* settingsVBox;
     Gtk::VBox* contrastSHVBox;
     Gtk::Label* tilesizeLabel;
+    Gtk::Label* usharpLabel;
     Gtk::Label* levdirMainLabel;
     Gtk::Label* backgroundLabel;
     Gtk::Button* neutral;
@@ -231,6 +238,11 @@ protected:
     double br;
     double tl;
     double bl;
+
+    double nextmergeL;
+    double nextmergeC;
+    double nextL;
+    double nextC;
 
 public:
     Wavelet ();
@@ -269,6 +281,7 @@ private:
     void MedgreinfChanged ();
     void TMmethodChanged ();
     void TilesmethodChanged ();
+    void usharpmethodChanged ();
     void avoidToggled ();
     void cbenabToggled ();
     void contrastMinusPressed ();

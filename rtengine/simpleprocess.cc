@@ -987,8 +987,77 @@ IImage16* processImage (ProcessingJob* pjob, int& errorCode, ProgressListener* p
     CurveFactory::curveWavContL(wavcontlutili, params.wavelet.wavclCurve, wavclCurve,/* hist16C, dummy,*/ 1);
 
     if((params.wavelet.enabled)) {
-        ipf.ip_wavelet(labView, labView, kall, WaveParams, wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW,  waOpacityCurveWL, wavclCurve, wavcontlutili, 1);
+        LabImage *unshar;
+        Glib::ustring provis;
+
+        if(WaveParams.usharpmethod != "none"  && WaveParams.CLmethod != "all") {
+            unshar = new LabImage (fw, fh);
+            if(WaveParams.usharpmethod == "orig") {
+#ifdef _OPENMP
+                #pragma omp parallel for
+#endif
+                for (int x = 0; x < fh; x++)
+                    for (int y = 0; y < fw; y++) {
+                        unshar->L[x][y]=labView->L[x][y];
+                        unshar->a[x][y]=labView->a[x][y];
+                        unshar->b[x][y]=labView->b[x][y];
+                    }
+            } else if(WaveParams.usharpmethod == "wave") {
+                provis = params.wavelet.CLmethod;
+                params.wavelet.CLmethod = "all";
+                ipf.ip_wavelet(labView, labView, 1, kall, WaveParams, wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW,  waOpacityCurveWL, wavclCurve, wavcontlutili, 1);
+#ifdef _OPENMP
+                #pragma omp parallel for
+#endif
+                for (int x = 0; x < fh; x++)
+                    for (int y = 0; y < fw; y++) {
+                        unshar->L[x][y]=labView->L[x][y];
+                        unshar->a[x][y]=labView->a[x][y];
+                        unshar->b[x][y]=labView->b[x][y];
+                    }
+                params.wavelet.CLmethod = provis;
+
+            }
+
+        }
+        ipf.ip_wavelet(labView, labView, 1, kall, WaveParams, wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW,  waOpacityCurveWL, wavclCurve, wavcontlutili, 1);
+
+        if(WaveParams.usharpmethod != "none"  && WaveParams.CLmethod != "all") {
+            float mL = (float) (WaveParams.mergeL/100.f);
+            float mC = (float) (WaveParams.mergeC/100.f);
+            float mL0;
+            float mC0;
+
+            if((WaveParams.CLmethod == "one" || WaveParams.CLmethod == "inf")  && WaveParams.Backmethod == "black") {
+                mL0=mC0=0.f;
+                mL=-mL;
+                mC=-mC;
+            }
+            else if(WaveParams.CLmethod == "sup" && WaveParams.Backmethod == "resid") {
+                mL0=mL;
+                mC0=mC;
+            }
+            else {
+                mL0=mL=mC0=mC=0.f;
+            }
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for (int x = 0; x < fh; x++)
+                for (int y = 0; y < fw; y++) {
+                    labView->L[x][y]=(1.f + mL0)*(unshar->L[x][y]) - mL*labView->L[x][y];
+                    labView->a[x][y]=(1.f + mC0)*(unshar->a[x][y]) - mC*labView->a[x][y];
+                    labView->b[x][y]=(1.f + mC0)*(unshar->b[x][y]) - mC*labView->b[x][y];
+                }
+            delete unshar;
+            unshar    = NULL;
+
+        }
+
     }
+
+
+
 
     wavCLVCurve.Reset();
 

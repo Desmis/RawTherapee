@@ -995,6 +995,9 @@ public:
     bool avoid;
     bool tmr;
     int strength;
+    int mergeL;
+    int mergeC;
+
     int balance;
     int iter;
     bool expcontrast;
@@ -1011,6 +1014,7 @@ public:
     Glib::ustring CLmethod;
     Glib::ustring Backmethod;
     Glib::ustring Tilesmethod;
+    Glib::ustring usharpmethod;
     Glib::ustring daubcoeffmethod;
     Glib::ustring CHmethod;
     Glib::ustring Medgreinf;

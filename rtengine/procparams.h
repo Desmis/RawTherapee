@@ -1005,6 +1005,7 @@ public:
     double limd;
     double str;
     double neigh;
+    double chrrt;
 
     int balance;
     int iter;

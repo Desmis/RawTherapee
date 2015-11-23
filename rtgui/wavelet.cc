@@ -836,6 +836,8 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     vart->setAdjusterListener (this);
     limd  = Gtk::manage (new Adjuster (M("TP_WAVELET_LIMD"), 2, 100, 1, 8));
     limd->setAdjusterListener (this);
+    chrrt  = Gtk::manage (new Adjuster (M("TP_WAVELET_CHRRT"), 0, 100, 1, 0));
+    chrrt->setAdjusterListener (this);
 
     // <Retinex Transmission curve
     CCWcurveEditorT = new CurveEditorGroup (options.lastWaveletCurvesDir, M("TP_RETINEX_TRANSMISSION"));
@@ -867,6 +869,7 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     transLabels2->show ();
 
     resBox->pack_start(*str);
+    resBox->pack_start(*chrrt);
     resBox->pack_start(*neigh);
     resBox->pack_start(*vart);
     resBox->pack_start(*gain);
@@ -1450,6 +1453,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
     neigh->setValue(pp->wavelet.neigh);
     vart->setValue(pp->wavelet.vart);
     limd->setValue(pp->wavelet.limd);
+    chrrt->setValue(pp->wavelet.chrrt);
 
     for (int i = 0; i < 9; i++) {
         correction[i]->setValue(pp->wavelet.c[i]);
@@ -1609,6 +1613,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
         neigh->setEditedState(pedited->wavelet.neigh ? Edited : UnEdited);
         vart->setEditedState(pedited->wavelet.vart ? Edited : UnEdited);
         limd->setEditedState(pedited->wavelet.limd ? Edited : UnEdited);
+        chrrt->setEditedState(pedited->wavelet.chrrt ? Edited : UnEdited);
 
         for(int i = 0; i < 9; i++) {
             correction[i]->setEditedState (pedited->wavelet.c[i] ? Edited : UnEdited);
@@ -1797,6 +1802,7 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
     pp->wavelet.neigh       = neigh->getValue();
     pp->wavelet.vart       = vart->getValue();
     pp->wavelet.limd       = limd->getValue();
+    pp->wavelet.chrrt       = chrrt->getValue();
 
     pp->wavelet.greenlow       = greenlow->getValue ();
     pp->wavelet.bluelow        = bluelow->getValue ();
@@ -1898,6 +1904,7 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
         pedited->wavelet.offs        = offs->getEditedState ();
         pedited->wavelet.vart        = vart->getEditedState ();
         pedited->wavelet.limd        = limd->getEditedState ();
+        pedited->wavelet.chrrt        = chrrt->getEditedState ();
         pedited->wavelet.str        = str->getEditedState ();
         pedited->wavelet.neigh        = neigh->getEditedState ();
         pedited->wavelet.greenlow        = greenlow->getEditedState ();
@@ -2065,6 +2072,7 @@ void Wavelet::retinexMethodChanged()
         str->hide();
         vart->hide();
         limd->hide();
+        chrrt->hide();
         neigh->hide();
         offs->hide();
         CCWcurveEditorT->hide();
@@ -2078,6 +2086,7 @@ void Wavelet::retinexMethodChanged()
         str->show();
         vart->show();
         limd->show();
+        chrrt->show();
         neigh->show();
         offs->show();
         CCWcurveEditorT->show();
@@ -2139,6 +2148,7 @@ void Wavelet::setDefaults (const ProcParams* defParams, const ParamsEdited* pedi
     offs->setDefault(defParams->wavelet.offs );
     vart->setDefault(defParams->wavelet.vart );
     limd->setDefault(defParams->wavelet.limd );
+    chrrt->setDefault(defParams->wavelet.chrrt );
     str->setDefault(defParams->wavelet.str );
     neigh->setDefault(defParams->wavelet.neigh );
     balance->setDefault(defParams->wavelet.balance );
@@ -2231,6 +2241,7 @@ void Wavelet::setDefaults (const ProcParams* defParams, const ParamsEdited* pedi
         offs->setDefaultEditedState(pedited->wavelet.offs ? Edited : UnEdited);
         vart->setDefaultEditedState(pedited->wavelet.vart ? Edited : UnEdited);
         limd->setDefaultEditedState(pedited->wavelet.limd ? Edited : UnEdited);
+        chrrt->setDefaultEditedState(pedited->wavelet.chrrt ? Edited : UnEdited);
         str->setDefaultEditedState(pedited->wavelet.str ? Edited : UnEdited);
         neigh->setDefaultEditedState(pedited->wavelet.neigh ? Edited : UnEdited);
         balance->setDefaultEditedState(pedited->wavelet.balance ? Edited : UnEdited);
@@ -2290,6 +2301,7 @@ void Wavelet::setDefaults (const ProcParams* defParams, const ParamsEdited* pedi
         offs->setDefaultEditedState (Irrelevant);
         vart->setDefaultEditedState (Irrelevant);
         limd->setDefaultEditedState (Irrelevant);
+        chrrt->setDefaultEditedState (Irrelevant);
         str->setDefaultEditedState (Irrelevant);
         neigh->setDefaultEditedState (Irrelevant);
         balance->setDefaultEditedState (Irrelevant);
@@ -2782,6 +2794,7 @@ void Wavelet::setBatchMode (bool batchMode)
     offs->showEditedCB ();
     vart->showEditedCB ();
     limd->showEditedCB ();
+    chrrt->showEditedCB ();
     str->showEditedCB ();
     neigh->showEditedCB ();
     balance->showEditedCB ();
@@ -2915,6 +2928,8 @@ void Wavelet::adjusterChanged (Adjuster* a, double newval)
             listener->panelChanged (EvWavvart, vart->getTextValue());
         } else if (a == limd) {
             listener->panelChanged (EvWavlimd, limd->getTextValue());
+        } else if (a == chrrt) {
+            listener->panelChanged (EvWavchrrt, chrrt->getTextValue());
         } else if (a == str) {
             listener->panelChanged (EvWavstr, str->getTextValue());
         } else if (a == neigh) {

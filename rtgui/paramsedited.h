@@ -548,6 +548,7 @@ public:
     bool offs;
     bool vart;
     bool limd;
+    bool chrrt;
     bool str;
     bool neigh;
     bool balance;

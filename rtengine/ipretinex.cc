@@ -552,7 +552,7 @@ void RawImageSource::MSR(float** luminance, float** originalLuminance, float **e
 }
 
 
-void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float **ushar, float **lum, int width, int height, WaveletParams deh, const WavretiCurve & wavRETCcurve, int skip, /* const RetinextransmissionCurve & dehatransmissionCurve,*/ float &minCD, float &maxCD, float &mini, float &maxi, float &Tmean, float &Tsigma, float &Tmin, float &Tmax)
+void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float **ushar, float **lum, int width, int height, WaveletParams deh, const WavretiCurve & wavRETCcurve, int skip, int chrome, float &minCD, float &maxCD, float &mini, float &maxi, float &Tmean, float &Tsigma, float &Tmin, float &Tmax)
 {
     bool py = true;
     if (py) {//enabled
@@ -564,6 +564,7 @@ void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float
         float gain2 = (float) deh.gain / 100.f;
         //gain2 = useHslLin ? gain2 * 0.5f : gain2;
         float offse =(float) deh.offs;
+        float chrT = deh.chrrt/100.f;
         int scal ;
         scal = 3;//disabled scal
         int nei = (int) 2.8f * deh.neigh; //def = 140
@@ -837,9 +838,15 @@ void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float
                     if(cd < cdmin) {
                         cdmin = cd;
                     }
-
-                    float str = strength;
-                    luminance[i][j] = clipretinex( cd, 0.f, 32768.f ) * str + (1.f - str) * originalLuminance[i][j];
+                    float str;
+                    float maxclip = 32768.f;
+                    if(chrome==0) str=strength;
+                    else {
+                        str=strength*(chrT);
+                        maxclip = 50000.f;
+                    }
+                    //str = strength;
+                    luminance[i][j] = clipretinex( cd, 0.f, maxclip ) * str + (1.f - str) * originalLuminance[i][j];
                 }
 
 #ifdef _OPENMP

@@ -711,6 +711,7 @@ void WaveletParams::setDefaults()
     neigh = 50;
     vart = 200;
     limd = 10;
+    chrrt = 0;
 
     rescon      = 0;
     resconH      = 0;
@@ -2962,6 +2963,10 @@ int ProcParams::save (Glib::ustring fname, Glib::ustring fname2, bool fnameAbsol
 
     if (!pedited || pedited->wavelet.limd) {
         keyFile.set_double  ("Wavelet", "limd",  wavelet.limd);
+    }
+
+    if (!pedited || pedited->wavelet.chrrt) {
+        keyFile.set_double  ("Wavelet", "chrrt",  wavelet.chrrt);
     }
 
     if (!pedited || pedited->wavelet.str) {
@@ -6105,6 +6110,14 @@ int ProcParams::load (Glib::ustring fname, ParamsEdited* pedited)
                 }
             }
 
+            if (keyFile.has_key ("Wavelet", "chrrt"))     {
+                wavelet.chrrt  = keyFile.get_double  ("Wavelet", "chrrt");
+
+                if (pedited) {
+                    pedited->wavelet.chrrt = true;
+                }
+            }
+
             if (keyFile.has_key ("Wavelet", "str"))     {
                 wavelet.str  = keyFile.get_double  ("Wavelet", "str");
 
@@ -7777,6 +7790,7 @@ bool ProcParams::operator== (const ProcParams& other)
         && wavelet.offs == other.wavelet.offs
         && wavelet.vart == other.wavelet.vart
         && wavelet.limd == other.wavelet.limd
+        && wavelet.chrrt == other.wavelet.chrrt
         && wavelet.str == other.wavelet.str
         && wavelet.neigh == other.wavelet.neigh
         && wavelet.resconH == other.wavelet.resconH

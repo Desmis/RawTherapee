@@ -107,6 +107,7 @@ protected:
     Adjuster* neigh;
     Adjuster* vart;
     Adjuster* limd;
+    Adjuster* chrrt;
 
     Adjuster* balance;
     Adjuster* iter;

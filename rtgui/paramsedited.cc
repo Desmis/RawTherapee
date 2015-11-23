@@ -406,6 +406,7 @@ void ParamsEdited::set (bool v)
     wavelet.offs = v;
     wavelet.vart = v;
     wavelet.limd = v;
+    wavelet.chrrt = v;
     wavelet.str = v;
     wavelet.neigh = v;
     wavelet.usharpmethod = v;
@@ -873,6 +874,7 @@ void ParamsEdited::initFrom (const std::vector<rtengine::procparams::ProcParams>
         wavelet.offs = wavelet.offs && p.wavelet.offs == other.wavelet.offs;
         wavelet.vart = wavelet.vart && p.wavelet.vart == other.wavelet.vart;
         wavelet.limd = wavelet.limd && p.wavelet.limd == other.wavelet.limd;
+        wavelet.chrrt = wavelet.chrrt && p.wavelet.chrrt == other.wavelet.chrrt;
         wavelet.str = wavelet.str && p.wavelet.str == other.wavelet.str;
         wavelet.neigh = wavelet.neigh && p.wavelet.neigh == other.wavelet.neigh;
         wavelet.balance = wavelet.balance && p.wavelet.balance == other.wavelet.balance;
@@ -2322,6 +2324,10 @@ void ParamsEdited::combine (rtengine::procparams::ProcParams& toEdit, const rten
 
     if (wavelet.limd) {
         toEdit.wavelet.limd   = mods.wavelet.limd;
+    }
+
+    if (wavelet.chrrt) {
+        toEdit.wavelet.chrrt   = mods.wavelet.chrrt;
     }
 
     if (wavelet.str) {

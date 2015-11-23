@@ -665,6 +665,8 @@ HISTORY_MSG_432;W - Retinex - Strength
 HISTORY_MSG_433;W - Retinex - Radius
 HISTORY_MSG_434;W - Retinex - Contrast
 HISTORY_MSG_436;W - Retinex - Method
+HISTORY_MSG_437;W - Retinex - Tran curve
+HISTORY_MSG_438;W - Retinex - Chroma
 HISTORY_NEWSNAPSHOT;Add
 HISTORY_NEWSNAPSHOT_TOOLTIP;Shortcut: <b>Alt-s</b>
 HISTORY_SNAPSHOTS;Snapshots
@@ -1899,6 +1901,7 @@ TP_WAVE_NONE;None
 TP_WAVRETI_METHOD;Retinex method
 TP_WAVRETI_METHOD_TOOLTIP;Low = Reinforce low light,\nUniform = Equalize action,\nHigh = Reinforce high light.
 TP_WAVELET_STR;Strength
+TP_WAVELET_CHRRT;Chroma
 TP_WAVELET_NEIGH;Radius
 TP_WAVELET_VART;Contrast
 TP_WAVELET_GAIN;Gain

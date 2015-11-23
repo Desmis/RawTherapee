@@ -40,6 +40,7 @@ protected:
     CurveEditorGroup* curveEditorG;
 
     CurveEditorGroup* CCWcurveEditorG;
+    CurveEditorGroup* CCWcurveEditorT;
     CurveEditorGroup* curveEditorRES;
     CurveEditorGroup* curveEditorGAM;
     Gtk::HSeparator* colorSep;
@@ -47,6 +48,7 @@ protected:
     Gtk::HSeparator* separatorCB;
     Gtk::HSeparator* separatorNeutral;
     Gtk::HSeparator* separatoredge;
+    Gtk::HSeparator* separatorRT;
 
     CurveEditorGroup* opaCurveEditorG;
     FlatCurveEditor* opacityShapeRG;
@@ -62,6 +64,7 @@ protected:
     Gtk::VBox* chanMixerBox;
 
     FlatCurveEditor* ccshape;
+    FlatCurveEditor* cTshape;
     Gtk::CheckButton * display;
     Gtk::CheckButton * displaylevel;
     Gtk::CheckButton * displaychro;
@@ -98,6 +101,12 @@ protected:
     Adjuster* strength;
     Adjuster* mergeL;
     Adjuster* mergeC;
+    Adjuster* gain;
+    Adjuster* offs;
+    Adjuster* str;
+    Adjuster* neigh;
+    Adjuster* vart;
+    Adjuster* limd;
 
     Adjuster* balance;
     Adjuster* iter;
@@ -173,6 +182,22 @@ protected:
     Gtk::Frame *chanMixerShadowsFrame;
     Gtk::Frame *dFrame;
 
+    MyComboBoxText*   retinexMethod;
+    Gtk::Label* labmdh;
+    Gtk::HBox* dhbox;
+
+    Gtk::Label* mMLabels;
+    Gtk::Label* transLabels;
+    Gtk::Label* transLabels2;
+    double nextmin;
+    double nextmax;
+    double nextminiT;
+    double nextmaxiT;
+    double nextmeanT;
+    double nextminT;
+    double nextmaxT;
+    double nextsigma;
+
     Gtk::Label* colLabel;
     Gtk::Label* interLabel;
     Gtk::Label* wavLabels;
@@ -231,6 +256,7 @@ protected:
     sigc::connection contrastPlusPressedConn;
     sigc::connection contrastMinusPressedConn;
     sigc::connection neutralchPressedConn;
+    sigc::connection retinexMethodConn;
 
     bool lastdisplay, lastdisplaygam, lastdisplayres, lastdisplaychro, lastdisplaylevel, lastmedian, lastmedianlev, lastlinkedg, lastavoid, lastlipst, lasttmr, lastcbenab;
     int nextnlevel;
@@ -262,6 +288,11 @@ public:
     void updateToolState (std::vector<int> &tpOpen);
     void write (rtengine::procparams::ProcParams* pp, ParamsEdited* pedited = NULL);
     void writeOptions (std::vector<int> &tpOpen);
+    void retinexMethodChanged();
+    void minmaxChanged (double cdma, double cdmin, double mini, double maxi, double Tmean, double Tsigma, double Tmin, double Tmax);
+    bool minmaxComputed_ ();
+    void updateLabel      ();
+    void updateTrans      ();
 
 
 private:

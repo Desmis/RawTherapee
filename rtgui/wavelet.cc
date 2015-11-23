@@ -30,6 +30,16 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
 {
     std::vector<GradientMilestone> milestones;
     CurveListener::setMulti(true);
+
+    nextmin = 0.;
+    nextmax = 0.;
+    nextminiT = 0.;
+    nextmaxiT = 0.;
+    nextmeanT = 0.;
+    nextsigma = 0.;
+    nextminT = 0.;
+    nextmaxT = 0.;
+
     nextnlevel = 7.;
     float r, g, b;
     //from -PI to +PI (radians) convert to hsv and draw bottombar
@@ -791,6 +801,79 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     resBox->pack_start(*chanMixerMidFrame, Gtk::PACK_SHRINK);
     resBox->pack_start(*chanMixerShadowsFrame, Gtk::PACK_SHRINK);
 
+
+    Gtk::HSeparator *separatorRT = Gtk::manage (new  Gtk::HSeparator());
+
+    dhbox = Gtk::manage (new Gtk::HBox ());
+    labmdh = Gtk::manage (new Gtk::Label (M("TP_WAVRETI_METHOD") + ":"));
+    dhbox->pack_start (*labmdh, Gtk::PACK_SHRINK, 1);
+
+    retinexMethod = Gtk::manage (new MyComboBoxText ());
+    retinexMethod->append_text (M("TP_WAVE_NONE"));
+    retinexMethod->append_text (M("TP_RETINEX_LOW"));
+    retinexMethod->append_text (M("TP_RETINEX_UNIFORM"));
+    retinexMethod->append_text (M("TP_RETINEX_HIGH"));
+    retinexMethod->set_active(0);
+    retinexMethodConn = retinexMethod->signal_changed().connect ( sigc::mem_fun(*this, &Wavelet::retinexMethodChanged) );
+    retinexMethod->set_tooltip_markup (M("TP_WAVRETI_METHOD_TOOLTIP"));
+
+    mMLabels = Gtk::manage(new Gtk::Label("---", Gtk::ALIGN_CENTER));
+    mMLabels->set_tooltip_markup (M("TP_RETINEX_MLABEL_TOOLTIP"));
+
+    transLabels = Gtk::manage(new Gtk::Label("---", Gtk::ALIGN_CENTER));
+    transLabels->set_tooltip_markup (M("TP_RETINEX_TLABEL_TOOLTIP"));
+    transLabels2 = Gtk::manage(new Gtk::Label("---", Gtk::ALIGN_CENTER));
+
+    gain  = Gtk::manage (new Adjuster (M("TP_WAVELET_GAIN"), 0, 200, 1, 50));
+    gain->setAdjusterListener (this);
+    offs  = Gtk::manage (new Adjuster (M("TP_WAVELET_OFFS"), -10000, 10000, 1, 0));
+    offs->setAdjusterListener (this);
+    str  = Gtk::manage (new Adjuster (M("TP_WAVELET_STR"), 0, 100, 1, 20));
+    str->setAdjusterListener (this);
+    neigh  = Gtk::manage (new Adjuster (M("TP_WAVELET_NEIGH"), 6, 100, 1, 50));
+    neigh->setAdjusterListener (this);
+    vart  = Gtk::manage (new Adjuster (M("TP_WAVELET_VART"), 50, 500, 1, 200));
+    vart->setAdjusterListener (this);
+    limd  = Gtk::manage (new Adjuster (M("TP_WAVELET_LIMD"), 2, 100, 1, 8));
+    limd->setAdjusterListener (this);
+
+    // <Retinex Transmission curve
+    CCWcurveEditorT = new CurveEditorGroup (options.lastWaveletCurvesDir, M("TP_RETINEX_TRANSMISSION"));
+    CCWcurveEditorT->setCurveListener (this);
+
+    rtengine::WaveletParams::getDefaultCCWCurveT(defaultCurve);
+    cTshape = static_cast<FlatCurveEditor*>(CCWcurveEditorT->addCurve(CT_Flat, "", NULL, false));
+
+    cTshape->setIdentityValue(0.);
+    cTshape->setResetCurve(FlatCurveType(defaultCurve.at(0)), defaultCurve);
+    cTshape->setTooltip(M("TP_RETINEX_TRANSMISSION_TOOLTIP"));
+
+    CCWcurveEditorT->curveListComplete();
+    CCWcurveEditorT->show();
+    // -->
+
+    resBox->pack_start(*separatorRT, Gtk::PACK_SHRINK);
+
+    dhbox->pack_start(*retinexMethod);
+    resBox->pack_start(*dhbox);
+
+    resBox->pack_start (*mMLabels);
+    mMLabels->show ();
+
+    resBox->pack_start (*transLabels);
+    transLabels->show ();
+
+    resBox->pack_start (*transLabels2);
+    transLabels2->show ();
+
+    resBox->pack_start(*str);
+    resBox->pack_start(*neigh);
+    resBox->pack_start(*vart);
+    resBox->pack_start(*gain);
+    resBox->pack_start(*offs);
+    resBox->pack_start(*limd);
+    resBox->pack_start(*CCWcurveEditorT, Gtk::PACK_SHRINK, 4);
+
     // Reset sliders
     neutrHBox = Gtk::manage (new Gtk::HBox ());
     neutrHBox->set_border_width (2);
@@ -938,12 +1021,92 @@ Wavelet::~Wavelet ()
     delete opaCurveEditorG;
     delete opacityCurveEditorG;
     delete CCWcurveEditorG;
+    delete CCWcurveEditorT;
     delete curveEditorRES;
     delete curveEditorGAM;
     delete curveEditorG;
     delete opacityCurveEditorW;
     delete opacityCurveEditorWL;
 }
+
+
+int WminmaxChangedUI (void* data)
+{
+    GThreadLock lock; // All GUI access from idle_add callbacks or separate thread HAVE to be protected
+    (static_cast<Wavelet*>(data))->minmaxComputed_ ();
+    return 0;
+}
+
+void Wavelet::minmaxChanged (double cdma, double cdmin, double mini, double maxi, double Tmean, double Tsigma, double Tmin, double Tmax)
+{
+    nextmin = cdmin;
+    nextmax = cdma;
+    nextminiT = mini;
+    nextmaxiT = maxi;
+    nextmeanT = Tmean;
+    nextsigma = Tsigma;
+    nextminT = Tmin;
+    nextmaxT = Tmax;
+    g_idle_add (WminmaxChangedUI, this);
+
+}
+
+bool Wavelet::minmaxComputed_ ()
+{
+
+    disableListener ();
+    enableListener ();
+    updateLabel ();
+    updateTrans ();
+    return false;
+
+}
+
+void Wavelet::updateLabel ()
+{
+    if (!batchMode) {
+        float nX, nY;
+        nX = nextmin;
+        nY = nextmax;
+        {
+            mMLabels->set_text(
+                Glib::ustring::compose(M("TP_RETINEX_MLABEL"),
+                                       Glib::ustring::format(std::fixed, std::setprecision(0), nX),
+                                       Glib::ustring::format(std::fixed, std::setprecision(0), nY))
+            );
+        }
+    }
+}
+
+void Wavelet::updateTrans ()
+{
+    if (!batchMode) {
+        float nm, nM, nZ, nA, nB, nS;
+        nm = nextminiT;
+        nM = nextmaxiT;
+        nZ = nextmeanT;
+        nA = nextminT;
+        nB = nextmaxT;
+        nS = nextsigma;
+        {
+            transLabels->set_text(
+                Glib::ustring::compose(M("TP_RETINEX_TLABEL"),
+                                       Glib::ustring::format(std::fixed, std::setprecision(1), nm),
+                                       Glib::ustring::format(std::fixed, std::setprecision(1), nM),
+                                       Glib::ustring::format(std::fixed, std::setprecision(1), nZ),
+                                       Glib::ustring::format(std::fixed, std::setprecision(1), nS))
+            );
+            transLabels2->set_text(
+                Glib::ustring::compose(M("TP_RETINEX_TLABEL2"),
+                                       Glib::ustring::format(std::fixed, std::setprecision(1), nA),
+                                       Glib::ustring::format(std::fixed, std::setprecision(1), nB))
+            );
+
+
+        }
+    }
+}
+
 
 int wavUpdateUI (void* data)
 {
@@ -1010,6 +1173,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
     CLmethodconn.block(true);
     Backmethodconn.block(true);
     Tilesmethodconn.block(true);
+    retinexMethodConn.block(true);
     usharpmethodconn.block(true);
     daubcoeffmethodconn.block(true);
     Dirmethodconn.block(true);
@@ -1164,10 +1328,23 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
         usharpmethod->set_active (2);
     }
 
+    if (pp->wavelet.retinexMethod == "none") {
+        retinexMethod->set_active (0);
+    } else if (pp->wavelet.retinexMethod == "low") {
+        retinexMethod->set_active (1);
+    } else if (pp->wavelet.retinexMethod == "uni") {
+        retinexMethod->set_active (2);
+    } else if (pp->wavelet.retinexMethod == "high") {
+        retinexMethod->set_active (3);
+    }
+
+
+
     int selectedLevel = atoi(pp->wavelet.Lmethod.data()) - 1;
     Lmethod->set_active (selectedLevel == -1 ? 4 : selectedLevel);
 
     ccshape->setCurve (pp->wavelet.ccwcurve);
+    cTshape->setCurve (pp->wavelet.ccwTcurve);
     opacityShapeRG->setCurve (pp->wavelet.opacityCurveRG);
     opacityShapeBY->setCurve (pp->wavelet.opacityCurveBY);
     opacityShape->setCurve (pp->wavelet.opacityCurveW);
@@ -1267,6 +1444,12 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
     mergeC->setValue(pp->wavelet.mergeC);
     nextmergeL=pp->wavelet.mergeL;
     nextmergeC=pp->wavelet.mergeC;
+    gain->setValue(pp->wavelet.gain);
+    offs->setValue(pp->wavelet.offs);
+    str->setValue(pp->wavelet.str);
+    neigh->setValue(pp->wavelet.neigh);
+    vart->setValue(pp->wavelet.vart);
+    limd->setValue(pp->wavelet.limd);
 
     for (int i = 0; i < 9; i++) {
         correction[i]->setValue(pp->wavelet.c[i]);
@@ -1301,6 +1484,10 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
 
         if (!pedited->wavelet.usharpmethod) {
             usharpmethod->set_active_text(M("GENERAL_UNCHANGED"));
+        }
+
+        if (!pedited->wavelet.retinexMethod) {
+            retinexMethod->set_active_text(M("GENERAL_UNCHANGED"));
         }
 
         if (!pedited->wavelet.daubcoeffmethod) {
@@ -1345,6 +1532,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
 
         set_inconsistent (multiImage && !pedited->wavelet.enabled);
         ccshape->setUnChanged  (!pedited->wavelet.ccwcurve);
+        cTshape->setUnChanged  (!pedited->wavelet.ccwTcurve);
         expcontrast->set_inconsistent   (!pedited->wavelet.expcontrast);
         expchroma->set_inconsistent   (!pedited->wavelet.expchroma);
         expedge->set_inconsistent   (!pedited->wavelet.expedge);
@@ -1415,6 +1603,12 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
         level3noise->setEditedState     (pedited->wavelet.level3noise ? Edited : UnEdited);
         mergeL->setEditedState(pedited->wavelet.mergeL ? Edited : UnEdited);
         mergeC->setEditedState(pedited->wavelet.mergeC ? Edited : UnEdited);
+        gain->setEditedState(pedited->wavelet.gain ? Edited : UnEdited);
+        offs->setEditedState(pedited->wavelet.offs ? Edited : UnEdited);
+        str->setEditedState(pedited->wavelet.str ? Edited : UnEdited);
+        neigh->setEditedState(pedited->wavelet.neigh ? Edited : UnEdited);
+        vart->setEditedState(pedited->wavelet.vart ? Edited : UnEdited);
+        limd->setEditedState(pedited->wavelet.limd ? Edited : UnEdited);
 
         for(int i = 0; i < 9; i++) {
             correction[i]->setEditedState (pedited->wavelet.c[i] ? Edited : UnEdited);
@@ -1473,6 +1667,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
         enabledUpdateUI ();
         medianlevUpdateUI ();
         cbenabUpdateUI ();
+        retinexMethodChanged ();
 
         if(z == 9) {
             sup->show();
@@ -1509,6 +1704,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
     enableNoiseConn.block(false);
     enableResidConn.block(false);
     enableToningConn.block(false);
+    retinexMethodConn.block(false);
 
     enableListener ();
 }
@@ -1516,6 +1712,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
 void Wavelet::setEditProvider  (EditDataProvider *provider)
 {
     ccshape->setEditProvider(provider);
+    cTshape->setEditProvider(provider);
     opacityShapeRG->setEditProvider(provider);
     opacityShapeBY->setEditProvider(provider);
     opacityShape->setEditProvider(provider);
@@ -1528,6 +1725,7 @@ void Wavelet::setEditProvider  (EditDataProvider *provider)
 void Wavelet::autoOpenCurve ()
 {
     ccshape->openIfNonlinear();
+    cTshape->openIfNonlinear();
     //opacityShapeRG->openIfNonlinear();
     //opacityShapeBY->openIfNonlinear();
 }
@@ -1578,6 +1776,7 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
     pp->wavelet.level2noise    = level2noise->getValue<double> ();
     pp->wavelet.level3noise    = level3noise->getValue<double> ();
     pp->wavelet.ccwcurve       = ccshape->getCurve ();
+    pp->wavelet.ccwTcurve       = cTshape->getCurve ();
     pp->wavelet.opacityCurveRG = opacityShapeRG->getCurve ();
     pp->wavelet.opacityCurveBY = opacityShapeBY->getCurve ();
     pp->wavelet.opacityCurveW  = opacityShape->getCurve ();
@@ -1592,6 +1791,12 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
     pp->wavelet.mergeC       = (int) mergeC->getValue();
     nextmergeL = pp->wavelet.mergeL;
     nextmergeC = pp->wavelet.mergeC;
+    pp->wavelet.gain       = gain->getValue();
+    pp->wavelet.offs       = offs->getValue();
+    pp->wavelet.str       = str->getValue();
+    pp->wavelet.neigh       = neigh->getValue();
+    pp->wavelet.vart       = vart->getValue();
+    pp->wavelet.limd       = limd->getValue();
 
     pp->wavelet.greenlow       = greenlow->getValue ();
     pp->wavelet.bluelow        = bluelow->getValue ();
@@ -1620,6 +1825,7 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
 
     if (pedited) {
         pedited->wavelet.enabled         = !get_inconsistent();
+        pedited->wavelet.retinexMethod    = retinexMethod->get_active_text() != M("GENERAL_UNCHANGED");
         pedited->wavelet.avoid           = !avoid->get_inconsistent();
         pedited->wavelet.tmr             = !tmr->get_inconsistent();
         pedited->wavelet.median          = !median->get_inconsistent();
@@ -1670,6 +1876,7 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
         pedited->wavelet.skinprotect     = skinprotect->getEditedState();
         pedited->wavelet.hllev           = hllev->getEditedState ();
         pedited->wavelet.ccwcurve        = !ccshape->isUnChanged ();
+        pedited->wavelet.ccwTcurve        = !cTshape->isUnChanged ();
         pedited->wavelet.edgcont         = edgcont->getEditedState ();
         pedited->wavelet.level0noise     = level0noise->getEditedState ();
         pedited->wavelet.level1noise     = level1noise->getEditedState ();
@@ -1687,6 +1894,12 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
         pedited->wavelet.strength        = strength->getEditedState ();
         pedited->wavelet.mergeL        = mergeL->getEditedState ();
         pedited->wavelet.mergeC        = mergeC->getEditedState ();
+        pedited->wavelet.gain        = gain->getEditedState ();
+        pedited->wavelet.offs        = offs->getEditedState ();
+        pedited->wavelet.vart        = vart->getEditedState ();
+        pedited->wavelet.limd        = limd->getEditedState ();
+        pedited->wavelet.str        = str->getEditedState ();
+        pedited->wavelet.neigh        = neigh->getEditedState ();
         pedited->wavelet.greenlow        = greenlow->getEditedState ();
         pedited->wavelet.bluelow         = bluelow->getEditedState ();
         pedited->wavelet.greenmed        = greenmed->getEditedState ();
@@ -1757,6 +1970,17 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
     } else if (BAmethod->get_active_row_number() == 2) {
         pp->wavelet.BAmethod = "cur";
     }
+
+    if (retinexMethod->get_active_row_number() == 0) {
+        pp->wavelet.retinexMethod = "none";
+    } else if (retinexMethod->get_active_row_number() == 1) {
+        pp->wavelet.retinexMethod = "low";
+    } else if (retinexMethod->get_active_row_number() == 2) {
+        pp->wavelet.retinexMethod = "uni";
+    } else if (retinexMethod->get_active_row_number() == 3) {
+        pp->wavelet.retinexMethod = "high";
+    }
+
 
     if (TMmethod->get_active_row_number() == 0) {
         pp->wavelet.TMmethod = "cont";
@@ -1834,12 +2058,51 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
     pp->wavelet.Lmethod = lMethod;
 }
 
+void Wavelet::retinexMethodChanged()
+{
+    if (retinexMethod->get_active_row_number() == 0) {
+        gain->hide();
+        str->hide();
+        vart->hide();
+        limd->hide();
+        neigh->hide();
+        offs->hide();
+        CCWcurveEditorT->hide();
+        mMLabels->hide();
+        transLabels->hide();
+        transLabels2->hide();
+
+    }
+    else if (retinexMethod->get_active_row_number() != 0) {
+        gain->show();
+        str->show();
+        vart->show();
+        limd->show();
+        neigh->show();
+        offs->show();
+        CCWcurveEditorT->show();
+        mMLabels->show();
+        transLabels->show();
+        transLabels2->show();
+
+    }
+
+    if (listener) {
+        listener->panelChanged (EvWavretinexMethod, retinexMethod->get_active_text ());
+    }
+}
+
+
+
+
 void Wavelet::curveChanged (CurveEditor* ce)
 {
 
     if (listener && getEnabled()) {
         if (ce == ccshape) {
             listener->panelChanged (EvWavCCCurve, M("HISTORY_CUSTOMCURVE"));
+        } else if (ce == cTshape) {
+            listener->panelChanged (EvWavCTCurve, M("HISTORY_CUSTOMCURVE"));
         } else if (ce == opacityShapeRG) {
             listener->panelChanged (EvWavColor, M("HISTORY_CUSTOMCURVE"));
         } else if (ce == opacityShapeBY) {
@@ -1872,6 +2135,12 @@ void Wavelet::setDefaults (const ProcParams* defParams, const ParamsEdited* pedi
     strength->setDefault(defParams->wavelet.strength );
     mergeL->setDefault(defParams->wavelet.mergeL );
     mergeC->setDefault(defParams->wavelet.mergeC );
+    gain->setDefault(defParams->wavelet.gain );
+    offs->setDefault(defParams->wavelet.offs );
+    vart->setDefault(defParams->wavelet.vart );
+    limd->setDefault(defParams->wavelet.limd );
+    str->setDefault(defParams->wavelet.str );
+    neigh->setDefault(defParams->wavelet.neigh );
     balance->setDefault(defParams->wavelet.balance );
     iter->setDefault(defParams->wavelet.iter );
     rescon->setDefault (defParams->wavelet.rescon);
@@ -1958,6 +2227,12 @@ void Wavelet::setDefaults (const ProcParams* defParams, const ParamsEdited* pedi
         strength->setDefaultEditedState(pedited->wavelet.strength ? Edited : UnEdited);
         mergeL->setDefaultEditedState(pedited->wavelet.mergeL ? Edited : UnEdited);
         mergeC->setDefaultEditedState(pedited->wavelet.mergeC ? Edited : UnEdited);
+        gain->setDefaultEditedState(pedited->wavelet.gain ? Edited : UnEdited);
+        offs->setDefaultEditedState(pedited->wavelet.offs ? Edited : UnEdited);
+        vart->setDefaultEditedState(pedited->wavelet.vart ? Edited : UnEdited);
+        limd->setDefaultEditedState(pedited->wavelet.limd ? Edited : UnEdited);
+        str->setDefaultEditedState(pedited->wavelet.str ? Edited : UnEdited);
+        neigh->setDefaultEditedState(pedited->wavelet.neigh ? Edited : UnEdited);
         balance->setDefaultEditedState(pedited->wavelet.balance ? Edited : UnEdited);
         iter->setDefaultEditedState(pedited->wavelet.iter ? Edited : UnEdited);
         level0noise->setDefaultEditedState(pedited->wavelet.level0noise ? Edited : UnEdited);
@@ -2011,6 +2286,12 @@ void Wavelet::setDefaults (const ProcParams* defParams, const ParamsEdited* pedi
         strength->setDefaultEditedState (Irrelevant);
         mergeL->setDefaultEditedState (Irrelevant);
         mergeC->setDefaultEditedState (Irrelevant);
+        gain->setDefaultEditedState (Irrelevant);
+        offs->setDefaultEditedState (Irrelevant);
+        vart->setDefaultEditedState (Irrelevant);
+        limd->setDefaultEditedState (Irrelevant);
+        str->setDefaultEditedState (Irrelevant);
+        neigh->setDefaultEditedState (Irrelevant);
         balance->setDefaultEditedState (Irrelevant);
         iter->setDefaultEditedState (Irrelevant);
 
@@ -2456,6 +2737,7 @@ void Wavelet::setBatchMode (bool batchMode)
     HSmethod->append_text (M("GENERAL_UNCHANGED"));
     Dirmethod->append_text (M("GENERAL_UNCHANGED"));
     CCWcurveEditorG->setBatchMode (batchMode);
+    CCWcurveEditorT->setBatchMode (batchMode);
     opaCurveEditorG->setBatchMode (batchMode);
     opacityCurveEditorG->setBatchMode (batchMode);
     opacityCurveEditorW->setBatchMode (batchMode);
@@ -2496,6 +2778,12 @@ void Wavelet::setBatchMode (bool batchMode)
     strength->showEditedCB ();
     mergeL->showEditedCB ();
     mergeC->showEditedCB ();
+    gain->showEditedCB ();
+    offs->showEditedCB ();
+    vart->showEditedCB ();
+    limd->showEditedCB ();
+    str->showEditedCB ();
+    neigh->showEditedCB ();
     balance->showEditedCB ();
     iter->showEditedCB ();
     level0noise->showEditedCB ();
@@ -2619,6 +2907,18 @@ void Wavelet::adjusterChanged (Adjuster* a, double newval)
             listener->panelChanged (EvWavmergeL, mergeL->getTextValue());
         } else if (a == mergeC) {
             listener->panelChanged (EvWavmergeC, mergeC->getTextValue());
+        } else if (a == gain) {
+            listener->panelChanged (EvWavgain, gain->getTextValue());
+        } else if (a == offs) {
+            listener->panelChanged (EvWavoffs, offs->getTextValue());
+        } else if (a == vart) {
+            listener->panelChanged (EvWavvart, vart->getTextValue());
+        } else if (a == limd) {
+            listener->panelChanged (EvWavlimd, limd->getTextValue());
+        } else if (a == str) {
+            listener->panelChanged (EvWavstr, str->getTextValue());
+        } else if (a == neigh) {
+            listener->panelChanged (EvWavneigh, neigh->getTextValue());
         } else if (a == balance) {
             listener->panelChanged (EvWavbalance, balance->getTextValue());
         } else if (a == iter) {

@@ -637,9 +637,26 @@ void WaveletParams::getDefaultCCWCurve(std::vector<double> &curve)
 
 }
 
-void WaveletParams::getCurves(WavCurve &cCurve, WavOpacityCurveRG &opacityCurveLUTRG, WavOpacityCurveBY &opacityCurveLUTBY, WavOpacityCurveW &opacityCurveLUTW, WavOpacityCurveWL &opacityCurveLUTWL) const
+void WaveletParams::getDefaultCCWCurveT(std::vector<double> &curve)
+{
+    double v[12] =   {   0.00, 0.34, 0.35, 0.35,
+                         0.60, 0.75, 0.35, 0.35,
+                         1.00, 0.50, 0.35, 0.35,
+                     };
+
+    curve.resize(13);
+    curve.at(0 ) = double(FCT_MinMaxCPoints);
+
+    for (size_t i = 1; i < curve.size(); ++i) {
+        curve.at(i) = v[i - 1];
+    }
+
+}
+
+void WaveletParams::getCurves(WavCurve &cCurve, WavretiCurve &cTCurve, WavOpacityCurveRG &opacityCurveLUTRG, WavOpacityCurveBY &opacityCurveLUTBY, WavOpacityCurveW &opacityCurveLUTW, WavOpacityCurveWL &opacityCurveLUTWL) const
 {
     cCurve.Set(this->ccwcurve);
+    cTCurve.Set(this->ccwTcurve);
     opacityCurveLUTRG.Set(this->opacityCurveRG);
     opacityCurveLUTBY.Set(this->opacityCurveBY);
     opacityCurveLUTW.Set(this->opacityCurveW);
@@ -650,6 +667,8 @@ void WaveletParams::getCurves(WavCurve &cCurve, WavOpacityCurveRG &opacityCurveL
 void WaveletParams::setDefaults()
 {
     getDefaultCCWCurve(ccwcurve);
+    getDefaultCCWCurveT(ccwTcurve);
+
     getDefaultOpacityCurveRG(opacityCurveRG);
     getDefaultOpacityCurveBY(opacityCurveBY);
     getDefaultOpacityCurveW(opacityCurveW);
@@ -675,6 +694,7 @@ void WaveletParams::setDefaults()
     EDmethod         = "CU";
     NPmethod         = "none";
     BAmethod         = "none";
+    retinexMethod   = "none";
     TMmethod         = "cont";
     HSmethod         = "with";
     CLmethod         = "all";
@@ -685,6 +705,13 @@ void WaveletParams::setDefaults()
     daubcoeffmethod          = "4_";
     mergeL = 0;
     mergeC = 0;
+    gain = 50;
+    offs = 0;
+    str = 20;
+    neigh = 50;
+    vart = 200;
+    limd = 10;
+
     rescon      = 0;
     resconH      = 0;
     reschro      = 0;
@@ -2594,6 +2621,10 @@ int ProcParams::save (Glib::ustring fname, Glib::ustring fname2, bool fnameAbsol
         keyFile.set_string  ("Wavelet", "TilesMethod",  wavelet.Tilesmethod);
     }
 
+    if (!pedited || pedited->wavelet.retinexMethod) {
+        keyFile.set_string  ("Wavelet", "retinexMethod",  wavelet.retinexMethod);
+    }
+
     if (!pedited || pedited->wavelet.usharpmethod) {
         keyFile.set_string  ("Wavelet", "usharpMethod",  wavelet.usharpmethod);
     }
@@ -2801,6 +2832,11 @@ int ProcParams::save (Glib::ustring fname, Glib::ustring fname2, bool fnameAbsol
         keyFile.set_double_list("Wavelet", "ContrastCurve", ccwcurve);
     }
 
+    if (!pedited || pedited->wavelet.ccwTcurve)  {
+        Glib::ArrayHandle<double> ccwTcurve = wavelet.ccwTcurve;
+        keyFile.set_double_list("Wavelet", "TCurve", ccwTcurve);
+    }
+
     if (!pedited || pedited->wavelet.pastlev) {
         Glib::ArrayHandle<int> thresh (wavelet.pastlev.value, 4, Glib::OWNERSHIP_NONE);
         keyFile.set_integer_list("Wavelet",   "Pastlev", thresh);
@@ -2910,6 +2946,30 @@ int ProcParams::save (Glib::ustring fname, Glib::ustring fname2, bool fnameAbsol
 
     if (!pedited || pedited->wavelet.mergeC) {
         keyFile.set_integer  ("Wavelet", "mergeC",  wavelet.mergeC);
+    }
+
+    if (!pedited || pedited->wavelet.gain) {
+        keyFile.set_double  ("Wavelet", "gain",  wavelet.gain);
+    }
+
+    if (!pedited || pedited->wavelet.offs) {
+        keyFile.set_double  ("Wavelet", "offs",  wavelet.offs);
+    }
+
+    if (!pedited || pedited->wavelet.vart) {
+        keyFile.set_double  ("Wavelet", "vart",  wavelet.vart);
+    }
+
+    if (!pedited || pedited->wavelet.limd) {
+        keyFile.set_double  ("Wavelet", "limd",  wavelet.limd);
+    }
+
+    if (!pedited || pedited->wavelet.str) {
+        keyFile.set_double  ("Wavelet", "str",  wavelet.str);
+    }
+
+    if (!pedited || pedited->wavelet.neigh) {
+        keyFile.set_double  ("Wavelet", "neigh",  wavelet.neigh);
     }
 
     if (!pedited || pedited->wavelet.resconH) {
@@ -5868,6 +5928,15 @@ int ProcParams::load (Glib::ustring fname, ParamsEdited* pedited)
                 }
             }
 
+
+            if (keyFile.has_key ("Wavelet", "retinexMethod"))     {
+                wavelet.retinexMethod  = keyFile.get_string  ("Wavelet", "retinexMethod");
+
+                if (pedited) {
+                    pedited->wavelet.retinexMethod = true;
+                }
+            }
+
             if (keyFile.has_key ("Wavelet", "ChoiceLevMethod"))     {
                 wavelet.CLmethod  = keyFile.get_string  ("Wavelet", "ChoiceLevMethod");
 
@@ -6001,6 +6070,54 @@ int ProcParams::load (Glib::ustring fname, ParamsEdited* pedited)
 
                 if (pedited) {
                     pedited->wavelet.mergeC = true;
+                }
+            }
+
+            if (keyFile.has_key ("Wavelet", "gain"))     {
+                wavelet.gain  = keyFile.get_double  ("Wavelet", "gain");
+
+                if (pedited) {
+                    pedited->wavelet.gain = true;
+                }
+            }
+
+            if (keyFile.has_key ("Wavelet", "offs"))     {
+                wavelet.offs  = keyFile.get_double  ("Wavelet", "offs");
+
+                if (pedited) {
+                    pedited->wavelet.offs = true;
+                }
+            }
+
+            if (keyFile.has_key ("Wavelet", "vart"))     {
+                wavelet.vart  = keyFile.get_double  ("Wavelet", "vart");
+
+                if (pedited) {
+                    pedited->wavelet.vart = true;
+                }
+            }
+
+            if (keyFile.has_key ("Wavelet", "limd"))     {
+                wavelet.limd  = keyFile.get_double  ("Wavelet", "limd");
+
+                if (pedited) {
+                    pedited->wavelet.limd = true;
+                }
+            }
+
+            if (keyFile.has_key ("Wavelet", "str"))     {
+                wavelet.str  = keyFile.get_double  ("Wavelet", "str");
+
+                if (pedited) {
+                    pedited->wavelet.str = true;
+                }
+            }
+
+            if (keyFile.has_key ("Wavelet", "neigh"))     {
+                wavelet.neigh  = keyFile.get_integer  ("Wavelet", "neigh");
+
+                if (pedited) {
+                    pedited->wavelet.neigh = true;
                 }
             }
 
@@ -6185,6 +6302,14 @@ int ProcParams::load (Glib::ustring fname, ParamsEdited* pedited)
 
                 if (pedited) {
                     pedited->wavelet.ccwcurve = true;
+                }
+            }
+
+            if (keyFile.has_key ("Wavelet", "TCurve")) {
+                wavelet.ccwTcurve = keyFile.get_double_list ("Wavelet", "TCurve");
+
+                if (pedited) {
+                    pedited->wavelet.ccwTcurve = true;
                 }
             }
 
@@ -7644,9 +7769,16 @@ bool ProcParams::operator== (const ProcParams& other)
         && wavelet.TMmethod == other.wavelet.TMmethod
         && wavelet.HSmethod == other.wavelet.HSmethod
         && wavelet.Dirmethod == other.wavelet.Dirmethod
+        && wavelet.retinexMethod == other.wavelet.retinexMethod
         && wavelet.rescon == other.wavelet.rescon
         && wavelet.mergeL == other.wavelet.mergeC
         && wavelet.mergeC == other.wavelet.mergeL
+        && wavelet.gain == other.wavelet.gain
+        && wavelet.offs == other.wavelet.offs
+        && wavelet.vart == other.wavelet.vart
+        && wavelet.limd == other.wavelet.limd
+        && wavelet.str == other.wavelet.str
+        && wavelet.neigh == other.wavelet.neigh
         && wavelet.resconH == other.wavelet.resconH
         && wavelet.reschro == other.wavelet.reschro
         && wavelet.tmrs == other.wavelet.tmrs
@@ -7702,6 +7834,7 @@ bool ProcParams::operator== (const ProcParams& other)
         && wavelet.hhcurve == other.wavelet.hhcurve
         && wavelet.Chcurve == other.wavelet.Chcurve
         && wavelet.ccwcurve == other.wavelet.ccwcurve
+        && wavelet.ccwTcurve == other.wavelet.ccwTcurve
         && wavelet.wavclCurve == other.wavelet.wavclCurve
         && wavelet.skinprotect == other.wavelet.skinprotect
         && wavelet.strength == other.wavelet.strength

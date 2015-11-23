@@ -969,12 +969,13 @@ IImage16* processImage (ProcessingJob* pjob, int& errorCode, ProgressListener* p
 
     WaveletParams WaveParams = params.wavelet;
     WavCurve wavCLVCurve;
+    WavretiCurve wavRETCurve;
     WavOpacityCurveRG waOpacityCurveRG;
     WavOpacityCurveBY waOpacityCurveBY;
     WavOpacityCurveW waOpacityCurveW;
     WavOpacityCurveWL waOpacityCurveWL;
 
-    params.wavelet.getCurves(wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW, waOpacityCurveWL );
+    params.wavelet.getCurves(wavCLVCurve, wavRETCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW, waOpacityCurveWL );
 
     // directional pyramid wavelet
     if((params.colorappearance.enabled && !settings->autocielab)  || !params.colorappearance.enabled) {
@@ -989,38 +990,24 @@ IImage16* processImage (ProcessingJob* pjob, int& errorCode, ProgressListener* p
     if((params.wavelet.enabled)) {
         LabImage *unshar;
         Glib::ustring provis;
-
+        float minCD, maxCD,mini, maxi, Tmean, Tsigma,Tmin, Tmax;
         if(WaveParams.usharpmethod != "none"  && WaveParams.CLmethod != "all") {
             unshar = new LabImage (fw, fh);
             if(WaveParams.usharpmethod == "orig") {
-#ifdef _OPENMP
-                #pragma omp parallel for
-#endif
-                for (int x = 0; x < fh; x++)
-                    for (int y = 0; y < fw; y++) {
-                        unshar->L[x][y]=labView->L[x][y];
-                        unshar->a[x][y]=labView->a[x][y];
-                        unshar->b[x][y]=labView->b[x][y];
-                    }
+                unshar->CopyFrom(labView);//same time as with pragma for..but more 'clean'
+
             } else if(WaveParams.usharpmethod == "wave") {
                 provis = params.wavelet.CLmethod;
                 params.wavelet.CLmethod = "all";
-                ipf.ip_wavelet(labView, labView, 1, kall, WaveParams, wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW,  waOpacityCurveWL, wavclCurve, wavcontlutili, 1);
-#ifdef _OPENMP
-                #pragma omp parallel for
-#endif
-                for (int x = 0; x < fh; x++)
-                    for (int y = 0; y < fw; y++) {
-                        unshar->L[x][y]=labView->L[x][y];
-                        unshar->a[x][y]=labView->a[x][y];
-                        unshar->b[x][y]=labView->b[x][y];
-                    }
+                ipf.ip_wavelet(labView, labView, 1, kall, WaveParams,  wavCLVCurve, wavRETCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW,  waOpacityCurveWL, wavclCurve, wavcontlutili, 1, minCD, maxCD,mini, maxi, Tmean, Tsigma,Tmin, Tmax);
+                unshar->CopyFrom(labView);
+
                 params.wavelet.CLmethod = provis;
 
             }
 
         }
-        ipf.ip_wavelet(labView, labView, 1, kall, WaveParams, wavCLVCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW,  waOpacityCurveWL, wavclCurve, wavcontlutili, 1);
+        ipf.ip_wavelet(labView, labView, 1, kall, WaveParams, wavCLVCurve, wavRETCurve, waOpacityCurveRG, waOpacityCurveBY, waOpacityCurveW,  waOpacityCurveWL, wavclCurve, wavcontlutili, 1, minCD, maxCD,mini, maxi, Tmean, Tsigma,Tmin, Tmax);
 
         if(WaveParams.usharpmethod != "none"  && WaveParams.CLmethod != "all") {
             float mL = (float) (WaveParams.mergeL/100.f);

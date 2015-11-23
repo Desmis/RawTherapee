@@ -315,6 +315,7 @@ class WaveletListener
 public :
     virtual ~WaveletListener() {}
     virtual void wavChanged (double nlevel) {}
+    virtual void minmaxChanged (double cdma, double cdmin, double mini, double maxi, double Tmean, double Tsigma, double Tmin, double Tmax) {}
 
 };
 

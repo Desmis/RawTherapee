@@ -162,7 +162,9 @@ struct cont_params {
 int wavNestedLevels = 1;
 
 
-SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int ush, int kall, const procparams::WaveletParams & waparams, const WavCurve & wavCLVCcurve, const WavOpacityCurveRG & waOpacityCurveRG, const WavOpacityCurveBY & waOpacityCurveBY,  const WavOpacityCurveW & waOpacityCurveW, const WavOpacityCurveWL & waOpacityCurveWL, LUTf &wavclCurve, bool wavcontlutili, int skip)
+SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int ush, int kall, const procparams::WaveletParams & waparams, const WavCurve & wavCLVCcurve, const WavretiCurve & wavRETCcurve, const WavOpacityCurveRG & waOpacityCurveRG, const WavOpacityCurveBY & waOpacityCurveBY,  const WavOpacityCurveW & waOpacityCurveW, const WavOpacityCurveWL & waOpacityCurveWL, LUTf &wavclCurve, bool wavcontlutili, int skip,
+        float &minCD, float &maxCD, float &mini, float &maxi, float &Tmean, float &Tsigma, float &Tmin, float &Tmax
+                                            )
 
 
 {
@@ -183,8 +185,8 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
     struct cont_params cp;
     cp.avoi = params->wavelet.avoid;
 
-    
-    
+
+
     if(params->wavelet.Medgreinf == "more") {
         cp.reinforce = 1;
     }
@@ -211,16 +213,16 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
         cp.neigh = 1;
     }
 
- //   if(ush==1) params->wavelet.CLmethod = "all";
-    
+//   if(ush==1) params->wavelet.CLmethod = "all";
+
     cp.lipp = params->wavelet.lipst;
     cp.diag = params->wavelet.tmr;
     cp.balan = (float)params->wavelet.balance;
     cp.ite = params->wavelet.iter;
     cp.tonemap = false;
     cp.bam = false;
-    cp.mrgL = params->wavelet.mergeL; 
-    cp.mrgC = params->wavelet.mergeC; 
+    cp.mrgL = params->wavelet.mergeL;
+    cp.mrgC = params->wavelet.mergeC;
     if(params->wavelet.usharpmethod == "none") {
         cp.usharm = 0;
     }
@@ -232,7 +234,7 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
     }
 
 
-   
+
     if(params->wavelet.tmrs == 0) {
         cp.tonemap = false;
     } else {
@@ -913,7 +915,7 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
                 }
 
                 //  printf("LevwavL before: %d\n",levwavL);
-                if(cp.contrast == 0.f && cp.tonemap == false && cp.conres == 0.f && cp.conresH == 0.f && cp.val == 0  && !ref0 && params->wavelet.CLmethod == "all") { // no processing of residual L  or edge=> we probably can reduce the number of levels
+                if(cp.contrast == 0.f && cp.tonemap == false && cp.conres == 0.f && cp.conresH == 0.f && cp.val == 0  && !ref0 && params->wavelet.CLmethod == "all"  && params->wavelet.retinexMethod == "none") { // no processing of residual L  or edge=> we probably can reduce the number of levels
                     while(levwavL > 0 && cp.mul[levwavL - 1] == 0.f) { // cp.mul[level] == 0.f means no changes to level
                         levwavL--;
                     }
@@ -1007,7 +1009,7 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
                         }
 
 
-                        WaveletcontAllL(labco, varhue, varchro, *Ldecomp, cp, skip, mean, meanN, sigma, sigmaN, MaxP, MaxN, wavCLVCcurve, waOpacityCurveW, waOpacityCurveWL, ChCurve, Chutili);
+                        WaveletcontAllL(labco, varhue, varchro, *Ldecomp, cp, skip, mean, meanN, sigma, sigmaN, MaxP, MaxN, wavCLVCcurve, wavRETCcurve, waOpacityCurveW, waOpacityCurveWL, ChCurve, Chutili, minCD, maxCD,mini, maxi, Tmean, Tsigma,Tmin, Tmax);
 
                         if(cp.val > 0 || ref || contr  || cp.diagcurv) {//edge
                             Evaluate2(*Ldecomp, cp, ind, mean, meanN, sigma, sigmaN, MaxP, MaxN, madL);
@@ -1799,12 +1801,15 @@ void ImProcFunctions::WaveletcontAllLfinal(wavelet_decomposition &WaveletCoeffs_
 
 
 void ImProcFunctions::WaveletcontAllL(LabImage * labco, float ** varhue, float **varchrom, wavelet_decomposition &WaveletCoeffs_L,
-                                      struct cont_params &cp, int skip, float *mean, float *meanN, float *sigma, float *sigmaN, float *MaxP, float *MaxN, const WavCurve & wavCLVCcurve, const WavOpacityCurveW & waOpacityCurveW, const WavOpacityCurveWL & waOpacityCurveWL, FlatCurve* ChCurve, bool Chutili)
+                                      struct cont_params &cp, int skip, float *mean, float *meanN, float *sigma, float *sigmaN, float *MaxP, float *MaxN, const WavCurve & wavCLVCcurve, const WavretiCurve & wavRETCcurve, const WavOpacityCurveW & waOpacityCurveW, const WavOpacityCurveWL & waOpacityCurveWL, FlatCurve* ChCurve, bool Chutili,
+                                      float &minCD, float &maxCD, float &mini, float &maxi, float &Tmean, float &Tsigma, float &Tmin, float &Tmax
+                                     )
 {
     int maxlvl = WaveletCoeffs_L.maxlevel();
     int W_L = WaveletCoeffs_L.level_W(0);
     int H_L = WaveletCoeffs_L.level_H(0);
     float * WavCoeffs_L0 = WaveletCoeffs_L.coeff0;
+//       printf("WAV RESI H=%d W=%d\n",H_L,W_L);
 
     float maxh = 2.5f; //amplification contrast above mean
     float maxl = 2.5f; //reduction contrast under mean
@@ -2149,6 +2154,47 @@ void ImProcFunctions::WaveletcontAllL(LabImage * labco, float ** varhue, float *
 
             // end
         }
+
+        if(params->wavelet.retinexMethod != "none" && cp.resena) {
+
+            float *resid[H_L] ALIGNED16;
+            float *residBuffer = new float[H_L * W_L];
+
+            for (int i = 0; i < H_L; i++) {
+                resid[i] = &residBuffer[i * W_L];
+            }
+
+            float *orig[H_L] ALIGNED16;
+            float *origBuffer = new float[H_L * W_L];
+
+            for (int i = 0; i < H_L; i++) {
+                orig[i] = &origBuffer[i * W_L];
+            }
+
+#ifdef _RT_NESTED_OPENMP
+            //    #pragma omp for nowait
+#endif
+            for (int i = 0; i < W_L * H_L; i++) {
+                int ii = i / W_L;
+                int jj = i - ii * W_L;
+                resid[ii][jj]= WavCoeffs_L0[i];
+                orig[ii][jj]= WavCoeffs_L0[i];
+            }
+            ImProcFunctions::MSRWav(resid, orig, resid, resid, W_L, H_L, params->wavelet, wavRETCcurve, skip, minCD, maxCD, mini, maxi, Tmean, Tsigma, Tmin, Tmax);
+#ifdef _RT_NESTED_OPENMP
+            //    #pragma omp for nowait
+#endif
+            for (int i = 0; i < W_L * H_L; i++) {
+                int ii = i / W_L;
+                int jj = i - ii * W_L;
+                WavCoeffs_L0[i] = resid[ii][jj];
+            }
+
+            delete [] residBuffer;
+
+            delete [] origBuffer;
+        }
+
 
 #ifdef _RT_NESTED_OPENMP
         #pragma omp for schedule(dynamic) collapse(2)

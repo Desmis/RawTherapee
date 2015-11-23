@@ -500,6 +500,37 @@ public:
     }
 };
 
+class WavretiCurve
+{
+private:
+    LUTf lutWavretiCurve;  // 0xffff range
+    void Set(const Curve &pCurve);
+
+public:
+    float sum;
+
+    virtual ~WavretiCurve() {};
+    WavretiCurve();
+    void Reset();
+    void Set(const std::vector<double> &curvePoints);
+    float getSum() const
+    {
+        return sum;
+    }
+
+    float operator[](float index) const
+    {
+        return lutWavretiCurve[index];
+    }
+    operator bool (void) const
+    {
+        return lutWavretiCurve;
+    }
+};
+
+
+
+
 class WavCurve
 {
 private:

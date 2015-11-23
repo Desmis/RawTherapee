@@ -544,6 +544,12 @@ public:
     bool strength;
     bool mergeL;
     bool mergeC;
+    bool gain;
+    bool offs;
+    bool vart;
+    bool limd;
+    bool str;
+    bool neigh;
     bool balance;
     bool iter;
     bool median;
@@ -566,6 +572,7 @@ public:
     bool HSmethod;
     bool CLmethod;
     bool Backmethod;
+    bool retinexMethod;
     bool Tilesmethod;
     bool usharpmethod;
     bool daubcoeffmethod;
@@ -604,6 +611,7 @@ public:
     bool level2noise;
     bool level3noise;
     bool ccwcurve;
+    bool ccwTcurve;
     bool opacityCurveBY;
     bool opacityCurveRG;
     bool opacityCurveW;

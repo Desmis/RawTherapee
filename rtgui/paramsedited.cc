@@ -398,9 +398,16 @@ void ParamsEdited::set (bool v)
     wavelet.Lmethod = v;
     wavelet.CLmethod = v;
     wavelet.Backmethod = v;
+    wavelet.retinexMethod = v;
     wavelet.Tilesmethod = v;
     wavelet.mergeL = v;
     wavelet.mergeC = v;
+    wavelet.gain = v;
+    wavelet.offs = v;
+    wavelet.vart = v;
+    wavelet.limd = v;
+    wavelet.str = v;
+    wavelet.neigh = v;
     wavelet.usharpmethod = v;
     wavelet.daubcoeffmethod = v;
     wavelet.CHmethod = v;
@@ -445,6 +452,7 @@ void ParamsEdited::set (bool v)
     wavelet.level2noise = v;
     wavelet.level3noise = v;
     wavelet.ccwcurve = v;
+    wavelet.ccwTcurve = v;
     wavelet.opacityCurveRG   = v;
     wavelet.opacityCurveBY   = v;
     wavelet.opacityCurveW   = v;
@@ -861,6 +869,12 @@ void ParamsEdited::initFrom (const std::vector<rtengine::procparams::ProcParams>
         wavelet.strength = wavelet.strength && p.wavelet.strength == other.wavelet.strength;
         wavelet.mergeL = wavelet.mergeL && p.wavelet.mergeL == other.wavelet.mergeL;
         wavelet.mergeC = wavelet.mergeC && p.wavelet.mergeC == other.wavelet.mergeC;
+        wavelet.gain = wavelet.gain && p.wavelet.gain == other.wavelet.gain;
+        wavelet.offs = wavelet.offs && p.wavelet.offs == other.wavelet.offs;
+        wavelet.vart = wavelet.vart && p.wavelet.vart == other.wavelet.vart;
+        wavelet.limd = wavelet.limd && p.wavelet.limd == other.wavelet.limd;
+        wavelet.str = wavelet.str && p.wavelet.str == other.wavelet.str;
+        wavelet.neigh = wavelet.neigh && p.wavelet.neigh == other.wavelet.neigh;
         wavelet.balance = wavelet.balance && p.wavelet.balance == other.wavelet.balance;
         wavelet.iter = wavelet.iter && p.wavelet.iter == other.wavelet.iter;
         wavelet.median = wavelet.median && p.wavelet.median == other.wavelet.median;
@@ -888,6 +902,7 @@ void ParamsEdited::initFrom (const std::vector<rtengine::procparams::ProcParams>
         wavelet.EDmethod = wavelet.EDmethod && p.wavelet.EDmethod == other.wavelet.EDmethod;
         wavelet.NPmethod = wavelet.NPmethod && p.wavelet.NPmethod == other.wavelet.NPmethod;
         wavelet.BAmethod = wavelet.BAmethod && p.wavelet.BAmethod == other.wavelet.BAmethod;
+        wavelet.retinexMethod = wavelet.retinexMethod && p.wavelet.retinexMethod == other.wavelet.retinexMethod;
         wavelet.TMmethod = wavelet.TMmethod && p.wavelet.TMmethod == other.wavelet.TMmethod;
         wavelet.HSmethod = wavelet.HSmethod && p.wavelet.HSmethod == other.wavelet.HSmethod;
         wavelet.Dirmethod = wavelet.Dirmethod && p.wavelet.Dirmethod == other.wavelet.Dirmethod;
@@ -926,6 +941,7 @@ void ParamsEdited::initFrom (const std::vector<rtengine::procparams::ProcParams>
         wavelet.pastlev = wavelet.pastlev && p.wavelet.pastlev == other.wavelet.pastlev;
         wavelet.satlev = wavelet.satlev && p.wavelet.satlev == other.wavelet.satlev;
         wavelet.ccwcurve = wavelet.ccwcurve && p.wavelet.ccwcurve == other.wavelet.ccwcurve;
+        wavelet.ccwTcurve = wavelet.ccwTcurve && p.wavelet.ccwTcurve == other.wavelet.ccwTcurve;
         wavelet.opacityCurveRG = wavelet.opacityCurveRG && p.wavelet.opacityCurveRG == other.wavelet.opacityCurveRG;
         wavelet.opacityCurveBY = wavelet.opacityCurveBY && p.wavelet.opacityCurveBY == other.wavelet.opacityCurveBY;
         wavelet.opacityCurveW = wavelet.opacityCurveW && p.wavelet.opacityCurveW == other.wavelet.opacityCurveW;
@@ -2292,6 +2308,30 @@ void ParamsEdited::combine (rtengine::procparams::ProcParams& toEdit, const rten
         toEdit.wavelet.mergeC   = mods.wavelet.mergeC;
     }
 
+    if (wavelet.gain) {
+        toEdit.wavelet.gain   = mods.wavelet.gain;
+    }
+
+    if (wavelet.offs) {
+        toEdit.wavelet.offs   = mods.wavelet.offs;
+    }
+
+    if (wavelet.vart) {
+        toEdit.wavelet.vart   = mods.wavelet.vart;
+    }
+
+    if (wavelet.limd) {
+        toEdit.wavelet.limd   = mods.wavelet.limd;
+    }
+
+    if (wavelet.str) {
+        toEdit.wavelet.str   = mods.wavelet.str;
+    }
+
+    if (wavelet.neigh) {
+        toEdit.wavelet.neigh   = mods.wavelet.neigh;
+    }
+
     if (wavelet.balance) {
         toEdit.wavelet.balance   = mods.wavelet.balance;
     }
@@ -2358,6 +2398,10 @@ void ParamsEdited::combine (rtengine::procparams::ProcParams& toEdit, const rten
 
     if (wavelet.Lmethod) {
         toEdit.wavelet.Lmethod        = mods.wavelet.Lmethod;
+    }
+
+    if (wavelet.retinexMethod) {
+        toEdit.wavelet.retinexMethod        = mods.wavelet.retinexMethod;
     }
 
     if (wavelet.CLmethod) {
@@ -2470,6 +2514,10 @@ void ParamsEdited::combine (rtengine::procparams::ProcParams& toEdit, const rten
 
     if (wavelet.ccwcurve) {
         toEdit.wavelet.ccwcurve   = mods.wavelet.ccwcurve;
+    }
+
+    if (wavelet.ccwTcurve) {
+        toEdit.wavelet.ccwTcurve   = mods.wavelet.ccwTcurve;
     }
 
     if (wavelet.opacityCurveRG) {

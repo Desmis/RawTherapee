@@ -1281,7 +1281,7 @@ SSEFUNCTION void ImProcFunctions::RGB_denoise(int kall, Imagefloat * src, Imagef
                                         int edge = 0;
 
                                         if(nrQuality == QUALITY_STANDARD) {
-                                            if(!WaveletDenoiseAllL(*Ldecomp, noisevarlum, madL, NULL, edge)) { //enhance mode
+                                            if(!WaveletDenoiseAllL(*Ldecomp, noisevarlum, madL, NULL, 4, edge)) { //enhance mode
                                                 memoryAllocationFailed = true;
                                             }
                                         } else { /*if(nrQuality==QUALITY_HIGH)*/
@@ -1290,7 +1290,7 @@ SSEFUNCTION void ImProcFunctions::RGB_denoise(int kall, Imagefloat * src, Imagef
                                             }
 
                                             if(!memoryAllocationFailed)
-                                                if(!WaveletDenoiseAllL(*Ldecomp, noisevarlum, madL, NULL, edge)) {
+                                                if(!WaveletDenoiseAllL(*Ldecomp, noisevarlum, madL, NULL, 4, edge)) {
                                                     memoryAllocationFailed = true;
                                                 }
                                         }
@@ -2546,14 +2546,14 @@ SSEFUNCTION bool ImProcFunctions::WaveletDenoiseAll_BiShrinkAB(wavelet_decomposi
 }
 
 
-bool ImProcFunctions::WaveletDenoiseAllL(wavelet_decomposition &WaveletCoeffs_L, float *noisevarlum, float madL[8][3], float * vari, int edge)//mod JD
+bool ImProcFunctions::WaveletDenoiseAllL(wavelet_decomposition &WaveletCoeffs_L, float *noisevarlum, float madL[8][3], float * vari, int minlevwavL, int edge)//mod JD
 
 {
 
     int maxlvl = min(WaveletCoeffs_L.maxlevel(), 5);
 
     if(edge == 1) {
-        maxlvl = 4;    //for refine denoise edge wavelet
+        maxlvl = minlevwavL;    //4 for refine denoise edge wavelet
     }
 
     int maxWL = 0, maxHL = 0;

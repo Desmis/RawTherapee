@@ -122,7 +122,7 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     strength  = Gtk::manage (new Adjuster (M("TP_WAVELET_STRENGTH"), 0, 100, 1, 100));
     strength->setAdjusterListener (this);
 
-    thres = Gtk::manage (new Adjuster (M("TP_WAVELET_LEVELS"), 4, 9, 1, 7));//3
+    thres = Gtk::manage (new Adjuster (M("TP_WAVELET_LEVELS"), 3, 9, 1, 7));//3
     thres->set_tooltip_text (M("TP_WAVELET_LEVELS_TOOLTIP"));
     thres->setAdjusterListener (this);
 
@@ -1634,6 +1634,8 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
         int y;
         y = thres->getValue();
         int z;
+        if(y==3) level3noise->set_sensitive(false);
+        else level3noise->set_sensitive(true);
 
         for(z = y; z < 9; z++) {
             correction[z]->hide();
@@ -2398,6 +2400,8 @@ void Wavelet::CHmethodUpdateUI()
             neutralchButton->show();
             int y = thres->getValue();
             int z;
+            if(y==3) level3noise->set_sensitive(false);
+            else level3noise->set_sensitive(true);
 
             for(z = y; z < 9; z++) {
                 correctionch[z]->hide();
@@ -2417,6 +2421,8 @@ void Wavelet::CHmethodUpdateUI()
             neutralchButton->show();
             int y = thres->getValue();
             int z;
+            if(y==3) level3noise->set_sensitive(false);
+            else level3noise->set_sensitive(true);
 
             for(z = y; z < 9; z++) {
                 correctionch[z]->hide();
@@ -2888,6 +2894,8 @@ void Wavelet::adjusterChanged (Adjuster* a, double newval)
         } else if (a == thres ) {
             int y = thres->getValue();
             int z;
+            if(y==3) level3noise->set_sensitive(false);
+            else level3noise->set_sensitive(true);
 
             for(z = y; z < 9; z++) {
                 correction[z]->hide();
@@ -2987,6 +2995,8 @@ void Wavelet::enabledUpdateUI ()
     if (!batchMode) {
         int y = thres->getValue();
         int z;
+        if(y==3) level3noise->set_sensitive(false);
+        else level3noise->set_sensitive(true);
 
         for(z = y; z < 9; z++) {
             correction[z]->hide();

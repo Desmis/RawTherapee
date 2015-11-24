@@ -925,8 +925,8 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
                 //  printf("LevwavL after: %d\n",levwavL);
                 //  if(cp.noiseena){
                 if(levwavL < 4 ) {
-                    levwavL = 3;    //to allow edge  => I always allocate 3 (4) levels..because if user select wavelet it is to do something !!
-                    minlevwavL=3;
+                   // levwavL = 2;    //to allow edge  => I always allocate 3 (4) levels..because if user select wavelet it is to do something !!
+                    minlevwavL= levwavL;
                 }
 
                 //  }
@@ -979,6 +979,7 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
 
                         vari[0] = 8.f * SQR((cp.lev0n / 125.0) * (1.0 + cp.lev0n / 25.0));
                         vari[1] = 8.f * SQR((cp.lev1n / 125.0) * (1.0 + cp.lev1n / 25.0));
+                        if(minlevwavL==3)
                         vari[2] = 8.f * SQR((cp.lev2n / 125.0) * (1.0 + cp.lev2n / 25.0));
                         if(minlevwavL==4)
                             vari[3] = 8.f * SQR((cp.lev3n / 125.0) * (1.0 + cp.lev3n / 25.0));
@@ -987,7 +988,8 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
                         if((cp.lev0n > 0.1f || cp.lev1n > 0.1f || cp.lev2n > 0.1f || cp.lev3n > 0.1f) && cp.noiseena) {
                             vari[0] = max(0.0001f, vari[0]);
                             vari[1] = max(0.0001f, vari[1]);
-                            vari[2] = max(0.0001f, vari[2]);
+                             if(minlevwavL==3)
+                           vari[2] = max(0.0001f, vari[2]);
                             if(minlevwavL==4)
                                 vari[3] = max(0.0001f, vari[3]);
                             float* noisevarlum = NULL;  // we need a dummy to pass it to WaveletDenoiseAllL

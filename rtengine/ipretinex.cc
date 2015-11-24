@@ -566,8 +566,8 @@ void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float
         float offse =(float) deh.offs;
         float chrT = deh.chrrt/100.f;
         int scal ;
-        scal = 3;//disabled scal
-        int nei = (int) 2.8f * deh.neigh; //def = 140
+        scal = 5;//disabled scal
+        int nei = (int) 2.f * deh.neigh; 
         float vart = (float)deh.vart / 100.f;//variance
         float strength =(float) deh.str / 100.f; // Blend with original L channel data
         float limD = (float) deh.limd;
@@ -589,7 +589,7 @@ void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float
         //empirical skip evaluation : very difficult  because quasi all parameters interfere
         //to test on several images
         if(skip >=4) nei = (int) (0.1f*nei + 2.f);//not too bad
-        if(skip > 1 && skip < 4) nei = (int) (0.33f*nei + 2.f);
+        if(skip > 1 && skip < 4) nei = (int) (0.3f*nei + 2.f);
         //
         elogt = 2.71828f;//disabled baselog
 

@@ -2323,7 +2323,7 @@ SSEFUNCTION bool ImProcFunctions::WaveletDenoiseAll_BiShrinkL(wavelet_decomposit
                     if (lvl == maxlvl - 1) {
                         float vari[4];
                         int edge = 0;
-                        ShrinkAllL(WaveletCoeffs_L, buffer, lvl, dir, noisevarlum, madL[lvl], NULL, edge );
+                        ShrinkAllL(WaveletCoeffs_L, buffer, lvl, dir, noisevarlum, madL[lvl], NULL, 4, edge );
                     } else {
                         //simple wavelet shrinkage
                         float * sfave = buffer[0] + 32;
@@ -2573,14 +2573,31 @@ bool ImProcFunctions::WaveletDenoiseAllL(wavelet_decomposition &WaveletCoeffs_L,
     #pragma omp parallel num_threads(denoiseNestedLevels) if(denoiseNestedLevels>1)
 #endif
     {
-        float *buffer[4];
-        buffer[0] = new (std::nothrow) float[maxWL * maxHL + 32];
-        buffer[1] = new (std::nothrow) float[maxWL * maxHL + 64];
-        buffer[2] = new (std::nothrow) float[maxWL * maxHL + 96];
-        buffer[3] = new (std::nothrow) float[maxWL * maxHL + 128];
+        float *buffer[minlevwavL];
+        if(minlevwavL==4) {
+            buffer[0] = new (std::nothrow) float[maxWL * maxHL + 32];
+            buffer[1] = new (std::nothrow) float[maxWL * maxHL + 64];
+            buffer[2] = new (std::nothrow) float[maxWL * maxHL + 96];
+            buffer[3] = new (std::nothrow) float[maxWL * maxHL + 128];
 
-        if(buffer[0] == NULL || buffer[1] == NULL || buffer[2] == NULL || buffer[3] == NULL) {
-            memoryAllocationFailed = true;
+            if(buffer[0] == NULL || buffer[1] == NULL || buffer[2] == NULL || buffer[3] == NULL) {
+                memoryAllocationFailed = true;
+            }
+        }
+        else if(minlevwavL==3) {
+            buffer[0] = new (std::nothrow) float[maxWL * maxHL + 32];
+            buffer[1] = new (std::nothrow) float[maxWL * maxHL + 64];
+            buffer[2] = new (std::nothrow) float[maxWL * maxHL + 96];
+            if(buffer[0] == NULL || buffer[1] == NULL || buffer[2] == NULL) {
+                memoryAllocationFailed = true;
+            }
+        }
+        else if(minlevwavL==2) {
+            buffer[0] = new (std::nothrow) float[maxWL * maxHL + 32];
+            buffer[1] = new (std::nothrow) float[maxWL * maxHL + 64];
+            if(buffer[0] == NULL || buffer[1] == NULL) {
+                memoryAllocationFailed = true;
+            }
         }
 
         if(!memoryAllocationFailed) {
@@ -2590,15 +2607,17 @@ bool ImProcFunctions::WaveletDenoiseAllL(wavelet_decomposition &WaveletCoeffs_L,
 
             for (int lvl = 0; lvl < maxlvl; lvl++) {
                 for (int dir = 1; dir < 4; dir++) {
-                    ShrinkAllL(WaveletCoeffs_L, buffer, lvl, dir, noisevarlum, madL[lvl], vari, edge);
+                    ShrinkAllL(WaveletCoeffs_L, buffer, lvl, dir, noisevarlum, madL[lvl], vari, minlevwavL, edge);
                 }
             }
         }
 
-        for(int i = 3; i >= 0; i--)
+
+        for(int i = minlevwavL-1; i >= 0; i--)
             if(buffer[i] != NULL) {
                 delete [] buffer[i];
             }
+
     }
     return (!memoryAllocationFailed);
 }
@@ -2661,7 +2680,7 @@ bool ImProcFunctions::WaveletDenoiseAllAB(wavelet_decomposition &WaveletCoeffs_L
 
 
 SSEFUNCTION void ImProcFunctions::ShrinkAllL(wavelet_decomposition &WaveletCoeffs_L, float **buffer, int level, int dir,
-        float *noisevarlum, float * madL, float * vari, int edge )
+        float *noisevarlum, float * madL, float * vari, int minlevwavL, int edge )
 
 {
     //simple wavelet shrinkage
@@ -2670,6 +2689,7 @@ SSEFUNCTION void ImProcFunctions::ShrinkAllL(wavelet_decomposition &WaveletCoeff
     float * sfave = buffer[0] + 32;
     float * sfaved = buffer[1] + 64;
     float * blurBuffer = buffer[2] + 96;
+    float * blurBuffer2 = buffer[1] + 96;
 
     int W_L = WaveletCoeffs_L.level_W(level);
     int H_L = WaveletCoeffs_L.level_H(level);
@@ -2679,7 +2699,8 @@ SSEFUNCTION void ImProcFunctions::ShrinkAllL(wavelet_decomposition &WaveletCoeff
     float mad_L = madL[dir - 1] ;
 
     if(edge == 1) {
-        noisevarlum = blurBuffer;       // we need one buffer, but fortunately we don't have to allocate a new one because we can use blurBuffer
+        if( minlevwavL !=2) noisevarlum = blurBuffer;       // we need one buffer, but fortunately we don't have to allocate a new one because we can use blurBuffer
+        else noisevarlum = blurBuffer2;
 
         for (int i = 0; i < W_L * H_L; i++) {
             noisevarlum[i] = vari[level];

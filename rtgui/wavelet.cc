@@ -444,10 +444,12 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     level0noise = Gtk::manage (new ThresholdAdjuster (M("TP_WAVELET_LEVZERO"), -30., 100., 0., M("TP_WAVELET_STREN"), 1., 0., 100., 0., M("TP_WAVELET_NOIS"), 1., NULL, false));
     level0noise->setAdjusterListener (this);
     level0noise->setUpdatePolicy(RTUP_DYNAMIC);
+    level0noise->set_tooltip_markup (M("TP_WAVELET_LEVEL0_TOOLTIP"));
 
     level1noise = Gtk::manage (new ThresholdAdjuster (M("TP_WAVELET_LEVONE"), -30., 100., 0., M("TP_WAVELET_STREN"), 1., 0., 100., 0., M("TP_WAVELET_NOIS"), 1., NULL, false));
     level1noise->setAdjusterListener (this);
     level1noise->setUpdatePolicy(RTUP_DYNAMIC);
+    level1noise->set_tooltip_markup (M("TP_WAVELET_LEVEL0_TOOLTIP"));
 
     level2noise = Gtk::manage (new ThresholdAdjuster (M("TP_WAVELET_LEVTWO"), -30., 100., 0., M("TP_WAVELET_STREN"), 1., 0., 100., 0., M("TP_WAVELET_NOIS"), 1., NULL, false));
     level2noise->setAdjusterListener (this);

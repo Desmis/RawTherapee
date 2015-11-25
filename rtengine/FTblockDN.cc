@@ -2689,18 +2689,18 @@ SSEFUNCTION void ImProcFunctions::ShrinkAllL(wavelet_decomposition &WaveletCoeff
     float * sfave = buffer[0] + 32;
     float * sfaved = buffer[1] + 64;
     float * blurBuffer = buffer[2] + 96;
-    float * blurBuffer2 = buffer[1] + 96;
+    float * cbuffer;
 
     int W_L = WaveletCoeffs_L.level_W(level);
     int H_L = WaveletCoeffs_L.level_H(level);
+    cbuffer = new (std::nothrow) float[W_L * H_L];
 
     float ** WavCoeffs_L = WaveletCoeffs_L.level_coeffs(level);
-//      printf("OK lev=%d\n",level);
     float mad_L = madL[dir - 1] ;
 
     if(edge == 1) {
         if( minlevwavL !=2) noisevarlum = blurBuffer;       // we need one buffer, but fortunately we don't have to allocate a new one because we can use blurBuffer
-        else noisevarlum = blurBuffer2;
+        else noisevarlum = cbuffer;
 
         for (int i = 0; i < W_L * H_L; i++) {
             noisevarlum[i] = vari[level];
@@ -2736,9 +2736,12 @@ SSEFUNCTION void ImProcFunctions::ShrinkAllL(wavelet_decomposition &WaveletCoeff
         float shrinkfactor = mag / (mag + levelFactor * noisevarlum[i] * xexpf(-mag / (9 * levelFactor * noisevarlum[i])) + eps);
         sfave[i] = shrinkfactor;
     }
-
 #endif
-    boxblur(sfave, sfaved, blurBuffer, level + 2, level + 2, W_L, H_L); //increase smoothness by locally averaging shrinkage
+
+    if( minlevwavL != 2) boxblur(sfave, sfaved, blurBuffer, level + 2, level + 2, W_L, H_L); //increase smoothness by locally averaging shrinkage
+
+    if( minlevwavL == 2) boxblur(sfave, sfaved, cbuffer, level + 2, level + 2, W_L, H_L);
+
 
 #ifdef __SSE2__
     __m128  sfv;
@@ -2768,6 +2771,8 @@ SSEFUNCTION void ImProcFunctions::ShrinkAllL(wavelet_decomposition &WaveletCoeff
     }//now luminance coefficients are denoised
 
 #endif
+
+    delete cbuffer;
 }
 
 

@@ -1011,11 +1011,11 @@ SSEFUNCTION void ImProcFunctions::ip_wavelet(LabImage * lab, LabImage * dst, int
                             }
 
                             float* noisevarlum = NULL;  // we need a dummy to pass it to WaveletDenoiseAllL
-                            if(minlevwavL!=2) {//disabled Denoise for 2 levels
-                                if(!WaveletDenoiseAllL(*Ldecomp, noisevarlum, madL, vari, minlevwavL, edge)) { //
-                                    memoryAllocationFailed = true;
-                                }
+                            //   if(minlevwavL!=2) {//disabled Denoise for 2 levels
+                            if(!WaveletDenoiseAllL(*Ldecomp, noisevarlum, madL, vari, minlevwavL, edge)) { //
+                                memoryAllocationFailed = true;
                             }
+                            //  }
                         }
                         ind = 1;
                         //Flat curve for Contrast=f(H) in levels

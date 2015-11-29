@@ -1022,6 +1022,7 @@ public:
     Glib::ustring Lmethod;
     Glib::ustring CLmethod;
     Glib::ustring retinexMethod;
+    Glib::ustring retinexMethodpro;
     Glib::ustring Backmethod;
     Glib::ustring Tilesmethod;
     Glib::ustring usharpmethod;

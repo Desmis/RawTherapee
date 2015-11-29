@@ -2693,7 +2693,8 @@ SSEFUNCTION void ImProcFunctions::ShrinkAllL(wavelet_decomposition &WaveletCoeff
 
     int W_L = WaveletCoeffs_L.level_W(level);
     int H_L = WaveletCoeffs_L.level_H(level);
-    cbuffer = new (std::nothrow) float[W_L * H_L];
+    if(minlevwavL == 2)
+        cbuffer = new (std::nothrow) float[W_L * H_L];
 
     float ** WavCoeffs_L = WaveletCoeffs_L.level_coeffs(level);
     float mad_L = madL[dir - 1] ;
@@ -2771,8 +2772,7 @@ SSEFUNCTION void ImProcFunctions::ShrinkAllL(wavelet_decomposition &WaveletCoeff
     }//now luminance coefficients are denoised
 
 #endif
-
-    delete cbuffer;
+    if(minlevwavL == 2) delete cbuffer;
 }
 
 

@@ -186,6 +186,11 @@ protected:
     MyComboBoxText*   retinexMethod;
     Gtk::Label* labmdh;
     Gtk::HBox* dhbox;
+    MyComboBoxText*   retinexMethodpro;
+    Gtk::Label* labmdhpro;
+    Gtk::HBox* dhboxpro;
+    Gtk::Label* labretifin;
+    Gtk::HBox* labretifinbox;
 
     Gtk::Label* mMLabels;
     Gtk::Label* transLabels;
@@ -257,7 +262,7 @@ protected:
     sigc::connection contrastPlusPressedConn;
     sigc::connection contrastMinusPressedConn;
     sigc::connection neutralchPressedConn;
-    sigc::connection retinexMethodConn;
+    sigc::connection retinexMethodConn, retinexMethodproConn;
 
     bool lastdisplay, lastdisplaygam, lastdisplayres, lastdisplaychro, lastdisplaylevel, lastmedian, lastmedianlev, lastlinkedg, lastavoid, lastlipst, lasttmr, lastcbenab;
     int nextnlevel;
@@ -290,6 +295,7 @@ public:
     void write (rtengine::procparams::ProcParams* pp, ParamsEdited* pedited = NULL);
     void writeOptions (std::vector<int> &tpOpen);
     void retinexMethodChanged();
+    void retinexMethodproChanged();
     void minmaxChanged (double cdma, double cdmin, double mini, double maxi, double Tmean, double Tsigma, double Tmin, double Tmax);
     bool minmaxComputed_ ();
     void updateLabel      ();

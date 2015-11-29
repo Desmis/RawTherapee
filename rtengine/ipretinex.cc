@@ -552,7 +552,7 @@ void RawImageSource::MSR(float** luminance, float** originalLuminance, float **e
 }
 
 
-void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float **ushar, float **lum, int width, int height, WaveletParams deh, const WavretiCurve & wavRETCcurve, int skip, int chrome, float &minCD, float &maxCD, float &mini, float &maxi, float &Tmean, float &Tsigma, float &Tmin, float &Tmax)
+void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float **ushar, float **lum, int width, int height, WaveletParams deh, const WavretiCurve & wavRETCcurve, int skip, int chrome,  int scall, float krad, float &minCD, float &maxCD, float &mini, float &maxi, float &Tmean, float &Tsigma, float &Tmin, float &Tmax)
 {
     bool py = true;
     if (py) {//enabled
@@ -566,8 +566,8 @@ void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float
         float offse =(float) deh.offs;
         float chrT = deh.chrrt/100.f;
         int scal ;
-        scal = 5;//disabled scal
-        int nei = (int) 2.f * deh.neigh;
+        scal = scall;//disabled scal
+        int nei = (int) krad * deh.neigh;
         float vart = (float)deh.vart / 100.f;//variance
         float strength =(float) deh.str / 100.f; // Blend with original L channel data
         float limD = (float) deh.limd;
@@ -846,6 +846,7 @@ void ImProcFunctions::MSRWav(float** luminance, float** originalLuminance, float
                         maxclip = 50000.f;
                     }
                     //str = strength;
+
                     luminance[i][j] = clipretinex( cd, 0.f, maxclip ) * str + (1.f - str) * originalLuminance[i][j];
                 }
 

@@ -695,6 +695,7 @@ void WaveletParams::setDefaults()
     NPmethod         = "none";
     BAmethod         = "none";
     retinexMethod   = "none";
+    retinexMethodpro   = "resid";
     TMmethod         = "cont";
     HSmethod         = "with";
     CLmethod         = "all";
@@ -2624,6 +2625,10 @@ int ProcParams::save (Glib::ustring fname, Glib::ustring fname2, bool fnameAbsol
 
     if (!pedited || pedited->wavelet.retinexMethod) {
         keyFile.set_string  ("Wavelet", "retinexMethod",  wavelet.retinexMethod);
+    }
+
+    if (!pedited || pedited->wavelet.retinexMethodpro) {
+        keyFile.set_string  ("Wavelet", "retinexMethodpro",  wavelet.retinexMethodpro);
     }
 
     if (!pedited || pedited->wavelet.usharpmethod) {
@@ -5942,6 +5947,14 @@ int ProcParams::load (Glib::ustring fname, ParamsEdited* pedited)
                 }
             }
 
+            if (keyFile.has_key ("Wavelet", "retinexMethodpro"))     {
+                wavelet.retinexMethodpro  = keyFile.get_string  ("Wavelet", "retinexMethodpro");
+
+                if (pedited) {
+                    pedited->wavelet.retinexMethodpro = true;
+                }
+            }
+
             if (keyFile.has_key ("Wavelet", "ChoiceLevMethod"))     {
                 wavelet.CLmethod  = keyFile.get_string  ("Wavelet", "ChoiceLevMethod");
 
@@ -7783,6 +7796,7 @@ bool ProcParams::operator== (const ProcParams& other)
         && wavelet.HSmethod == other.wavelet.HSmethod
         && wavelet.Dirmethod == other.wavelet.Dirmethod
         && wavelet.retinexMethod == other.wavelet.retinexMethod
+        && wavelet.retinexMethodpro == other.wavelet.retinexMethodpro
         && wavelet.rescon == other.wavelet.rescon
         && wavelet.mergeL == other.wavelet.mergeC
         && wavelet.mergeC == other.wavelet.mergeL

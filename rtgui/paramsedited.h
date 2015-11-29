@@ -574,6 +574,7 @@ public:
     bool CLmethod;
     bool Backmethod;
     bool retinexMethod;
+    bool retinexMethodpro;
     bool Tilesmethod;
     bool usharpmethod;
     bool daubcoeffmethod;

@@ -819,6 +819,18 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     retinexMethodConn = retinexMethod->signal_changed().connect ( sigc::mem_fun(*this, &Wavelet::retinexMethodChanged) );
     retinexMethod->set_tooltip_markup (M("TP_WAVRETI_METHOD_TOOLTIP"));
 
+    dhboxpro = Gtk::manage (new Gtk::HBox ());
+    labmdhpro = Gtk::manage (new Gtk::Label (M("TP_WAVRETI_METHODPRO") + ":"));
+    dhboxpro->pack_start (*labmdhpro, Gtk::PACK_SHRINK, 1);
+
+    retinexMethodpro = Gtk::manage (new MyComboBoxText ());
+    retinexMethodpro->append_text (M("TP_WAVE_RESIDU"));
+    retinexMethodpro->append_text (M("TP_WAVE_FINA"));
+    retinexMethodpro->set_active(0);
+    retinexMethodproConn = retinexMethodpro->signal_changed().connect ( sigc::mem_fun(*this, &Wavelet::retinexMethodproChanged) );
+    retinexMethodpro->set_tooltip_markup (M("TP_WAVRETI_METHODPRO_TOOLTIP"));
+
+
     mMLabels = Gtk::manage(new Gtk::Label("---", Gtk::ALIGN_CENTER));
     mMLabels->set_tooltip_markup (M("TP_RETINEX_MLABEL_TOOLTIP"));
 
@@ -860,6 +872,8 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
 
     dhbox->pack_start(*retinexMethod);
     resBox->pack_start(*dhbox);
+    dhboxpro->pack_start(*retinexMethodpro);
+    resBox->pack_start(*dhboxpro);
 
     resBox->pack_start (*mMLabels);
     mMLabels->show ();
@@ -978,6 +992,10 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     finalBox->set_border_width(4);
     finalBox->set_spacing(2);
 
+    labretifinbox = Gtk::manage (new Gtk::HBox ());
+    labretifin = Gtk::manage (new Gtk::Label (M("TP_WAVRETI_FIN")));
+    labretifinbox->pack_start (*labretifin, Gtk::PACK_SHRINK, 1);
+
     finalBox->pack_start (*ctboxBA);
     finalBox->pack_start(*balance);
 
@@ -990,6 +1008,7 @@ Wavelet::Wavelet () : FoldableToolPanel(this, "wavelet", M("TP_WAVELET_LABEL"), 
     finalBox->pack_start( *opacityCurveEditorWL, Gtk::PACK_SHRINK, 2);
 
     finalBox->pack_start (*curveEditorG, Gtk::PACK_SHRINK, 4);
+    finalBox->pack_start(*labretifinbox);
 
 //-----------------------------
 
@@ -1179,6 +1198,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
     Backmethodconn.block(true);
     Tilesmethodconn.block(true);
     retinexMethodConn.block(true);
+    retinexMethodproConn.block(true);
     usharpmethodconn.block(true);
     daubcoeffmethodconn.block(true);
     Dirmethodconn.block(true);
@@ -1343,6 +1363,11 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
         retinexMethod->set_active (3);
     }
 
+    if (pp->wavelet.retinexMethodpro == "resid") {
+        retinexMethodpro->set_active (0);
+    } else if (pp->wavelet.retinexMethodpro == "fina") {
+        retinexMethodpro->set_active (1);
+    }
 
 
     int selectedLevel = atoi(pp->wavelet.Lmethod.data()) - 1;
@@ -1494,6 +1519,10 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
 
         if (!pedited->wavelet.retinexMethod) {
             retinexMethod->set_active_text(M("GENERAL_UNCHANGED"));
+        }
+
+        if (!pedited->wavelet.retinexMethodpro) {
+            retinexMethodpro->set_active_text(M("GENERAL_UNCHANGED"));
         }
 
         if (!pedited->wavelet.daubcoeffmethod) {
@@ -1689,6 +1718,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
         medianlevUpdateUI ();
         cbenabUpdateUI ();
         retinexMethodChanged ();
+        retinexMethodproChanged ();
 
         if(z == 9) {
             sup->show();
@@ -1726,6 +1756,7 @@ void Wavelet::read (const ProcParams* pp, const ParamsEdited* pedited)
     enableResidConn.block(false);
     enableToningConn.block(false);
     retinexMethodConn.block(false);
+    retinexMethodproConn.block(false);
 
     enableListener ();
 }
@@ -1848,6 +1879,7 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
     if (pedited) {
         pedited->wavelet.enabled         = !get_inconsistent();
         pedited->wavelet.retinexMethod    = retinexMethod->get_active_text() != M("GENERAL_UNCHANGED");
+        pedited->wavelet.retinexMethodpro    = retinexMethodpro->get_active_text() != M("GENERAL_UNCHANGED");
         pedited->wavelet.avoid           = !avoid->get_inconsistent();
         pedited->wavelet.tmr             = !tmr->get_inconsistent();
         pedited->wavelet.median          = !median->get_inconsistent();
@@ -2004,6 +2036,12 @@ void Wavelet::write (ProcParams* pp, ParamsEdited* pedited)
         pp->wavelet.retinexMethod = "high";
     }
 
+    if (retinexMethodpro->get_active_row_number() == 0) {
+        pp->wavelet.retinexMethodpro = "resid";
+    } else if (retinexMethodpro->get_active_row_number() == 1) {
+        pp->wavelet.retinexMethodpro = "fina";
+    }
+
 
     if (TMmethod->get_active_row_number() == 0) {
         pp->wavelet.TMmethod = "cont";
@@ -2095,7 +2133,9 @@ void Wavelet::retinexMethodChanged()
         mMLabels->hide();
         transLabels->hide();
         transLabels2->hide();
-
+        retinexMethodpro->hide();
+        labmdhpro->hide();
+        labretifin->set_sensitive(false);
     }
     else if (retinexMethod->get_active_row_number() != 0) {
         gain->show();
@@ -2109,11 +2149,28 @@ void Wavelet::retinexMethodChanged()
         mMLabels->show();
         transLabels->show();
         transLabels2->show();
-
+        retinexMethodpro->show();
+        labmdhpro->show();
+        if (retinexMethodpro->get_active_row_number() == 1) labretifin->set_sensitive(true);
     }
 
     if (listener) {
         listener->panelChanged (EvWavretinexMethod, retinexMethod->get_active_text ());
+    }
+}
+
+void Wavelet::retinexMethodproChanged()
+{
+    if (retinexMethodpro->get_active_row_number() == 0) {
+        labretifin->set_sensitive(false);
+    }
+    else if (retinexMethodpro->get_active_row_number() == 1 && retinexMethod->get_active_row_number() != 0) {
+        labretifin->set_sensitive(true);
+
+    }
+
+    if (listener) {
+        listener->panelChanged (EvWavretinexMethodpro, retinexMethodpro->get_active_text ());
     }
 }
 

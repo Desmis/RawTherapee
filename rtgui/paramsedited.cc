@@ -399,6 +399,7 @@ void ParamsEdited::set (bool v)
     wavelet.CLmethod = v;
     wavelet.Backmethod = v;
     wavelet.retinexMethod = v;
+    wavelet.retinexMethodpro = v;
     wavelet.Tilesmethod = v;
     wavelet.mergeL = v;
     wavelet.mergeC = v;
@@ -905,6 +906,7 @@ void ParamsEdited::initFrom (const std::vector<rtengine::procparams::ProcParams>
         wavelet.NPmethod = wavelet.NPmethod && p.wavelet.NPmethod == other.wavelet.NPmethod;
         wavelet.BAmethod = wavelet.BAmethod && p.wavelet.BAmethod == other.wavelet.BAmethod;
         wavelet.retinexMethod = wavelet.retinexMethod && p.wavelet.retinexMethod == other.wavelet.retinexMethod;
+        wavelet.retinexMethodpro = wavelet.retinexMethodpro && p.wavelet.retinexMethodpro == other.wavelet.retinexMethodpro;
         wavelet.TMmethod = wavelet.TMmethod && p.wavelet.TMmethod == other.wavelet.TMmethod;
         wavelet.HSmethod = wavelet.HSmethod && p.wavelet.HSmethod == other.wavelet.HSmethod;
         wavelet.Dirmethod = wavelet.Dirmethod && p.wavelet.Dirmethod == other.wavelet.Dirmethod;
@@ -2408,6 +2410,10 @@ void ParamsEdited::combine (rtengine::procparams::ProcParams& toEdit, const rten
 
     if (wavelet.retinexMethod) {
         toEdit.wavelet.retinexMethod        = mods.wavelet.retinexMethod;
+    }
+
+    if (wavelet.retinexMethodpro) {
+        toEdit.wavelet.retinexMethodpro        = mods.wavelet.retinexMethodpro;
     }
 
     if (wavelet.CLmethod) {

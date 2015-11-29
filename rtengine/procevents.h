@@ -466,6 +466,7 @@ enum ProcEvent {
     EvWavretinexMethod = 435,
     EvWavCTCurve = 436,
     EvWavchrrt = 437,
+    EvWavretinexMethodpro = 438,
     NUMOFEVENTS
 };
 }

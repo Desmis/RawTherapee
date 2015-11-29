@@ -1899,8 +1899,13 @@ TP_WAVELET_RESCONH;Highlights
 TP_WAVELET_RESCON;Shadows
 TP_WAVELET_RESID;Residual Image
 TP_WAVE_NONE;None
+TP_WAVRETI_FIN;Process Retinex 'Final Touchup' actived
 TP_WAVRETI_METHOD;Retinex method
+TP_WAVRETI_METHODPRO;Process located in
+TP_WAVE_RESIDU;Residual
+TP_WAVE_FINA;Final Touchup
 TP_WAVRETI_METHOD_TOOLTIP;Low = Reinforce low light,\nUniform = Equalize action,\nHigh = Reinforce high light.
+TP_WAVRETI_METHODPRO_TOOLTIP;Locate the Retinex Process either in Residual or in Final touchup
 TP_WAVELET_STR;Strength
 TP_WAVELET_CHRRT;Chroma
 TP_WAVELET_NEIGH;Radius

@@ -23,7 +23,8 @@
 #include "rawimagesource.h"
 #undef THREAD_PRIORITY_NORMAL
 #include "opthelper.h"
-
+#define BENCHMARK
+#include "StopWatch.h"
 namespace rtengine
 {
 
@@ -66,7 +67,7 @@ void SHMap::fillLuminance( Imagefloat * img, float **luminance, double lumi[3] )
 
 void SHMap::update (Imagefloat* img, double radius, double lumi[3], bool hq, int skip)
 {
-
+BENCHFUN
     if (!hq) {
         fillLuminance( img, map, lumi);
 
@@ -235,7 +236,7 @@ SSEFUNCTION void SHMap::dirpyr_shmap(float ** data_fine, float ** data_coarse, i
         #pragma omp parallel
 #endif
         {
-#if defined( __SSE2__ ) && defined( __x86_64__ )
+#if defined( __SSE2__ )
             __m128 dirwtv, valv, normv, dftemp1v, dftemp2v;
 #endif // __SSE2__
             int j;
@@ -261,7 +262,7 @@ SSEFUNCTION void SHMap::dirpyr_shmap(float ** data_fine, float ** data_coarse, i
                     data_coarse[i][j] = val / norm; // low pass filter
                 }
 
-#if defined( __SSE2__ ) && defined( __x86_64__ )
+#if defined( __SSE2__ )
                 int inbrMin = max(i - scalewin, i % scale);
 
                 for(; j < (width - scalewin) - 3; j += 4) {
@@ -341,7 +342,7 @@ SSEFUNCTION void SHMap::dirpyr_shmap(float ** data_fine, float ** data_coarse, i
         #pragma omp parallel
 #endif
         {
-#if defined( __SSE2__ ) && defined( __x86_64__ )
+#if defined( __SSE2__ )
             __m128 dirwtv, valv, normv, dftemp1v, dftemp2v;
             float domkerv[5][5][4] __attribute__ ((aligned (16))) = {{{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}}, {{1, 1, 1, 1}, {2, 2, 2, 2}, {2, 2, 2, 2}, {2, 2, 2, 2}, {1, 1, 1, 1}}, {{1, 1, 1, 1}, {2, 2, 2, 2}, {2, 2, 2, 2}, {2, 2, 2, 2}, {1, 1, 1, 1}}, {{1, 1, 1, 1}, {2, 2, 2, 2}, {2, 2, 2, 2}, {2, 2, 2, 2}, {1, 1, 1, 1}}, {{1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}, {1, 1, 1, 1}}};
 
@@ -369,7 +370,7 @@ SSEFUNCTION void SHMap::dirpyr_shmap(float ** data_fine, float ** data_coarse, i
                     data_coarse[i][j] = val / norm; // low pass filter
                 }
 
-#if defined( __SSE2__ ) && defined( __x86_64__ )
+#if defined( __SSE2__ )
 
                 for(; j < width - scalewin - 3; j += 4) {
                     valv = _mm_setzero_ps();

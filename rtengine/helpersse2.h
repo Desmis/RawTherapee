@@ -28,23 +28,26 @@ typedef __m128i vint2;
 #define STVF(x,y) _mm_store_ps(&x,y)
 #define STVFU(x,y) _mm_storeu_ps(&x,y)
 #else // there is a bug in gcc 4.7.x when using openmp and aligned memory and -O3
+#error gcc < 4.9 is not supported anymore
+#endif
+#else
 #define LVF(x) _mm_loadu_ps(&x)
 #define LVFU(x) _mm_loadu_ps(&x)
 #define STVF(x,y) _mm_storeu_ps(&x,y)
 #define STVFU(x,y) _mm_storeu_ps(&x,y)
 #endif
+
+#if defined(__x86_64__) && defined(__AVX__)
+#define PERMUTEPS(a,mask) _mm_permute_ps(a,mask)
 #else
-#define LVF(x) _mm_load_ps(&x)
-#define LVFU(x) _mm_loadu_ps(&x)
-#define STVF(x,y) _mm_store_ps(&x,y)
-#define STVFU(x,y) _mm_storeu_ps(&x,y)
+#define PERMUTEPS(a,mask) _mm_shuffle_ps(a,a,mask)
 #endif
 
 // Load 8 floats from a and combine a[0],a[2],a[4] and a[6] into a vector of 4 floats
 #define LC2VFU(a) _mm_shuffle_ps( LVFU(a),  _mm_loadu_ps(  (&a) + 4 ), _MM_SHUFFLE( 2,0,2,0 ) )
 
 // Store a vector of 4 floats in a[0],a[2],a[4] and a[6]
-#if defined(__x86_64__) && defined(__SSE4_1__)
+#if defined(__SSE4_1__)
 // SSE4.1 => use _mm_blend_ps instead of _mm_set_epi32 and vself
 #define STC2VFU(a,v) {\
                          __m128 TST1V = _mm_loadu_ps(&a);\
@@ -117,19 +120,19 @@ static INLINE vfloat vcast_vf_f(float f)
 
 static INLINE vfloat vaddf(vfloat x, vfloat y)
 {
-    return _mm_add_ps(x, y);
+    return x + y;
 }
 static INLINE vfloat vsubf(vfloat x, vfloat y)
 {
-    return _mm_sub_ps(x, y);
+    return x - y;
 }
 static INLINE vfloat vmulf(vfloat x, vfloat y)
 {
-    return _mm_mul_ps(x, y);
+    return x * y;
 }
 static INLINE vfloat vdivf(vfloat x, vfloat y)
 {
-    return _mm_div_ps(x, y);
+    return x / y;
 }
 static INLINE vfloat vrecf(vfloat x)
 {
@@ -138,6 +141,10 @@ static INLINE vfloat vrecf(vfloat x)
 static INLINE vfloat vsqrtf(vfloat x)
 {
     return _mm_sqrt_ps(x);
+}
+static INLINE vfloat vmlaf(vfloat x, vfloat y, vfloat z)
+{
+    return x * y + z;
 }
 static INLINE vfloat vmaxf(vfloat x, vfloat y)
 {

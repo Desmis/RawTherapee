@@ -27,7 +27,7 @@
         #ifdef __GNUC__
             #if defined(WIN32) && !defined( __x86_64__ )
                 // needed for actual versions of GCC with 32-Bit Windows
-                #define SSEFUNCTION __attribute__((force_align_arg_pointer))
+                #define SSEFUNCTION //__attribute__((force_align_arg_pointer))
             #else
                 #define SSEFUNCTION
             #endif
@@ -39,7 +39,7 @@
             #ifdef __GNUC__
                 #if defined(WIN32) && !defined( __x86_64__ )
                     // needed for actual versions of GCC with 32-Bit Windows
-                    #define SSEFUNCTION __attribute__((force_align_arg_pointer))
+                    #define SSEFUNCTION //__attribute__((force_align_arg_pointer))
                 #else
                     #define SSEFUNCTION
                 #endif
@@ -59,8 +59,7 @@
             #define ALIGNED64 __attribute__ ((aligned (64)))
             #define ALIGNED16 __attribute__ ((aligned (16)))
         #else // there is a bug in gcc 4.7.x when using openmp and aligned memory and -O3
-            #define ALIGNED64
-            #define ALIGNED16
+            #error gcc < 4.9 is not supported anymore
         #endif
     #else
         #define RESTRICT

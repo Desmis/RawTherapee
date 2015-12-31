@@ -901,15 +901,11 @@ static INLINE vdouble xlog1p(vdouble a) {
 typedef struct {
   vfloat x, y;
 } vfloat2;
-#if defined( __FMA__ ) && defined( __x86_64__ )
-	static INLINE vfloat vmlaf(vfloat x, vfloat y, vfloat z) { return _mm_fmadd_ps(x,y,z); }
-#else
-	static INLINE vfloat vmlaf(vfloat x, vfloat y, vfloat z) { return vaddf(vmulf(x, y), z); }
-#endif
+
 static INLINE vfloat vabsf(vfloat f) { return (vfloat)vandnotm((vmask)vcast_vf_f(-0.0f), (vmask)f); }
 static INLINE vfloat vnegf(vfloat f) { return (vfloat)vxorm((vmask)f, (vmask)vcast_vf_f(-0.0f)); }
 
-#if defined( __SSE4_1__ ) && defined( __x86_64__ )
+#if defined( __SSE4_1__ )
 	// only one instruction when using SSE4.1
 	static INLINE vfloat vself(vmask mask, vfloat x, vfloat y) {
 		return _mm_blendv_ps(y,x,(vfloat)mask);
@@ -920,6 +916,18 @@ static INLINE vfloat vnegf(vfloat f) { return (vfloat)vxorm((vmask)f, (vmask)vca
 		return (vfloat)vorm(vandm(mask, (vmask)x), vandnotm(mask, (vmask)y));
 	}
 #endif
+
+static INLINE vfloat vselfzero(vmask mask, vfloat x) {
+     // returns value of x if corresponding mask bits are 1, else returns 0
+     // faster than vself(mask, x, ZEROV)
+    return _mm_and_ps((vfloat)mask, x);
+}
+
+static INLINE vfloat vselfnotzero(vmask mask, vfloat x) {
+    // returns value of x if corresponding mask bits are 0, else returns 0
+    // faster than vself(mask, ZEROV, x)
+    return _mm_andnot_ps((vfloat)mask, x);
+}
 
 static INLINE vint2 vseli2_lt(vfloat f0, vfloat f1, vint2 x, vint2 y) {
   vint2 m2 = vcast_vi2_vm(vmaskf_lt(f0, f1));
@@ -1266,9 +1274,10 @@ static INLINE vfloat xexpf(vfloat d) {
 
   u = vldexpf(u, q);
 
-  u = vself(vmaskf_isminf(d), vcast_vf_f(0.0f), u);
+  u = vselfnotzero(vmaskf_isminf(d), u);
 // -104.0
-  u = vself(vmaskf_gt(vcast_vf_f(-104), d), vcast_vf_f(0), u);
+  u = vselfnotzero(vmaskf_gt(vcast_vf_f(-104), d), u);
+
   return u;
 }
 

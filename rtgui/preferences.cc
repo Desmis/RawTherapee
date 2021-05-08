@@ -1275,8 +1275,8 @@ Gtk::Widget* Preferences::getGeneralPanel()
         vb = Gtk::manage(new Gtk::VBox());
         vb->pack_start(*hb);
         hb = Gtk::manage(new Gtk::HBox());
-        hb->pack_start(*editor_float32, Gtk::PACK_SHRINK);
-        hb->pack_start(*editor_bypass_output_profile, Gtk::PACK_SHRINK, 4);
+//        hb->pack_start(*editor_float32, Gtk::PACK_SHRINK);
+//        hb->pack_start(*editor_bypass_output_profile, Gtk::PACK_SHRINK, 4);
         vb->pack_start(*hb, Gtk::PACK_SHRINK, 4);
 
         vb->show_all_children();

@@ -105,46 +105,6 @@ bool CPBDump(
     return true;
 }
 
-struct ColorMapper {
-    std::map<int, std::string> indexLabelMap;
-    std::map<std::string, int> labelIndexMap;
-
-    ColorMapper(std::map<int, std::string> colors) {
-        for (const auto& color: colors) {
-            indexLabelMap.insert({color.first, color.second});
-            labelIndexMap.insert({color.second, color.first});
-        }
-    }
-
-    int index(const std::string &label) const
-    {
-        auto it = labelIndexMap.find(label);
-        if (it != labelIndexMap.end()) {
-            return it->second;
-        }
-        return 0;
-    }
-
-    std::string label(int index) const
-    {
-        auto it = indexLabelMap.find(index);
-        if (it != indexLabelMap.end()) {
-            return it->second;
-        }
-        return "";
-    }
-};
-
-const std::map<int, std::string> defaultColors = {
-    {1, "Red"},
-    {2, "Yellow"},
-    {3, "Green"},
-    {4, "Blue"},
-    {5, "Purple"}
-};
-
-auto defaultColorMapper = ColorMapper(defaultColors);
-
 } // namespace
 
 using namespace rtengine::procparams;
@@ -930,6 +890,7 @@ int Thumbnail::infoFromImage(const Glib::ustring &fname, CacheImageData &cfs)
         cfs.camMake      = idata->getMake();
         cfs.camModel     = idata->getModel();
         cfs.rating       = idata->getRating();
+        cfs.colorLabel   = idata->getColorLabel();
         cfs.exifValid    = true;
 
         if (idata->getOrientation() == "Rotate 90 CW") {
@@ -1254,10 +1215,15 @@ void Thumbnail::loadProperties()
     // get initial rank from cache or image metadata
     if (cfs.exifValid) {
         properties.rank.value = rtengine::LIM(cfs.getRating(), 0, 5);
+        properties.color.value = rtengine::LIM(cfs.getColorLabel(), -1, 5);
     } else {
         const std::unique_ptr<const rtengine::FramesMetaData> md(rtengine::FramesMetaData::fromFile(fname));
         if (md && md->hasExif()) {
             properties.rank.value = rtengine::LIM(md->getRating(), 0, 5);
+            const auto color = md->getColorLabel();
+            if (color >= 1 && color <= 5) {
+                properties.color.value = color;
+            }
         }
     }
 
@@ -1285,7 +1251,7 @@ void Thumbnail::loadProperties()
 
             pos = xmp.findKey(Exiv2::XmpKey("Xmp.xmp.Label"));
             if (pos != xmp.end()) {
-                properties.color.value = defaultColorMapper.index(pos->toString());
+                properties.color.value = rtengine::FramesData::xmp_label2color(pos->toString());
             }
         } catch (std::exception &exc) {
             std::cerr << "ERROR loading thumbnail properties data from "
@@ -1336,7 +1302,7 @@ void Thumbnail::saveXMPSidecarProperties()
             xmp["Xmp.xmp.Rating"] = std::to_string(properties.rank);
         }
         if (properties.color.edited) {
-            xmp["Xmp.xmp.Label"] = defaultColorMapper.label(properties.color);
+            xmp["Xmp.xmp.Label"] = rtengine::FramesData::xmp_color2label(properties.color);
         }
 
         rtengine::Exiv2Metadata meta;

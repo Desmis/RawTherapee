@@ -58,7 +58,7 @@ CacheImageData::CacheImageData() :
     focusDist(0.f),
     iso(0),
     rating(0),
-    colorLabel(-1),
+    colorLabel(0),
     isHDR (false),
     isDNG (false),
     isPixelShift (false),

@@ -1215,7 +1215,7 @@ void Thumbnail::loadProperties()
     // get initial rank from cache or image metadata
     if (cfs.exifValid) {
         properties.rank.value = rtengine::LIM(cfs.getRating(), 0, 5);
-        properties.color.value = rtengine::LIM(cfs.getColorLabel(), -1, 5);
+        properties.color.value = rtengine::LIM(cfs.getColorLabel(), 0, 5);
     } else {
         const std::unique_ptr<const rtengine::FramesMetaData> md(rtengine::FramesMetaData::fromFile(fname));
         if (md && md->hasExif()) {

@@ -893,6 +893,7 @@ rtengine::ProcessingJob* BatchQueue::imageReady(rtengine::IImagefloat* img)
 
 // Calculates automatic filename of processed batch entry, but just the base name
 // example output: "c:\out\converted\dsc0121"
+// format is the output file format, e.g. "jpg", "tif", "png", etc.  It is used to put format in file path using "%e"
 Glib::ustring BatchQueue::calcAutoFileNameBase (const Glib::ustring& origFileName, int sequence, const Glib::ustring& format)
 {
 
@@ -990,7 +991,7 @@ Glib::ustring BatchQueue::calcAutoFileNameBase (const Glib::ustring& origFileNam
                     }
                 } else if (options.savePathTemplate[ix] == 'f') {
                     path += filename;
-                } else if (options.savePathTemplate[ix] == 'e') {
+                } else if (options.savePathTemplate[ix] == 'e') { // file format from input args
                     path += format;
                 } else if (options.savePathTemplate[ix] == 'r') { // rank from pparams
                     char rank;

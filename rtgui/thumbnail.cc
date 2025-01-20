@@ -37,6 +37,7 @@
 #include "rtengine/metadata.h"
 #include "rtengine/profilestore.h"
 #include "rtengine/settings.h"
+#include "rtengine/utils.h"
 #include "guiutils.h"
 #include "batchqueue.h"
 #include "extprog.h"
@@ -1418,10 +1419,9 @@ void Thumbnail::updateProcParamsProperties(bool forceUpdate)
         pparamsValid = true;
     }
 
-    const auto getXmpSidecar = [this]() {
-        static auto xmp = rtengine::Exiv2Metadata::getXmpSidecar(fname);
-        return xmp;
-    };
+    const rtengine::MemoizingSupplier<Exiv2::XmpData> getXmpSidecar([this]() {
+        return rtengine::Exiv2Metadata::getXmpSidecar(fname);
+    });
 
     // save procparams rank and color also when options.thumbnailRankColorMode == Options::ThumbnailPropertyMode::XMP
     // so they'll be kept in sync

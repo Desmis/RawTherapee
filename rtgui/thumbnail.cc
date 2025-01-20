@@ -1430,8 +1430,10 @@ void Thumbnail::updateProcParamsProperties(bool forceUpdate)
     if ((properties.rank.edited || forceUpdate) &&
         rtengine::LIM(properties.rank.value, 0, 5) != rtengine::LIM(pparams->rank, 0, 5)) {
         pparams->rank = properties.rank;
-        pparamsValid |= properties.rank.edited;
-        if (!pparamsValid && forceUpdate) {
+        if (!forceUpdate) {
+            pparamsValid |= properties.rank.edited;
+        }
+        else if (!pparamsValid && forceUpdate) {
             // When force-updating, the processing parameters' rank needs not be
             // used if the embedded rank is the same.
             int initial_rank = 0;
@@ -1443,8 +1445,10 @@ void Thumbnail::updateProcParamsProperties(bool forceUpdate)
 
     if ((properties.color.edited || forceUpdate) && properties.color != pparams->colorlabel) {
         pparams->colorlabel = properties.color;
-        pparamsValid |= properties.color.edited;
-        if (!pparamsValid && forceUpdate) {
+        if (!forceUpdate) {
+            pparamsValid |= properties.color.edited;
+        }
+        else if (!pparamsValid && forceUpdate) {
             // When force-updating, the processing parameters' color label needs
             // not be used if the embedded color label is the same.
             int initial_color = 0;

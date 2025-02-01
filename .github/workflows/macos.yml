@@ -17,6 +17,8 @@ on:
 jobs:
   build:
     runs-on: macos-13
+    permissions:
+      contents: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

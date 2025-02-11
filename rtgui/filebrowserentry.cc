@@ -123,7 +123,10 @@ void FileBrowserEntry::calcThumbnailSize ()
         thumbnail->getThumbnailSize(previewSize.width, previewSize.height);
 
         hidpi::ScaledDeviceSize device = previewSize.scaleToDevice(activeDeviceScale);
-        size_t expected_size = device.width * device.height * 3;
+        size_t expected_size = [&]() {
+            int dataSize = device.width * device.height * 3;
+            return static_cast<size_t>(dataSize);
+        }();
 
         if (ow != previewSize.width || oh != previewSize.height || preview.size() != expected_size) {
             preview.clear();
@@ -288,7 +291,8 @@ void FileBrowserEntry::_updateImage(ThumbImageUpdateListener::ImageUpdate&& upda
 
         previewDataLayout.width = imw;
         previewDataLayout.height = imh;
-        preview.resize(imw * imh * 3);
+        int dataSize = imw * imh * 3;
+        preview.resize(dataSize);
         std::copy(update.img->getData(), update.img->getData() + preview.size(), preview.begin());
 
         {

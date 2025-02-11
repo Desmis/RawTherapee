@@ -220,7 +220,8 @@ void BatchQueueEntry::_updateImage (guint8* img, hidpi::LogicalSize size, int de
         activeDeviceScale = pendingDeviceScale;
         previewDataLayout.width = size.width * deviceScale;
         previewDataLayout.height = size.height * deviceScale;
-        preview.resize(previewDataLayout.width * previewDataLayout.height * 3);
+        int dataSize = previewDataLayout.width * previewDataLayout.height * 3;
+        preview.resize(dataSize);
         std::copy(img, img + preview.size(), preview.begin());
 
         if (parent) {

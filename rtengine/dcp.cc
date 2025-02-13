@@ -1132,7 +1132,7 @@ DCPProfile::DCPProfile(const Glib::ustring& filename) :
 
     if (file == nullptr) {
         if (settings->verbose) {
-            printf ("Unable to load DCP profile '%s' !", filename.c_str());
+            printf ("Unable to load DCP profile '%s' !\n", filename.c_str());
         }
         return;
     }
@@ -1140,7 +1140,7 @@ DCPProfile::DCPProfile(const Glib::ustring& filename) :
     DCPMetadata md(file.get());
     if (!md.parse()) {
         if (settings->verbose) {
-            printf ("Unable to load DCP profile '%s'.", filename.c_str());
+            printf ("Unable to load DCP profile '%s'.\n", filename.c_str());
         }
         return;
     }

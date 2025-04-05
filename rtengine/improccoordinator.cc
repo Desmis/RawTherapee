@@ -211,6 +211,7 @@ ImProcCoordinator::ImProcCoordinator() :
     lmasklocalcurve(65536, LUT_CLIP_OFF),
     lmaskexplocalcurve(65536, LUT_CLIP_OFF),
     lmaskSHlocalcurve(65536, LUT_CLIP_OFF),
+    ghslocalcurve(65536, LUT_CLIP_OFF),
     lmaskviblocalcurve(65536, LUT_CLIP_OFF),
     lmasktmlocalcurve(65536, LUT_CLIP_OFF),
     lmaskretilocalcurve(65536, LUT_CLIP_OFF),
@@ -1151,6 +1152,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
             //std::vector<LocallabListener::locallabRef> locallref;
             std::vector<LocallabListener::locallabRetiMinMax> locallretiminmax;
             std::vector<LocallabListener::locallabcieLC> locallcielc;
+            std::vector<LocallabListener::locallabshGHSbw> locallshgshbw;
             std::vector<LocallabListener::locallabsetLC> locallsetlc;
             std::vector<LocallabListener::locallabcieSIG> locallciesig;
             huerefs.resize(params->locallab.spots.size());
@@ -1265,6 +1267,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 const bool localmaskutili = CurveFactory::diagonalCurve2Lut(params->locallab.spots.at(sp).Lmaskcurve, lmasklocalcurve, sca);
                 const bool localmaskexputili = CurveFactory::diagonalCurve2Lut(params->locallab.spots.at(sp).Lmaskexpcurve, lmaskexplocalcurve, sca);
                 const bool localmaskSHutili = CurveFactory::diagonalCurve2Lut(params->locallab.spots.at(sp).LmaskSHcurve, lmaskSHlocalcurve, sca);
+              //  const bool localghsutili = CurveFactory::diagonalCurve2Lut(params->locallab.spots.at(sp).ghscurve, ghslocalcurve, sca);
                 const bool localmaskvibutili = CurveFactory::diagonalCurve2Lut(params->locallab.spots.at(sp).Lmaskvibcurve, lmaskviblocalcurve, sca);
                 const bool localmasktmutili = CurveFactory::diagonalCurve2Lut(params->locallab.spots.at(sp).Lmasktmcurve, lmasktmlocalcurve, sca);
                 const bool localmaskretiutili = CurveFactory::diagonalCurve2Lut(params->locallab.spots.at(sp).Lmaskreticurve, lmaskretilocalcurve, sca);
@@ -1398,13 +1401,18 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 float Lnresi = 0.f;
                 float Lhighresi46 = 0.f;
                 float Lnresi46 = 0.f;
+                int ghsbpwp[2] = {0, 0};
+                float ghsbpwpvalue[2] = {0.f, 1.f};                
+
                 Glib::ustring prof = params->icm.workingProfile;
                 if(params->locallab.spots.at(sp).complexcie == 2) {
                     params->locallab.spots.at(sp).primMethod = prof;//in Basic mode set to Working profile
                 }
                 float slopeg = 1.f;
                 bool linkrgb = true;
-                ipf.Lab_Local(3, sp, (float**)shbuffer, nprevl, nprevl, reserv.get(), savenormtm.get(), savenormreti.get(), lastorigimp.get(), fw, fh, 0, 0, pW, pH, scale, locRETgainCurve, locRETtransCurve,
+                    
+                ipf.Lab_Local(3, sp, (float**)shbuffer, nprevl, nprevl, reserv.get(), savenormtm.get(), savenormreti.get(), lastorigimp.get(), fw, fh, 0, 0, pW, pH, pW, pH, pW, pH,  scale, locRETgainCurve, locRETtransCurve,
+            //    ipf.Lab_Local(3, sp, (float**)shbuffer, nprevl, nprevl, reserv.get(), savenormtm.get(), savenormreti.get(), lastorigimp.get(), fw, fh, 0, 0, pW, pH, scale, locRETgainCurve, locRETtransCurve,
                               lllocalcurve, locallutili,
                               cllocalcurve, localclutili,
                               lclocalcurve, locallcutili,
@@ -1413,6 +1421,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                               lmasklocalcurve, localmaskutili,
                               lmaskexplocalcurve, localmaskexputili,
                               lmaskSHlocalcurve, localmaskSHutili,
+                            //  ghslocalcurve, localghsutili,
                               lmaskviblocalcurve, localmaskvibutili,
                               lmasktmlocalcurve, localmasktmutili,
                               lmaskretilocalcurve, localmaskretiutili,
@@ -1459,7 +1468,8 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                               huerblu, chromarblu, lumarblu, huer, chromar, lumar, sobeler, lastsav, false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                               minCD, maxCD, mini, maxi, Tmean, Tsigma, Tmin, Tmax,
                               meantm, stdtm, meanreti, stdreti, fab, maxicam, rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, prim, ill, contsig, lightsig,
-                              highresi, nresi, highresi46, nresi46, Lhighresi, Lnresi, Lhighresi46, Lnresi46, slopeg, linkrgb);
+                              highresi, nresi, highresi46, nresi46, Lhighresi, Lnresi, Lhighresi46, Lnresi46, slopeg, linkrgb,
+                              ghsbpwp, ghsbpwpvalue);
 
 
                 fabrefp[sp] = fab;
@@ -1571,6 +1581,13 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 locciesig.lightsigq = lightsig;
                 locallciesig.push_back(locciesig);
 
+                LocallabListener::locallabshGHSbw locshghsbw;//ghs S curve
+                    for(int j = 0; j < 2; j++) {
+                        locshghsbw.ghsbw[j] = ghsbpwp[j];
+                        locshghsbw.ghsbwvalue[j] = ghsbpwpvalue[j];
+                    }
+                locallshgshbw.push_back(locshghsbw);
+
 
                 // Recalculate references after
                 if (params->locallab.spots.at(sp).spotMethod == "exc") {
@@ -1611,7 +1628,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 bool iscbdl = params->locallab.spots.at(sp).expcbdl;
                 bool islog = params->locallab.spots.at(sp).explog;
                 bool ismas = params->locallab.spots.at(sp).expmask;
-                bool iscie = params->locallab.spots.at(sp).expcie;
+                bool isci = params->locallab.spots.at(sp).expcie;
               // bool isset = iscolor || issh || isvib;
                 
                 //set select spot settings 
@@ -1630,7 +1647,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 locsetlc.iscbd = iscbdl;
                 locsetlc.islo = islog;
                 locsetlc.isma = ismas;
-                locsetlc.isci = iscie;
+                locsetlc.isci = isci;
                 locallsetlc.push_back(locsetlc);
                 
                 if (locallListener) {
@@ -1640,6 +1657,10 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                         locallListener->cieChanged(locallcielc,params->locallab.selspot); 
                     }
                     locallListener->sigChanged(locallciesig,params->locallab.selspot);
+                    if (params->locallab.spots.at(sp).expshadhigh && params->locallab.spots.at(sp).shMethod == "ghs") {
+                        locallListener->ghsbwChanged(locallshgshbw,params->locallab.selspot);//Black and White point
+                    }
+
                     /*
                     if(params->locallab.spots.at(sp).colorscope != 0) {//compatibility with old method in controlspotpanel
                             locallListener->scopeChangedcol(scopefp[sp], params->locallab.selspot, iscolor);
@@ -1670,7 +1691,6 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
             //*************************************************************
 
         }
-
         if ((todo & M_RGBCURVE) || (todo & M_CROP)) {
             //complexCurve also calculated pre-curves histogram depending on crop
             CurveFactory::complexCurve(params->toneCurve.expcomp, params->toneCurve.black / 65535.0,

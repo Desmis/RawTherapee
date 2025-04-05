@@ -31,7 +31,9 @@ NEW FEATURES SINCE 5.11
 - The Resize tool gained a framing feature that adds a decorative solid color border around the image before it is saved. Various sizing options allow great flexibility in adjusting the border thickness and image dimensions. To reflect the tool's capabilities, it has been renamed to Resize & Framing.
 - Demosaiced floating-point DNGs are now supported.
 - The Abstract Profile tool has a new Contrast Enhancement feature that offers a simple way to add local contrast. It can be used to restore contrast lost due to the application of the abstract profile.
+- The Color appearance tool in Selective Editing gained several Tone Mapping Operators (formerly Highlight Attenuation & Levels) enhancements in Source Data Adjustments. The RGB channel Slope tone mapper (formerly Levels) has new options. There is a new Sigmoid based tone mapper.
 - More Sony lenses are recognized, improving the data displayed in the quick info overlay and enabling automatic profiled lens correction.
+- The Shadows/Highlights & Tone Equalizer tool in Selective Editing gained the Generalized Hyperbolic Stretch (GHS) global tone mapper. To reflect the tool's new tone mapper, it has been renamed to Shadows/Highlights, Equalizer & GHS.
 - Added or improved support for cameras, raw formats and color profiles (not an exhaustive list because unconfirmed support is excluded):
     - Canon EOS R8 (DCP, black level in electronic shutter mode)
     - Fujifilm X-E4 (raw crop in electronic shutter mode)

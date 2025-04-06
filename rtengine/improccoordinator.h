@@ -160,6 +160,7 @@ protected:
     WavOpacityCurveBY waOpacityCurveBY;
     WavOpacityCurveW waOpacityCurveW;
     WavOpacityCurveWL waOpacityCurveWL;
+    WavOpacityCurveWL icmOpacityCurveWL;
     RetinextransmissionCurve dehatransmissionCurve;
     RetinexgaintransmissionCurve dehagaintransmissionCurve;
 
@@ -279,6 +280,7 @@ protected:
     LUTf lmasklocalcurve;
     LUTf lmaskexplocalcurve;
     LUTf lmaskSHlocalcurve;
+    LUTf ghslocalcurve;
     LUTf lmaskviblocalcurve;
     LUTf lmasktmlocalcurve;
     LUTf lmaskretilocalcurve;

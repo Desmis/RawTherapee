@@ -875,6 +875,7 @@ void Crop::update(int todo)
         auto& lmasklocalcurve2 = parent->lmasklocalcurve;
         auto& lmaskexplocalcurve2 = parent->lmaskexplocalcurve;
         auto& lmaskSHlocalcurve2 = parent->lmaskSHlocalcurve;
+       // auto& ghslocalcurve2 = parent->ghslocalcurve;
         auto& lmaskviblocalcurve2 = parent->lmaskviblocalcurve;
         auto& lmasktmlocalcurve2 = parent->lmasktmlocalcurve;
         auto& lmaskretilocalcurve2 = parent->lmaskretilocalcurve;
@@ -954,6 +955,8 @@ void Crop::update(int todo)
         auto& locwavCurveden = parent->locwavCurveden;
         auto& lmasklocal_curve2 = parent->lmasklocal_curve;
         auto& loclmasCurve_wav = parent->loclmasCurve_wav;
+        //big bug found 29//11/2024       
+        std::vector<LocallabListener::locallabDenoiseLC> localldenoiselc;
 
         for (int sp = 0; sp < (int)params.locallab.spots.size(); sp++) {
             locRETgainCurve.Set(params.locallab.spots.at(sp).localTgaincurve);
@@ -1026,6 +1029,7 @@ void Crop::update(int todo)
             const bool localmaskutili = CurveFactory::diagonalCurve2Lut(params.locallab.spots.at(sp).Lmaskcurve, lmasklocalcurve2, skip);
             const bool localmaskexputili = CurveFactory::diagonalCurve2Lut(params.locallab.spots.at(sp).Lmaskexpcurve, lmaskexplocalcurve2, skip);
             const bool localmaskSHutili = CurveFactory::diagonalCurve2Lut(params.locallab.spots.at(sp).LmaskSHcurve, lmaskSHlocalcurve2, skip);
+          //  const bool localghsutili = CurveFactory::diagonalCurve2Lut(params.locallab.spots.at(sp).ghscurve, ghslocalcurve2, skip);
             const bool localmaskvibutili = CurveFactory::diagonalCurve2Lut(params.locallab.spots.at(sp).Lmaskvibcurve, lmaskviblocalcurve2, skip);
             const bool localmasktmutili = CurveFactory::diagonalCurve2Lut(params.locallab.spots.at(sp).Lmasktmcurve, lmasktmlocalcurve2, skip);
             const bool localmaskretiutili = CurveFactory::diagonalCurve2Lut(params.locallab.spots.at(sp).Lmaskreticurve, lmaskretilocalcurve2, skip);
@@ -1050,7 +1054,6 @@ void Crop::update(int todo)
             if (black < 0. && params.locallab.spots.at(sp).expMethod == "pde" ) {
                 black *= 1.5;
             }
-            std::vector<LocallabListener::locallabDenoiseLC> localldenoiselc;
 
             double cont = params.locallab.spots.at(sp).contrast;
             double huere, chromare, lumare, huerefblu, chromarefblu, lumarefblu, sobelre;
@@ -1091,8 +1094,12 @@ void Crop::update(int todo)
             float Lhighresi46 = 0.f;
             float Lnresi46 = 0.f;
             float contsig = params.locallab.spots.at(sp).contsigqcie;
-            
+            float slopeg = 1.f;
+            bool linkrgb = true;
             float lightsig = params.locallab.spots.at(sp).lightsigqcie;
+            int ghsbpwp[2];
+            float ghsbpwpvalue[2];
+
 /*            huerefp[sp] = huere;
             chromarefp[sp] = chromare;
             lumarefp[sp] = lumare;
@@ -1106,7 +1113,7 @@ void Crop::update(int todo)
 
             if (sp == params.locallab.selspot) {
                 
-                parent->ipf.Lab_Local(1, sp, (float**)shbuffer, labnCrop, labnCrop, reservCrop.get(), savenormtmCrop.get(), savenormretiCrop.get(), lastorigCrop.get(), fw, fh, cropx / skip, cropy / skip, skips(parent->fw, skip), skips(parent->fh, skip), skip, locRETgainCurve, locRETtransCurve,
+                parent->ipf.Lab_Local(1, sp, (float**)shbuffer, labnCrop, labnCrop, reservCrop.get(), savenormtmCrop.get(), savenormretiCrop.get(), lastorigCrop.get(), fw, fh, cropx / skip, cropy / skip, skips(parent->fw, skip), skips(parent->fh, skip), trafx, trafy, trafw, trafh , skip, locRETgainCurve, locRETtransCurve,
                         lllocalcurve2,locallutili, 
                         cllocalcurve2, localclutili,
                         lclocalcurve2, locallcutili,
@@ -1116,6 +1123,7 @@ void Crop::update(int todo)
                         lmasklocalcurve2, localmaskutili, 
                         lmaskexplocalcurve2, localmaskexputili, 
                         lmaskSHlocalcurve2, localmaskSHutili, 
+                       // ghslocalcurve2, localghsutili, 
                         lmaskviblocalcurve2, localmaskvibutili, 
                         lmasktmlocalcurve2, localmasktmutili, 
                         lmaskretilocalcurve2, localmaskretiutili, 
@@ -1163,18 +1171,9 @@ void Crop::update(int todo)
                         parent->previewDeltaE, parent->locallColorMask, parent->locallColorMaskinv, parent->locallExpMask, parent->locallExpMaskinv, parent->locallSHMask, parent->locallSHMaskinv, parent->locallvibMask,  parent->localllcMask, parent->locallsharMask, parent->locallcbMask, parent->locallretiMask, parent->locallsoftMask, parent->localltmMask, parent->locallblMask,
                         parent->localllogMask, parent->locall_Mask, parent->locallcieMask, minCD, maxCD, mini, maxi, Tmean, Tsigma, Tmin, Tmax,
                         meantme, stdtme, meanretie, stdretie, fab, maxicam,rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, prim, ill, contsig, lightsig,
-                        highresi, nresi, highresi46, nresi46, Lhighresi, Lnresi, Lhighresi46, Lnresi46);
+                        highresi, nresi, highresi46, nresi46, Lhighresi, Lnresi, Lhighresi46, Lnresi46,slopeg, linkrgb,
+                        ghsbpwp, ghsbpwpvalue);
                         
-                        LocallabListener::locallabDenoiseLC denoiselc;
-                        denoiselc.highres = highresi;
-                        denoiselc.nres = nresi; 
-                        denoiselc.highres46 = highresi46;
-                        denoiselc.nres46 = nresi46;
-                        denoiselc.Lhighres =  Lhighresi;
-                        denoiselc.Lnres = Lnresi;
-                        denoiselc.Lhighres46 = Lhighresi46;
-                        denoiselc.Lnres46 = Lnresi46;
-                        localldenoiselc.push_back(denoiselc);
                         
                         if (parent->previewDeltaE || parent->locallColorMask == 5 || parent->locallvibMask == 4 || parent->locallExpMask == 5 || parent->locallSHMask == 4 || parent->localllcMask == 4 || parent->localltmMask == 4 || parent->localllogMask == 4 || parent->locallsoftMask == 6 || parent->localllcMask == 4 || parent->locallcieMask == 4) {
                             params.blackwhite.enabled = false;
@@ -1205,23 +1204,8 @@ void Crop::update(int todo)
 
                         }
                         */
-                        denoiselc.highres = highresi;
-                        denoiselc.nres = nresi; 
-                        denoiselc.highres46 = highresi46;
-                        denoiselc.nres46 = nresi46;
-                        denoiselc.Lhighres =  Lhighresi;
-                        denoiselc.Lnres = Lnresi;
-                        denoiselc.Lhighres46 = Lhighresi46;
-                        denoiselc.Lnres46 = Lnresi46;
-                        localldenoiselc.push_back(denoiselc);
-                        
-                       
-                        if (parent->locallListener) {
-                            parent->locallListener->denChanged(localldenoiselc, params.locallab.selspot);
-                        }
-
             } else {
-                parent->ipf.Lab_Local(1, sp, (float**)shbuffer, labnCrop, labnCrop, reservCrop.get(), savenormtmCrop.get(), savenormretiCrop.get(), lastorigCrop.get(), fw, fh, cropx / skip, cropy / skip, skips(parent->fw, skip), skips(parent->fh, skip), skip, locRETgainCurve, locRETtransCurve,
+                parent->ipf.Lab_Local(1, sp, (float**)shbuffer, labnCrop, labnCrop, reservCrop.get(), savenormtmCrop.get(), savenormretiCrop.get(), lastorigCrop.get(), fw, fh, cropx / skip, cropy / skip, skips(parent->fw, skip), skips(parent->fh, skip), trafx, trafy, trafw , trafh, skip, locRETgainCurve, locRETtransCurve,
                         lllocalcurve2,locallutili, 
                         cllocalcurve2, localclutili,
                         lclocalcurve2, locallcutili,
@@ -1230,6 +1214,7 @@ void Crop::update(int todo)
                         lmasklocalcurve2, localmaskutili,
                         lmaskexplocalcurve2, localmaskexputili, 
                         lmaskSHlocalcurve2, localmaskSHutili, 
+                       // ghslocalcurve2, localghsutili, 
                         lmaskviblocalcurve2, localmaskvibutili, 
                         lmasktmlocalcurve2, localmasktmutili, 
                         lmaskretilocalcurve2, localmaskretiutili, 
@@ -1276,8 +1261,25 @@ void Crop::update(int todo)
                         huerefblu, chromarefblu, lumarefblu, huere, chromare, lumare, sobelre, lastsav, false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         minCD, maxCD, mini, maxi, Tmean, Tsigma, Tmin, Tmax,
                         meantme, stdtme, meanretie, stdretie, fab, maxicam, rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, prim, ill, contsig, lightsig,
-                        highresi, nresi, highresi46, nresi46, Lhighresi, Lnresi, Lhighresi46, Lnresi46);
+                        highresi, nresi, highresi46, nresi46, Lhighresi, Lnresi, Lhighresi46, Lnresi46,slopeg, linkrgb,
+                        ghsbpwp, ghsbpwpvalue);
             }
+
+
+                        LocallabListener::locallabDenoiseLC denoiselc;
+                        denoiselc.highres = highresi;
+                        denoiselc.nres = nresi; 
+                        denoiselc.highres46 = highresi46;
+                        denoiselc.nres46 = nresi46;
+                        denoiselc.Lhighres =  Lhighresi;
+                        denoiselc.Lnres = Lnresi;
+                        denoiselc.Lhighres46 = Lhighresi46;
+                        denoiselc.Lnres46 = Lnresi46;
+                        localldenoiselc.push_back(denoiselc);
+
+                        if (parent->locallListener) {
+                            parent->locallListener->denChanged(localldenoiselc, params.locallab.selspot);
+                        }
             
             
             if (sp + 1u < params.locallab.spots.size()) {
@@ -1449,7 +1451,6 @@ void Crop::update(int todo)
             WavOpacityCurveBY waOpacityCurveBY;
             WavOpacityCurveW waOpacityCurveW;
             WavOpacityCurveWL waOpacityCurveWL;
-
             LUTf wavclCurve;
 
             params.wavelet.getCurves(wavCLVCurve, wavdenoise, wavdenoiseh, wavblcurve, waOpacityCurveRG, waOpacityCurveSH, waOpacityCurveBY, waOpacityCurveW, waOpacityCurveWL);
@@ -1628,6 +1629,23 @@ void Crop::update(int todo)
         if (params.icm.workingTRC != ColorManagementParams::WorkingTrc::NONE && params.icm.trcExp) {
             const int GW = labnCrop->W;
             const int GH = labnCrop->H;
+            if(params.icm.trcExp) {//local contrast
+                int level_hr = 7;
+                int maxlevpo = 9;
+                bool wavcurvecont = false; 
+                WaveletParams WaveParams = params.wavelet;
+                ColorManagementParams Colparams = params.icm;
+                WavOpacityCurveWL icmOpacityCurveWL;
+                Colparams.getCurves(icmOpacityCurveWL);
+                parent->ipf.complete_local_contrast(labnCrop, labnCrop, WaveParams, Colparams, icmOpacityCurveWL, skip, level_hr, maxlevpo, wavcurvecont);
+                bool enall = false;
+                enall = wavcurvecont && Colparams.wavExp;//enable message only if curve enable and Expander on
+                if (parent->primListener) {
+                    parent->primListener->wavlocChanged(float (maxlevpo), float (level_hr), enall);
+                }
+
+            }
+            
             std::unique_ptr<LabImage> provis;
             const float pres = 0.01f * params.icm.preser;
             if (pres > 0.f && params.icm.wprim != ColorManagementParams::Primaries::DEFAULT) {
@@ -1639,8 +1657,8 @@ void Crop::update(int todo)
 
             parent->ipf.lab2rgb(*labnCrop, *tmpImage1, params.icm.workingProfile);
 
-            const float gamtone = parent->params->icm.workingTRCGamma;
-            const float slotone = parent->params->icm.workingTRCSlope;
+            const float gamtone = parent->params->icm.wGamma;
+            const float slotone = parent->params->icm.wSlope;
 
             int illum = rtengine::toUnderlying(params.icm.will);
             const int prim = rtengine::toUnderlying(params.icm.wprim);

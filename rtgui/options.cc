@@ -185,6 +185,10 @@ void Options::updatePaths()
         lastlocalCurvesDir = preferredPath;
     }
 
+    if (lastlocalCurvesDirghs.empty() || !Glib::file_test(lastlocalCurvesDirghs, Glib::FILE_TEST_EXISTS) || !Glib::file_test(lastlocalCurvesDirghs, Glib::FILE_TEST_IS_DIR)) {
+        lastlocalCurvesDirghs = preferredPath;
+    }
+
     if (lastPFCurvesDir.empty() || !Glib::file_test(lastPFCurvesDir, Glib::FILE_TEST_EXISTS) || !Glib::file_test(lastPFCurvesDir, Glib::FILE_TEST_IS_DIR)) {
         lastPFCurvesDir = preferredPath;
     }
@@ -195,6 +199,10 @@ void Options::updatePaths()
 
     if (lastToneCurvesDir.empty() || !Glib::file_test(lastToneCurvesDir, Glib::FILE_TEST_EXISTS) || !Glib::file_test(lastToneCurvesDir, Glib::FILE_TEST_IS_DIR)) {
         lastToneCurvesDir = preferredPath;
+    }
+
+    if (lastIcmCurvesDir.empty() || !Glib::file_test(lastIcmCurvesDir, Glib::FILE_TEST_EXISTS) || !Glib::file_test(lastIcmCurvesDir, Glib::FILE_TEST_IS_DIR)) {
+        lastIcmCurvesDir = preferredPath;
     }
 
     if (lastProfilingReferenceDir.empty() || !Glib::file_test(lastProfilingReferenceDir, Glib::FILE_TEST_EXISTS) || !Glib::file_test(lastProfilingReferenceDir, Glib::FILE_TEST_IS_DIR)) {
@@ -688,9 +696,11 @@ void Options::setDefaults()
     lastDenoiseCurvesDir = "";
     lastWaveletCurvesDir = "";
     lastlocalCurvesDir = "";
+    lastlocalCurvesDirghs = "";
     lastPFCurvesDir = "";
     lastHsvCurvesDir = "";
     lastToneCurvesDir = "";
+    lastIcmCurvesDir = "";
     lastVibranceCurvesDir = "";
     lastProfilingReferenceDir = "";
     lastBWCurvesDir = "";
@@ -2309,12 +2319,14 @@ void Options::readFromFile(Glib::ustring fname)
                 safeDirGet(keyFile, "Dialogs", "LastDenoiseCurvesDir", lastDenoiseCurvesDir);
                 safeDirGet(keyFile, "Dialogs", "LastWaveletCurvesDir", lastWaveletCurvesDir);
                 safeDirGet(keyFile, "Dialogs", "LastlocalCurvesDir", lastlocalCurvesDir);
+                safeDirGet(keyFile, "Dialogs", "LastlocalCurvesDirghs", lastlocalCurvesDirghs);
 
                 safeDirGet(keyFile, "Dialogs", "LastPFCurvesDir", lastPFCurvesDir);
                 safeDirGet(keyFile, "Dialogs", "LastHsvCurvesDir", lastHsvCurvesDir);
                 safeDirGet(keyFile, "Dialogs", "LastBWCurvesDir", lastBWCurvesDir);
 
                 safeDirGet(keyFile, "Dialogs", "LastToneCurvesDir", lastToneCurvesDir);
+                safeDirGet(keyFile, "Dialogs", "LastIcmCurvesDir", lastIcmCurvesDir);
                 safeDirGet(keyFile, "Dialogs", "LastVibranceCurvesDir", lastVibranceCurvesDir);
                 safeDirGet(keyFile, "Dialogs", "LastProfilingReferenceDir", lastProfilingReferenceDir);
                 safeDirGet(keyFile, "Dialogs", "LastLensProfileDir", lastLensProfileDir);
@@ -2807,10 +2819,12 @@ void Options::saveToFile(Glib::ustring fname)
         keyFile.set_string("Dialogs", "LastDenoiseCurvesDir", lastDenoiseCurvesDir);
         keyFile.set_string("Dialogs", "LastWaveletCurvesDir", lastWaveletCurvesDir);
         keyFile.set_string("Dialogs", "LastlocalCurvesDir", lastlocalCurvesDir);
+        keyFile.set_string("Dialogs", "LastlocalCurvesDirghs", lastlocalCurvesDirghs);
         keyFile.set_string("Dialogs", "LastPFCurvesDir", lastPFCurvesDir);
         keyFile.set_string("Dialogs", "LastHsvCurvesDir", lastHsvCurvesDir);
         keyFile.set_string("Dialogs", "LastBWCurvesDir", lastBWCurvesDir);
         keyFile.set_string("Dialogs", "LastToneCurvesDir", lastToneCurvesDir);
+        keyFile.set_string("Dialogs", "LastIcmCurvesDir", lastIcmCurvesDir);
         keyFile.set_string("Dialogs", "LastVibranceCurvesDir", lastVibranceCurvesDir);
         keyFile.set_string("Dialogs", "LastProfilingReferenceDir", lastProfilingReferenceDir);
         keyFile.set_string("Dialogs", "LastLensProfileDir", lastLensProfileDir);

@@ -22137,6 +22137,10 @@ void ImProcFunctions::Lab_Local(
         notlaplacian = true;
     }
 
+    if(ghsactiv && params->locallab.spots.at(sp).ghs_BLP > 0.) {//avoid crash in some rare cases when BP > 0 and datas image near zero.
+        notlaplacian = true;
+    }
+
     ToneCurveMode curveMode = params->toneCurve.curveMode;//Tone curve does not allow negative values
     if((curveMode == ToneCurveMode::PERCEPTUAL) || (curveMode == ToneCurveMode::STD) || (curveMode == ToneCurveMode::WEIGHTEDSTD)  || (curveMode == ToneCurveMode::FILMLIKE) || (curveMode == ToneCurveMode::SATANDVALBLENDING) || (curveMode == ToneCurveMode::LUMINANCE)) {
         notzero = true;

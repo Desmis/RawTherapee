@@ -89,6 +89,7 @@
 #87 29.03.2025 Erweiterung (marter) RT 5.12
 #100
 #101 @LANGUAGE_DISPLAY_NAME=Deutsch
+
 ABOUT_TAB_BUILD;Version
 ABOUT_TAB_CREDITS;Danksagungen
 ABOUT_TAB_LICENSE;Lizenz
@@ -1654,28 +1655,28 @@ HISTORY_MSG_LOCAL_FEATHERSH;(sel. Editieren - Schatten/Lichter)\nVerlaufsfilter\
 HISTORY_MSG_LOCAL_FEATHERVIB;(sel. Editieren - Farbtemperatur)\nVerlaufsfilter\nVerlaufsbreite
 HISTORY_MSG_LOCAL_FEATHERWAV;(sel. Editieren - Wavelet)\nVerlaufsfilter\nVerlaufsbreite
 HISTORY_MSG_LOCAL_GAMUTMUNSEL;(sel. Editieren - Spot)\nSpeziell\nFarbverschiebung vermeiden
-HISTORY_MSG_LOCAL_LOGCIE12;(sel. Editieren -CIECAM)\nQuellen-Daten\nLog-Kodierung
 HISTORY_MSG_LOCAL_GHSMETHOD;(sel. Editieren - Schatten/Lichter - GHS)\nMethodenauswahl
-HISTORY_MSG_LOCAL_GHS_D;(sel. Editieren - Schatten/Lichter - GHS)\nDehnungsfaktor
-HISTORY_MSG_LOCAL_GHS_SLOPE;(sel. Editieren - Schatten/Lichter - GHS)\nSteigungsfaktor Lab
-HISTORY_MSG_LOCAL_GHS_CHRO;(sel. Editieren - Schatten/Lichter - GHS)\nBuntheitsfaktor Lab
 HISTORY_MSG_LOCAL_GHS_B;(sel. Editieren - Schatten/Lichter - GHS)\nLokale Intensität
-HISTORY_MSG_LOCAL_GHS_SP;(sel. Editieren - Schatten/Lichter - GHS)\nSymmetriepunkt
-HISTORY_MSG_LOCAL_GHS_LP;(sel. Editieren - Schatten/Lichter - GHS)\nSchatten schützen
-HISTORY_MSG_LOCAL_GHS_HP;(sel. Editieren - Schatten/Lichter - GHS)\nLichter schützen
-HISTORY_MSG_LOCAL_GHS_LC;(sel. Editieren - Schatten/Lichter - GHS)\nLokaler Kontrast
-HISTORY_MSG_LOCAL_GHS_MID;(sel. Editieren - Schatten/Lichter - GHS)\nMitteltöne
 HISTORY_MSG_LOCAL_GHS_BLP;(sel. Editieren - Schatten/Lichter - GHS)\nSchwarzpunkt
+HISTORY_MSG_LOCAL_GHS_CHRO;(sel. Editieren - Schatten/Lichter - GHS)\nBuntheitsfaktor Lab
+HISTORY_MSG_LOCAL_GHS_D;(sel. Editieren - Schatten/Lichter - GHS)\nDehnungsfaktor
 HISTORY_MSG_LOCAL_GHS_HLP;(sel. Editieren - Schatten/Lichter - GHS)\nWeißpunkt
+HISTORY_MSG_LOCAL_GHS_HP;(sel. Editieren - Schatten/Lichter - GHS)\nLichter schützen
 HISTORY_MSG_LOCAL_GHS_INV;(sel. Editieren - Schatten/Lichter - GHS)\nGHS Invertieren
+HISTORY_MSG_LOCAL_GHS_LC;(sel. Editieren - Schatten/Lichter - GHS)\nLokaler Kontrast
+HISTORY_MSG_LOCAL_GHS_LP;(sel. Editieren - Schatten/Lichter - GHS)\nSchatten schützen
+HISTORY_MSG_LOCAL_GHS_MID;(sel. Editieren - Schatten/Lichter - GHS)\nMitteltöne
+HISTORY_MSG_LOCAL_GHS_SLOPE;(sel. Editieren - Schatten/Lichter - GHS)\nSteigungsfaktor Lab
 HISTORY_MSG_LOCAL_GHS_SMOOTH;(sel. Editieren - Schatten/Lichter - GHS)\nGlanzlichtdämpfung
+HISTORY_MSG_LOCAL_GHS_SP;(sel. Editieren - Schatten/Lichter - GHS)\nSymmetriepunkt
+HISTORY_MSG_LOCAL_LOGCIE12;(sel. Editieren -CIECAM)\nQuellen-Daten\nLog-Kodierung
 HISTORY_MSG_LOCAL_LOG_BLACKS;(sel. Editieren - LOG-Kodierung)\nSchwarz-Verteilung
 HISTORY_MSG_LOCAL_LOG_COMPR;(sel. Editieren - LOG-Kodierung)\nHelligkeitskompression
 HISTORY_MSG_LOCAL_LOG_SAT;(sel. Editieren - LOG-Kodierung)\nSättigungskontrolle
 HISTORY_MSG_LOCAL_LOG_WHITES;(sel. Editieren - LOG-Kodierung)\nWeißverteilung
+HISTORY_MSG_LOCAL_NLITER;(sel. Editieren - Rauschminderung)\nNicht-lokales Mittel\nIterationen
 HISTORY_MSG_LOCAL_OFFSETWAV;(sel. Editieren - lokaler Kontrast)\nWavelets\nVersatz
 HISTORY_MSG_LOCAL_PROCESSWAV;(sel. Editieren - lokaler Kontrast)\nWavelets\nAnzeige der modifizierten Bereiche
-HISTORY_MSG_LOCAL_NLITER;(sel. Editieren - Rauschminderung)\nNicht-lokales Mittel\nIterationen
 HISTORY_MSG_LOCAL_QJMETHOD;(sel. Editieren - CIECAM)\nTonemapping Operator Q & J
 HISTORY_MSG_LOCAL_SIGBLCIE;(sel. Editieren - CIECAM)\nCAM16 - Sigmoid Q\nÜberlagern 5.11
 HISTORY_MSG_LOCAL_SIGDACIE;(sel. Editieren - CIECAM)\nCAM16 - Sigmoid Q\nKontrast 5.11
@@ -2292,7 +2293,6 @@ PREFERENCES_WBACORR_TOOLTIP;Diese Einstellungen ermöglichen, abhängig von den 
 PREFERENCES_WBAENA;Zeige Einstellungen der Temperaturkorrelation bei automatischem Weißabgleich 
 PREFERENCES_WBAENACUSTOM;Benutzerdefinierte Temperatur und Tönung
 PREFERENCES_WBAFORC;Erzwingt extra Algorithmus
-!PREFERENCES_WBAGREENDELTA;Delta temperature in green iterate loop (if Force Extra enabled)
 PREFERENCES_WBANOPURP;Keine lila Farben verwendet 
 PREFERENCES_WBAPATCH;maximale Anzahl der im bild verwendeten Farben
 PREFERENCES_WBAPRECIS;Präzision Algorithmus - skaliert
@@ -3363,49 +3363,49 @@ TP_LOCALLAB_GAMUTXYZRELA;XYZ Relativ
 TP_LOCALLAB_GAMW;Gamma (Wavelet Pyramiden)
 TP_LOCALLAB_GHSBPWP; Anzahl ungültiger Pixel - Schatten:%1 Lichter:%2
 TP_LOCALLAB_GHSBPWPVALUE;Pixelwerte - Dunkelste:%1 Hellste:%2
-TP_LOCALLAB_GHS_GHSDIAG; Visualisierung der GHS-Kurve
-TP_LOCALLAB_GHS_SIMUL_TOOLTIP;Zeigt eine repräsentative Kurve der GHS-Funktion.
+TP_LOCALLAB_GHSFRA;Dehnungseinstellungen
+TP_LOCALLAB_GHSHUE;Farbton (HSL)
+TP_LOCALLAB_GHSLAB;Helligkeit & Buntheit (Lab)
+TP_LOCALLAB_GHSLABFRA;Lab Einstellungen
+TP_LOCALLAB_GHSLUM;Helligkeit (HSL)
 TP_LOCALLAB_GHSRGBLUM;RGB Luminanz
 TP_LOCALLAB_GHSRGBSTD;RGB Standard
-TP_LOCALLAB_GHSLAB;Helligkeit & Buntheit (Lab)
-TP_LOCALLAB_GHSHUE;Farbton (HSL)
-TP_LOCALLAB_GHSLUM;Helligkeit (HSL)
 TP_LOCALLAB_GHSSAT;Sättigung (HSL)
-TP_LOCALLAB_GHSFRA;Dehnungseinstellungen
-TP_LOCALLAB_GHS_D;Dehnungsfaktor (D)
 TP_LOCALLAB_GHS_B;Lokale Intensität (b)
-TP_LOCALLAB_GHS_SP;Symmetriepunkt (SP)
-TP_LOCALLAB_GHS_LP;Schatten schützen (LP)
-TP_LOCALLAB_GHS_HP;Lichter schützen (HP)
-TP_LOCALLAB_GHS_LC;lokaler Kontrast (LC)
-TP_LOCALLAB_GHS_LC_FRAME;Dehnungsregelung & Mitteltöne
-TP_LOCALLAB_GHS_LC_TOOLTIP;Erhöht leicht den lokalen Kontrast, der durch die Dehnung abgeschwächt wurde.\nKann durch andere, auf lokalen Kontrast spezialisierte Tools wie Wavelets ergänzt werden.\n\nWenn der Dehnungsfaktor 0,002 oder weniger beträgt, sind Dehnungsregulierung und Mitteltöne deaktiviert.
-TP_LOCALLAB_GHS_MID;Mitteltöne
-TP_LOCALLAB_GHS_MID_TOOLTIP;Passt die Mitteltonbalance nach der GHS-Transformation an.\n Kann verwendet werden, um die Mitteltöne des Bildes nach der Dehnung neu auszugleichen.\n\nWenn der Dehnungsfaktor 0,002 oder weniger beträgt, sind Dehnungsregulierung und Mitteltöne deaktiviert.
-TP_LOCALLAB_GHS_BPFRAME_TOOLTIP;Legt den Schwarzpunkt (BP linear), den Weißpunkt (WP linear) und die Lichter für eine lineare Dehnung des Bildes fest.\n\n * Die Einstellungen für Schwarzpunkt (BP linear) und Weißpunkt (WP linear) sind nur verfügbar, wenn der Dehnungsfaktor (D) zwischen 0,001 und 0,002 liegt, um das Histogramm nicht zu beeinflussen.\n\n * Wenn der Dehnungsfaktor 0,002 oder weniger beträgt, haben, außer Schwarzpunkt und Weißpunkt; keinerlei Dehnungseinstellungen eine Wirkung.\n\n * Die Einstellungen für Schwarzpunkt (BP linear) und Weißpunkt (WP linear) reagieren empfindlich auf die allgemeinen Einstellungen vor GHS: Lichterrekonstruktion, Weißabgleich und RAW-Prozesse.\n\n * Um relevante Einstellungen für Schwarzpunkt (BP linear) und Weißpunkt (WP linear) zu erhalten, muss das gesamte Bild analysiert werden. Es wird empfohlen, „Gesamtes Bild an Bildschirm anpassen – Tastenkombination Alt-f“ zu verwenden.
 TP_LOCALLAB_GHS_BLACKPOINT_FRAME;Schwarzpunkt/Weißpunkt/Glanzlichter
 TP_LOCALLAB_GHS_BLP;Schwarzpunkt (BP linear)
 TP_LOCALLAB_GHS_BLP_TOOLTIP;Legt den Schwarzpunkt für eine lineare Dehnung des Bildes fest.\n * Bei negativen Schiebereglerwerten werden in GHS „normal“ die Schatten linear angehoben, um übermäßiges Rauschen zu vermeiden und die Arbeit mit GHS zu erleichtern.\n * Bei positiven Schiebereglerwerten wird das Histogramm nach links verschoben. Für RAW-Bilder können Sie auch „Raw-Tab > RAW-Schwarzpunkte – Dunst entfernen“ verwenden, was präziser ist.\n * Der durch die lineare Dehnung gewonnene Kontrast wird gleichmäßig über das Bild verteilt.\n\n * Sie können einen linearen Schwarzpunkt-Offset anpassen, um entweder:\n - Rauschen in den tiefen Schatten auszugleichen.\n - das Histogramm anzupassen.\n\n * Es wird empfohlen, diese Schieberegler vor den Haupt-GHS-Schiebereglern anzupassen, um ein Übersteuern der Daten zu vermeiden. Für diese Anpassung wird ein sehr niedriger Dehnungsfaktor (D) empfohlen (standardmäßig 0,001). \n * Die Beschriftung „Anzahl ungültiger Pixel Schatten:x Lichter=y“ zeigt die Anzahl der Pixel an, die abgeschnitten würden, wenn die beiden Schieberegler nicht angepasst würden. \n * Die Beschriftung „Pixelwerte – Dunkelste:w Hellste:z“ zeigt die minimalen und maximalen Werte im Bereich [0, 1] an. \n * Im Modus „GHS Invertieren“ ist das Verhalten umgekehrt und es gibt mögliche Interaktionen mit dem Weißpunkt.
-TP_LOCALLAB_GHS_HLP;Weißpunkt (WP linear)
-TP_LOCALLAB_GHS_METHOD_TOOLTIP;Mit dem GHS-Verfahren (Generalized Hyperbolic Stretch, oder auch die verallgemeinerte hyperbolische Dehnung) können Sie die Pixelwerte in Ihrem Bild transformieren, um die Darstellung der zugrunde liegenden Daten für die menschliche Visualisierung zu verbessern.\nDie im GHS-Verfahren verwendeten verallgemeinerten hyperbolischen Gleichungen haben fünf Hauptparameter. Dies ermöglicht erhebliche Flexibilität bei der Gestaltung der Transformationsform.\n\nTypische Anwendungen von Pixelintensitätstransformationen sind:\n * Anfängliche Dehnung der Pixeldaten aus dem linearen Zustand.\n * Hinzufügen von Kontrast zu wichtigen Bildbereichen.\n * Allgemeine Aufhellung oder Abdunkelung des Bildes.\n * Anpassung des Bilddynamikbereichs.\n * Anpassung der Pixeldaten in den Kanälen RGB-Luminanz, RGB-Standard, Luminanz - Buntheit (Lab/Lch), Helligkeit (HSL), Sättigung (HSL) oder Farbton (HSL).\n * Für bessere Ergebnisse können Sie in mehreren Schritten vorgehen und zwei oder mehr RT-Spots erstellen, die jeweils mit dem GHS-Werkzeug überlagert werden. Für jeden RT-Spot ist der Basiswert des Symmetriepunkts (SP) unterschiedlich. Verwenden Sie die Histogrammspitze, um den SP-Wert zu positionieren.\n * Sie können das System beispielsweise im RGB-Modus (1. Spot) starten, dann den 2. Spot im RGB-Modus mit einem anderen SP und den 3. Spot im Sättigungs- oder Farbtonmodus.\n * Sie können RT-Spots im „Normal“-Modus und im „Invers“-Modus mischen, um den Kontrast auszugleichen.\n * Im Vollbildmodus können Sie den Effekt basierend auf dem DeltaE auf bestimmte Farben beschränken.
-TP_LOCALLAB_GHS_HLP_TOOLTIP;Legt den Weißpunkt für eine lineare Dehnung des Bildes fest. Pixel mit einem Wert größer als der eingegebene Weißpunkt werden abgeschnitten und die Daten gehen verloren.\n * Der durch die lineare Dehnung gewonnene Kontrast wird gleichmäßig über das Bild verteilt, das dadurch aufgehellt wird. Pixel mit Werten größer als der Weißpunkt erscheinen weiß und haben den Wert 1,0.\n * Wenn Sie diesen Parameter auf einen Wert größer als 1 setzen, wird der Dynamikumfang im oberen Bereich erweitert.\n * Die Methode „Lichter rekonstruieren“ hat einen sehr starken Einfluss auf den Weißpunktwert.\n\n * Es wird empfohlen, diesen Schieberegler vor den Haupt-GHS-Schiebereglern einzustellen, um Datenverluste zu vermeiden. Für diese Anpassung wird ein sehr niedriger Dehnungsfaktor (D) empfohlen (standardmäßig 0,001). \n * Die Beschriftung „Anzahl ungültiger Pixel – Schatten: x, Lichter = y“ zeigt die Anzahl der Pixel an, die abgeschnitten würden, wenn die beiden Schieberegler nicht angepasst würden. \n * Die Beschriftung „Pixelwerte – Dunkelste: w, Hellste: z“ zeigt die minimalen und maximalen Werte im Bereich [0, 1] an. \n * Im Modus „GHS Invertieren“ ist das Verhalten umgekehrt und es gibt mögliche Interaktionen mit dem Schwarzpunkt.
-TP_LOCALLAB_GHS_MODELIN;Linear
-TP_LOCALLAB_GHS_MODECUR;GHS
-TP_LOCALLAB_GHS_D_TOOLTIP;Dieser Parameter steuert den Grad der Dehnung. Ist der Dehnungsfaktor auf Null gesetzt, erfolgt keine Dehnung. Anders ausgedrückt handelt es sich um die Identitätstransformation.\n\n * Die Einstellungen für Schwarzpunkt (BP linear) und Weißpunkt (WP linear) sind nur verfügbar, wenn der Dehnungsfaktor (D) zwischen 0,001 und 0,002 liegt.
+TP_LOCALLAB_GHS_BPFRAME_TOOLTIP;Legt den Schwarzpunkt (BP linear), den Weißpunkt (WP linear) und die Lichter für eine lineare Dehnung des Bildes fest.\n\n * Die Einstellungen für Schwarzpunkt (BP linear) und Weißpunkt (WP linear) sind nur verfügbar, wenn der Dehnungsfaktor (D) zwischen 0,001 und 0,002 liegt, um das Histogramm nicht zu beeinflussen.\n\n * Wenn der Dehnungsfaktor 0,002 oder weniger beträgt, haben, außer Schwarzpunkt und Weißpunkt; keinerlei Dehnungseinstellungen eine Wirkung.\n\n * Die Einstellungen für Schwarzpunkt (BP linear) und Weißpunkt (WP linear) reagieren empfindlich auf die allgemeinen Einstellungen vor GHS: Lichterrekonstruktion, Weißabgleich und RAW-Prozesse.\n\n * Um relevante Einstellungen für Schwarzpunkt (BP linear) und Weißpunkt (WP linear) zu erhalten, muss das gesamte Bild analysiert werden. Es wird empfohlen, „Gesamtes Bild an Bildschirm anpassen – Tastenkombination Alt-f“ zu verwenden.
 TP_LOCALLAB_GHS_B_TOOLTIP;Dieser Parameter steuert, wie eng die Dehnung um den Symmetriepunkt (SP) fokussiert ist, indem er die Form der Transformation selbst ändert:\n * Für konzentrierte Dehnungen (wie z. B. anfängliche Dehnungen bei linearen Bildern) sollte ein großer 'b'-Faktor verwendet werden, um eine Dehnung innerhalb einer Histogrammspitze zu fokussieren und gleichzeitig die Dehnung von der Histogrammspitze weg zu defokussieren.\n * Zur Anpassung nichtlinearer Bilder sollten niedrigere 'b'-Parameter verwendet werden, um Kontrast und Helligkeit gleichmäßiger zu verteilen.\n * Große positive 'b'-Werte können als Histogrammverbreiterung betrachtet werden, d. h. sie breiten das Histogramm breiter um den Fokuspunkt SP aus.\n * Im Gegensatz dazu verschieben niedrigere 'b'-Werte das Histogramm tendenziell in eine hellere oder dunklere Position, ohne seine Breite zu stark zu beeinflussen.\n * Als allgemeine Regel gilt, dass der verwendete 'b'-Faktor abnimmt, wenn sich eine Dehnungssequenz dem Ende nähert, obwohl höhere 'b'-Werte immer noch zur präzisen Platzierung von zusätzlichem Kontrast verwendet werden können.
-TP_LOCALLAB_GHS_SLOPE;Steigungsfaktor (S) Lab
-TP_LOCALLAB_GHS_SLOPE_TOOLTIP;Ändert die Steigung der Lab-Transformation, um die Schattenwiedergabe zu verbessern.
 TP_LOCALLAB_GHS_CHRO;Buntheitsfaktor (C) Lab
 TP_LOCALLAB_GHS_CHRO_TOOLTIP;GHS Buntheit - große Dehnungen kompensieren
-TP_LOCALLAB_GHSLABFRA;Lab Einstellungen
-TP_LOCALLAB_GHS_SP_TOOLTIP;Der Standardwert von 0,015 ist für die meisten Bilder geeignet.\n * Dies ist der Schlüsselbalancewert des GHS-Systems.\n * Legt den Fokuspunkt fest, um den die Dehnung angewendet wird – der Kontrast wird symmetrisch um SP verteilt.\n * Während „b“ den Fokusgrad der Dehnung angibt, bestimmt SP, wo der Fokus angewendet wird.\n * SP sollte generell innerhalb einer Histogrammspitze platziert werden, damit die Dehnung die Spitze verbreitert und absenkt, indem an diesem Punkt der größte Kontrast in die Dehnung eingefügt wird. Die Pixelwerte verschieben sich vom SP-Standort weg.
-TP_LOCALLAB_GHS_LP_TOOLTIP;Legt einen Wert fest, unterhalb dessen die Dehnung angepasst wird, um den Kontrast in den Schatten zu erhalten. Dies geschieht durch eine lineare Dehnung der Daten unterhalb des LP-Pegels, wobei Kontrast vom Rest des Bildes reserviert wird. Durch Verschieben des LP-Pegels in Richtung der aktuellen SP-Einstellung ändern sich sowohl Umfang als auch Stärke dieser Kontrastreservierung. Der Nettoeffekt besteht darin, die Gesamtdehnung zu höheren Helligkeitsstufen zu verschieben, während Kontrast und Definition im Hintergrund erhalten bleiben. Die für die Schatten reservierte Kontraststärke ist so gewählt, dass die Kontinuität der Dehnung erhalten bleibt.\n * Dieser Parameter muss mindestens 0 und darf nicht größer als der Symmetriepunkt sein.\n * Der Einsteller begrenzt den Maximalwert automatisch auf den Symmetriepunkt (SP).\n\n * Durch die Verwendung des Schwarzpunkts (negative Werte) können, sofern möglich, sowohl der Wert des Symmetriepunkts (SP) als auch die Aktion „Schatten schützen (LP)“ geändert werden.
-TP_LOCALLAB_GHS_HP_TOOLTIP;Legt einen Wert fest, ab dem die Dehnung angepasst wird, um den Kontrast in den Lichtern zu erhalten. Dies geschieht durch eine lineare Dehnung der Daten oberhalb des „HP“-Werts, wobei Kontrast vom restlichen Bild reserviert wird. Durch Verschieben des HP-Werts in Richtung der aktuellen SP-Einstellung werden sowohl Umfang als auch Stärke dieser Kontrastreservierung erhöht. Der Nettoeffekt besteht darin, die Gesamtdehnung zu niedrigeren Helligkeitsstufen zu verschieben, während Kontrast und Schärfe in den Lichtern erhalten bleiben. Die für die Lichter reservierte Kontraststärke ist so gewählt, dass die Kontinuität der Dehnung erhalten bleibt.\n * Dieser Parameter darf höchstens 1 und nicht kleiner als der Symmetriepunkt sein.\n * Der Einsteller begrenzt den Maximalwert automatisch auf den Symmetriepunkt (SP)..\n\n * Die Verwendung der Glanzlichterdämpfung verstärkt die Wirkung von „Lichter schützen (HP)“.
-TP_LOCALLAB_GHS_SMOOTH_TOOLTIP;Glätten und mildern Sie hervorgehobene Bereiche. Verstärkt die Aktion „Lichter schützen (HP)“.
-TP_LOCALLAB_GHS_SMOOTH;Glanzlichtdämpfung
 TP_LOCALLAB_GHS_CURVE_TOOLTIP;Zeigt die durch GHS-Berechnungen generierte S-Kurve, hauptsächlich zur Veranschaulichung.\n\n * Die Kurve reagiert nur auf die Einsteller und kann nicht direkt geändert werden.
+TP_LOCALLAB_GHS_D;Dehnungsfaktor (D)
+TP_LOCALLAB_GHS_D_TOOLTIP;Dieser Parameter steuert den Grad der Dehnung. Ist der Dehnungsfaktor auf Null gesetzt, erfolgt keine Dehnung. Anders ausgedrückt handelt es sich um die Identitätstransformation.\n\n * Die Einstellungen für Schwarzpunkt (BP linear) und Weißpunkt (WP linear) sind nur verfügbar, wenn der Dehnungsfaktor (D) zwischen 0,001 und 0,002 liegt.
+TP_LOCALLAB_GHS_GHSDIAG; Visualisierung der GHS-Kurve
+TP_LOCALLAB_GHS_HLP;Weißpunkt (WP linear)
+TP_LOCALLAB_GHS_HLP_TOOLTIP;Legt den Weißpunkt für eine lineare Dehnung des Bildes fest. Pixel mit einem Wert größer als der eingegebene Weißpunkt werden abgeschnitten und die Daten gehen verloren.\n * Der durch die lineare Dehnung gewonnene Kontrast wird gleichmäßig über das Bild verteilt, das dadurch aufgehellt wird. Pixel mit Werten größer als der Weißpunkt erscheinen weiß und haben den Wert 1,0.\n * Wenn Sie diesen Parameter auf einen Wert größer als 1 setzen, wird der Dynamikumfang im oberen Bereich erweitert.\n * Die Methode „Lichter rekonstruieren“ hat einen sehr starken Einfluss auf den Weißpunktwert.\n\n * Es wird empfohlen, diesen Schieberegler vor den Haupt-GHS-Schiebereglern einzustellen, um Datenverluste zu vermeiden. Für diese Anpassung wird ein sehr niedriger Dehnungsfaktor (D) empfohlen (standardmäßig 0,001). \n * Die Beschriftung „Anzahl ungültiger Pixel – Schatten: x, Lichter = y“ zeigt die Anzahl der Pixel an, die abgeschnitten würden, wenn die beiden Schieberegler nicht angepasst würden. \n * Die Beschriftung „Pixelwerte – Dunkelste: w, Hellste: z“ zeigt die minimalen und maximalen Werte im Bereich [0, 1] an. \n * Im Modus „GHS Invertieren“ ist das Verhalten umgekehrt und es gibt mögliche Interaktionen mit dem Schwarzpunkt.
+TP_LOCALLAB_GHS_HP;Lichter schützen (HP)
+TP_LOCALLAB_GHS_HP_TOOLTIP;Legt einen Wert fest, ab dem die Dehnung angepasst wird, um den Kontrast in den Lichtern zu erhalten. Dies geschieht durch eine lineare Dehnung der Daten oberhalb des „HP“-Werts, wobei Kontrast vom restlichen Bild reserviert wird. Durch Verschieben des HP-Werts in Richtung der aktuellen SP-Einstellung werden sowohl Umfang als auch Stärke dieser Kontrastreservierung erhöht. Der Nettoeffekt besteht darin, die Gesamtdehnung zu niedrigeren Helligkeitsstufen zu verschieben, während Kontrast und Schärfe in den Lichtern erhalten bleiben. Die für die Lichter reservierte Kontraststärke ist so gewählt, dass die Kontinuität der Dehnung erhalten bleibt.\n * Dieser Parameter darf höchstens 1 und nicht kleiner als der Symmetriepunkt sein.\n * Der Einsteller begrenzt den Maximalwert automatisch auf den Symmetriepunkt (SP)..\n\n * Die Verwendung der Glanzlichterdämpfung verstärkt die Wirkung von „Lichter schützen (HP)“.
 TP_LOCALLAB_GHS_INV;GHS Invertieren
 TP_LOCALLAB_GHS_INV_TOOLTIP;Die invertierte GHS-Transformation eignet sich für die Arbeit im Negativraum. Sie erhöht den Kontrast rechts und links im Histogramm, hellt tiefe Schatten auf, verdunkelt helle Lichter und verdichtet das Histogramm zur Bildmitte hin.\n\n * Die verallgemeinerte hyperbolische inverse Transformation ermöglicht die Wiederherstellung des Originalbildes unter Einhaltung mathematischer Genauigkeit, kann aber auch für andere Zwecke eingesetzt werden.\n\n * Wurden Weißpunkt und Schwarzpunkt im Normalmodus geändert, müssen sie wahrscheinlich neu angepasst werden. Der Weißpunkt muss oft nach unten korrigiert werden. Es besteht eine Wechselwirkung zwischen den beiden Einstellungen.
+TP_LOCALLAB_GHS_LC;lokaler Kontrast (LC)
+TP_LOCALLAB_GHS_LC_FRAME;Dehnungsregelung & Mitteltöne
+TP_LOCALLAB_GHS_LC_TOOLTIP;Erhöht leicht den lokalen Kontrast, der durch die Dehnung abgeschwächt wurde.\nKann durch andere, auf lokalen Kontrast spezialisierte Tools wie Wavelets ergänzt werden.\n\nWenn der Dehnungsfaktor 0,002 oder weniger beträgt, sind Dehnungsregulierung und Mitteltöne deaktiviert.
+TP_LOCALLAB_GHS_LP;Schatten schützen (LP)
+TP_LOCALLAB_GHS_LP_TOOLTIP;Legt einen Wert fest, unterhalb dessen die Dehnung angepasst wird, um den Kontrast in den Schatten zu erhalten. Dies geschieht durch eine lineare Dehnung der Daten unterhalb des LP-Pegels, wobei Kontrast vom Rest des Bildes reserviert wird. Durch Verschieben des LP-Pegels in Richtung der aktuellen SP-Einstellung ändern sich sowohl Umfang als auch Stärke dieser Kontrastreservierung. Der Nettoeffekt besteht darin, die Gesamtdehnung zu höheren Helligkeitsstufen zu verschieben, während Kontrast und Definition im Hintergrund erhalten bleiben. Die für die Schatten reservierte Kontraststärke ist so gewählt, dass die Kontinuität der Dehnung erhalten bleibt.\n * Dieser Parameter muss mindestens 0 und darf nicht größer als der Symmetriepunkt sein.\n * Der Einsteller begrenzt den Maximalwert automatisch auf den Symmetriepunkt (SP).\n\n * Durch die Verwendung des Schwarzpunkts (negative Werte) können, sofern möglich, sowohl der Wert des Symmetriepunkts (SP) als auch die Aktion „Schatten schützen (LP)“ geändert werden.
+TP_LOCALLAB_GHS_METHOD_TOOLTIP;Mit dem GHS-Verfahren (Generalized Hyperbolic Stretch, oder auch die verallgemeinerte hyperbolische Dehnung) können Sie die Pixelwerte in Ihrem Bild transformieren, um die Darstellung der zugrunde liegenden Daten für die menschliche Visualisierung zu verbessern.\nDie im GHS-Verfahren verwendeten verallgemeinerten hyperbolischen Gleichungen haben fünf Hauptparameter. Dies ermöglicht erhebliche Flexibilität bei der Gestaltung der Transformationsform.\n\nTypische Anwendungen von Pixelintensitätstransformationen sind:\n * Anfängliche Dehnung der Pixeldaten aus dem linearen Zustand.\n * Hinzufügen von Kontrast zu wichtigen Bildbereichen.\n * Allgemeine Aufhellung oder Abdunkelung des Bildes.\n * Anpassung des Bilddynamikbereichs.\n * Anpassung der Pixeldaten in den Kanälen RGB-Luminanz, RGB-Standard, Luminanz - Buntheit (Lab/Lch), Helligkeit (HSL), Sättigung (HSL) oder Farbton (HSL).\n * Für bessere Ergebnisse können Sie in mehreren Schritten vorgehen und zwei oder mehr RT-Spots erstellen, die jeweils mit dem GHS-Werkzeug überlagert werden. Für jeden RT-Spot ist der Basiswert des Symmetriepunkts (SP) unterschiedlich. Verwenden Sie die Histogrammspitze, um den SP-Wert zu positionieren.\n * Sie können das System beispielsweise im RGB-Modus (1. Spot) starten, dann den 2. Spot im RGB-Modus mit einem anderen SP und den 3. Spot im Sättigungs- oder Farbtonmodus.\n * Sie können RT-Spots im „Normal“-Modus und im „Invers“-Modus mischen, um den Kontrast auszugleichen.\n * Im Vollbildmodus können Sie den Effekt basierend auf dem DeltaE auf bestimmte Farben beschränken.
+TP_LOCALLAB_GHS_MID;Mitteltöne
+TP_LOCALLAB_GHS_MID_TOOLTIP;Passt die Mitteltonbalance nach der GHS-Transformation an.\n Kann verwendet werden, um die Mitteltöne des Bildes nach der Dehnung neu auszugleichen.\n\nWenn der Dehnungsfaktor 0,002 oder weniger beträgt, sind Dehnungsregulierung und Mitteltöne deaktiviert.
+TP_LOCALLAB_GHS_MODECUR;GHS
+TP_LOCALLAB_GHS_MODELIN;Linear
+TP_LOCALLAB_GHS_SIMUL_TOOLTIP;Zeigt eine repräsentative Kurve der GHS-Funktion.
+TP_LOCALLAB_GHS_SLOPE;Steigungsfaktor (S) Lab
+TP_LOCALLAB_GHS_SLOPE_TOOLTIP;Ändert die Steigung der Lab-Transformation, um die Schattenwiedergabe zu verbessern.
+TP_LOCALLAB_GHS_SMOOTH;Glanzlichtdämpfung
+TP_LOCALLAB_GHS_SMOOTH_TOOLTIP;Glätten und mildern Sie hervorgehobene Bereiche. Verstärkt die Aktion „Lichter schützen (HP)“.
+TP_LOCALLAB_GHS_SP;Symmetriepunkt (SP)
+TP_LOCALLAB_GHS_SP_TOOLTIP;Der Standardwert von 0,015 ist für die meisten Bilder geeignet.\n * Dies ist der Schlüsselbalancewert des GHS-Systems.\n * Legt den Fokuspunkt fest, um den die Dehnung angewendet wird – der Kontrast wird symmetrisch um SP verteilt.\n * Während „b“ den Fokusgrad der Dehnung angibt, bestimmt SP, wo der Fokus angewendet wird.\n * SP sollte generell innerhalb einer Histogrammspitze platziert werden, damit die Dehnung die Spitze verbreitert und absenkt, indem an diesem Punkt der größte Kontrast in die Dehnung eingefügt wird. Die Pixelwerte verschieben sich vom SP-Standort weg.
 TP_LOCALLAB_GRADANG;Rotationswinkel
 TP_LOCALLAB_GRADANG_TOOLTIP;Rotationswinkel in Grad: -180°   0°  +180°
 TP_LOCALLAB_GRADFRA;Verlaufsfiltermaske
@@ -3667,8 +3667,8 @@ TP_LOCALLAB_MRONE;Keine
 TP_LOCALLAB_MRTHR;Original Bild
 TP_LOCALLAB_MULTIPL_TOOLTIP;Weitbereichs-Toneinstellung: -18 EV bis + 4 EV. Der erste Regler wirkt auf sehr dunkle Töne zwischen -18 EV und -6 EV. Der letzte Regler wirkt auf helle Töne bis zu 4 EV.
 TP_LOCALLAB_NEIGH;Radius
-TP_LOCALLAB_NLDENOISENLITER_TOOLTIP;Führen Sie mehrere Iterationen von Nicht-lokalen-Mitteln aus. Die Ergebnisse sind oft besser bei mehreren Iterationen mit geringer Stärke.
 TP_LOCALLAB_NLDENOISENLGAM_TOOLTIP;Niedrigere Werte bewahren Details und Textur, höhere Werte erhöhen die Rauschunterdrückung.\nIst Gamma = 3, wird Luminanz 'linear' angewendet.
+TP_LOCALLAB_NLDENOISENLITER_TOOLTIP;Führen Sie mehrere Iterationen von Nicht-lokalen-Mitteln aus. Die Ergebnisse sind oft besser bei mehreren Iterationen mit geringer Stärke.
 TP_LOCALLAB_NLDENOISENLPAT_TOOLTIP;Passt die Intensität der Rauschreduzierung an die Größe der zu verarbeitenden Objekte an.
 TP_LOCALLAB_NLDENOISENLRAD_TOOLTIP;Höhere Werte erhöhen die Rauschreduzierung auf Kosten der Verarbeitungszeit.
 TP_LOCALLAB_NLDENOISE_TOOLTIP;'Detailwiederherstellung' basiert auf einer Laplace-Transformation, um einheitliche Bereiche und keine Bereiche mit Details zu erfassen.
@@ -4727,3 +4727,9 @@ ZOOMPANEL_ZOOMIN;Hineinzoomen\nTaste: <b>+</b>
 ZOOMPANEL_ZOOMOUT;Herauszoomen\nTaste: <b>-</b>
 //TP_WBALANCE_ITCWBNOPURPLE_TOOLTIP;By default when "Inpaint opposed" is activated, purple colors are not taken into account. However, if the image does not need highlight reconstruction, or if this image naturally contains purple tints (flowers, etc.), it may be necessary to deactivate, to take into account all the colors.
 //TP_WBALANCE_ITCWB_FORCED;Forces use of the entire CIE diagram
+
+!!!!!!!!!!!!!!!!!!!!!!!!!
+! Untranslated keys follow; remove the ! prefix after an entry is translated.
+!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!PREFERENCES_WBAGREENDELTA;Delta temperature in green iterate loop (if Force Extra enabled)

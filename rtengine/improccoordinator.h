@@ -29,7 +29,7 @@
 #include "LUT.h"
 #include "rtengine.h"
 
-#include "../rtgui/threadutils.h"
+#include "rtgui/threadutils.h"
 
 namespace Glib
 {
@@ -160,6 +160,7 @@ protected:
     WavOpacityCurveBY waOpacityCurveBY;
     WavOpacityCurveW waOpacityCurveW;
     WavOpacityCurveWL waOpacityCurveWL;
+    WavOpacityCurveWL icmOpacityCurveWL;
     RetinextransmissionCurve dehatransmissionCurve;
     RetinexgaintransmissionCurve dehagaintransmissionCurve;
 
@@ -182,6 +183,8 @@ protected:
     PreviewImageListener* imageListener;
     AutoExpListener* aeListener;
     AutoCamListener* acListener;
+    AutoBlackListener* ablListener;
+    AutoBlackxListener* ablxListener;
     AutoBWListener* abwListener;
     AutoWBListener* awbListener;
     FlatFieldAutoClipListener *flatFieldAutoClipListener;
@@ -277,6 +280,7 @@ protected:
     LUTf lmasklocalcurve;
     LUTf lmaskexplocalcurve;
     LUTf lmaskSHlocalcurve;
+    LUTf ghslocalcurve;
     LUTf lmaskviblocalcurve;
     LUTf lmasktmlocalcurve;
     LUTf lmaskretilocalcurve;
@@ -518,6 +522,15 @@ public:
     {
         acListener = acl;
     }
+    void setAutoBlackListener  (AutoBlackListener* abl) override
+    {
+        ablListener = abl;
+    }
+    void setAutoBlackxListener  (AutoBlackxListener* ablx) override
+    {
+        ablxListener = ablx;
+    }
+    
     void setAutoBWListener   (AutoBWListener* abw) override
     {
         abwListener = abw;

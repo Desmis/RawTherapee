@@ -1,6 +1,6 @@
-RAWTHERAPEE 5.11 RELEASE NOTES
+RAWTHERAPEE 5.12-rc1 RELEASE NOTES
 
-This is RawTherapee 5.11, released on 2025-08-25.
+This is Release Candidate 1 of RawTherapee 5.12, released on 2025-04-23. This is not the final release yet.
 
 
 
@@ -22,55 +22,31 @@ In order to use RawTherapee efficiently you should know that:
 
 
 
-NEW FEATURES SINCE 5.10
+NEW FEATURES SINCE 5.11
 
-- The path template for queue export supports more format specifiers, including dates and new path types. Additionally, there is a preview to show the path for the selected image.
-- The maximum zoom for the editor is now configurable.
-- Pseudo HiDPI is replaced by real HiDPI.
-- The file browser has an option to show all images within subfolders too.
-- The Use embedded option for the Input Profile is available for DNGs that have an embedded DCP.
-- The Color appearance sub-tool in Selective Editing (formerly Local Adjustments) received various improvements, including simplification of the basic mode, addition of new tone mappers for Cam16, a black and white mode, and a highlight attenuation feature.
-- The White balance Tint range is expanded.
-- It is now possible to use Contrast by Detail Levels in Before Black-and-White mode while Color Appearance & Lighting is activated with CAM16.
-- Ratings and color labels can be synchronized with XMPs.
-- The Selective Editing tool received various improvements, such as a global mode for applying edits to the entire image uniformly, ΔE preview buttons for most sub-tools, and adjustable graduated filter feathering for each sub-tool.
-- The EXIF modified date-time is now added to saved images.
-- RawTherapee can now read 12-bit Panasonic raw files encoded in the v6 format, such as those from the DC-GH5M2.
-- RawTherapee can now read Panasonic raw files encoded in the v8 format, such as those from the DC-GH6, DC-S5M2, and DC-S5M2X.
-- RawTherapee can now read Fujifilm lossy-compressed raw files.
-- JPEG XL images can now be opened.
-- There is a new option to use lens corrections from the file metadata. It works for compatible raw images from Fujifilm, Olympus / OM Digital Solutions (distortion and chromatic aberration corrections only), and Sony. Corrections embedded in DNGs can also be used.
-- RawTherapee can leverage LibRaw (enabled by default) to read raw images. It adds the ability to read additional raw formats, such as Sony lossless compression, and improved support for some cameras.
-- Added or improved support for cameras, raw formats and color profiles (not including LibRaw and color matrices for dcraw):
-    - FUJIFILM GFX 100 (PDAF lines filter)
-    - FUJIFILM GFX 100S (DCP, PDAF lines filter)
-    - FUJIFILM GFX 100 II (PDAF lines filter)
-    - Fujifilm X-H2S
-    - Nikon Z 8 (DCP)
-    - Nikon Z 9 (DCP)
-    - Nikon Z f (DCP)
-    - OM Digital Solutions TG-7
-    - Panasonic DC-G9M2
-    - Panasonic DC-GH5M2
-    - Panasonic DC-GH6
-    - Panasonic DC-S5M2
-    - Panasonic DC-S5M2X
-    - Sony ILCE-1 (Pixel shift)
-    - Sony ILCE-6700
-    - Sony ILCE-7CR (PDAF lines filter)
-    - Sony ILCE-7RM4 (PDAF lines filter)
-    - Sony ILCE-7RM5 (PDAF lines filter)
-    - SONY ILCE-9M3
+- The Raw Black Points has a new option called Dehaze. It sets the black points to the minimum values in the image, which often has the effect of reducing haze.
+- Distortion Correction gained a de-fish feature that converts fisheye images into normal (rectilinear) images. It works best with the equidistant fisheye projection. The new Scale adjuster in Lens / Geometry allows manual scaling of the transformed image for when Auto-fill yields unsatisfactory results.
+- All images in a Canon RAW burst mode file are accessible. Previously, only the first 6 images were accessible.
+- A new tool called Gamut Compression applies the ACES (Academy Color Encoding System) Reference Gamut Compression operator to improve the look of highly-saturated colors and bring colors within a selectable gamut before applying other color-related tools offered by RawTherapee.
+- The Resize tool gained a framing feature that adds a decorative solid color border around the image before it is saved. Various sizing options allow great flexibility in adjusting the border thickness and image dimensions. To reflect the tool's capabilities, it has been renamed to Resize & Framing.
+- Demosaiced floating-point DNGs are now supported.
+- The Abstract Profile tool has a new Contrast Enhancement feature that offers a simple way to add local contrast. It can be used to restore contrast lost due to the application of the abstract profile.
+- The Color appearance tool in Selective Editing gained several Tone Mapping Operators (formerly Highlight Attenuation & Levels) enhancements in Source Data Adjustments. The RGB channel Slope tone mapper (formerly Levels) has new options. There is a new Sigmoid based tone mapper.
+- More Sony lenses are recognized, improving the data displayed in the quick info overlay and enabling automatic profiled lens correction.
+- The Shadows/Highlights & Tone Equalizer tool in Selective Editing gained the Generalized Hyperbolic Stretch (GHS) global tone mapper. To reflect the tool's new tone mapper, it has been renamed to Shadows/Highlights, Equalizer & GHS.
+- Added or improved support for cameras, raw formats and color profiles (not an exhaustive list because unconfirmed support is excluded):
+    - Canon EOS R8 (DCP, black level in electronic shutter mode)
+    - Fujifilm X-E4 (raw crop in electronic shutter mode)
+    - Sony ILCE-7CR (pixel shift)
+    - Sony ILCE-7M3 (black level)
+    - Sony ILME-FX3 (black level when not using LibRaw)
 
 
 
 NEWS RELEVANT TO PACKAGE MAINTAINERS
 
-New since 5.10:
-- Requires GTK+ >= 3.24.3 (was >= 3.22.24 in Windows, or >= 3.16 in other operating systems).
-- Requires librsvg-2.0 >= 2.52 (was >= 2.40).
-- Optional dependency on libjxl.
-- Optional dependency on LibRaw >= 0.21.
+New since 5.11:
+- The official repository has been moved to a new GitHub organization called RawTherapee. The repository is now at https://github.com/RawTherapee/RawTherapee. Previously, it was at https://github.com/Beep6581/RawTherapee.
 
 In general:
 - To get the source code, either clone from git or use the tarball from https://rawtherapee.com/shared/source/. Do not use the auto-generated GitHub release tarballs.
@@ -115,4 +91,4 @@ https://discuss.pixls.us/c/software/rawtherapee
 REVISION HISTORY
 
 The complete changelog is available at:
-https://github.com/Beep6581/RawTherapee/commits/
+https://github.com/RawTherapee/RawTherapee/commits/

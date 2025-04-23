@@ -64,6 +64,7 @@ protected:
     rtengine::ProcEvent Evlocallabpreviewlog;
     rtengine::ProcEvent Evlocallabpreviewcie;
     rtengine::ProcEvent Evlocallabpreviewmas;
+    rtengine::ProcEvent Evlocallabnormcie12;
     rtengine::ProcEvent Evlocallabnormcie;
     rtengine::ProcEvent Evlocallabstrumaskcie;
     rtengine::ProcEvent EvLocallabtoolcie;
@@ -72,7 +73,6 @@ protected:
     rtengine::ProcEvent Evlocallabblurcie;
     rtengine::ProcEvent Evlocallabhighmaskcie;
     rtengine::ProcEvent Evlocallabshadmaskcie;
-    rtengine::ProcEvent Evlocallabsigmoidsenscie;
     rtengine::ProcEvent EvlocallabLLmaskcieshapewav;
     rtengine::ProcEvent EvlocallabcsThresholdcie;
     rtengine::ProcEvent Evlocallabcomprcie;
@@ -81,17 +81,29 @@ protected:
     rtengine::ProcEvent Evlocallablogcieq;
     rtengine::ProcEvent Evlocallabcomprcieth;
     rtengine::ProcEvent EvlocallabHHhmaskcieshape;
-    rtengine::ProcEvent EvlocallabbwevMethod;
+    rtengine::ProcEvent EvlocallabbwevMethod12;
     rtengine::ProcEvent Evlocallabgamjcie;
     rtengine::ProcEvent Evlocallabslopjcie;
     rtengine::ProcEvent Evlocallabmidtcie;
+    rtengine::ProcEvent Evlocallabcontsig;
+    rtengine::ProcEvent Evlocallabskewsig;
+    rtengine::ProcEvent Evlocallabwhitsig;
     rtengine::ProcEvent Evlocallabslopesmo;
+    rtengine::ProcEvent Evlocallabslopesmoq;
     rtengine::ProcEvent Evlocallabslopesmor;
     rtengine::ProcEvent Evlocallabslopesmog;
     rtengine::ProcEvent Evlocallabslopesmob;
+    rtengine::ProcEvent Evlocallabkslopesmor;
+    rtengine::ProcEvent Evlocallabkslopesmog;
+    rtengine::ProcEvent Evlocallabkslopesmob;
     rtengine::ProcEvent Evlocallabsmoothcie;
+    rtengine::ProcEvent Evlocallabsmoothcielnk;
+    rtengine::ProcEvent Evlocallabsmoothcieth;
+    rtengine::ProcEvent Evlocallabsmoothcietrc;
+    rtengine::ProcEvent Evlocallabsmoothcietrcrel;
     rtengine::ProcEvent Evlocallabsmoothcieyb;
     rtengine::ProcEvent Evlocallabsmoothcielum;
+    rtengine::ProcEvent Evlocallabsmoothciehigh;
     rtengine::ProcEvent Evlocallabsmoothciemet;
     rtengine::ProcEvent Evlocallabsigcie;
     rtengine::ProcEvent Evlocallabillcie;
@@ -111,10 +123,11 @@ protected:
     rtengine::ProcEvent Evlocallabbluxl;
     rtengine::ProcEvent Evlocallabbluyl;
     rtengine::ProcEvent EvlocallabGridciexy;
+    rtengine::ProcEvent EvlocallabGridghs;
     rtengine::ProcEvent Evlocallabgamutcie;
     rtengine::ProcEvent Evlocallabbwcie;
     rtengine::ProcEvent Evlocallabexpprecam;
-    rtengine::ProcEvent Evlocallablightsigqcie;
+    rtengine::ProcEvent Evlocallablightsigqcie12;
     rtengine::ProcEvent Evlocallabcontsigqcie;
     rtengine::ProcEvent Evlocallabrefi;
     rtengine::ProcEvent Evlocallabshiftxl;
@@ -131,6 +144,22 @@ protected:
     rtengine::ProcEvent Evlocallabfeathercie;
     rtengine::ProcEvent EvlocallabfeatherSH;
     rtengine::ProcEvent Evlocallabfeather_mask;
+    rtengine::ProcEvent Evlocallaboffslc;
+    rtengine::ProcEvent EvlocallabmodeQJ;
+    rtengine::ProcEvent EvlocallabbwevMethod;   
+    rtengine::ProcEvent Evlocallabsigmoidldacie;
+    rtengine::ProcEvent Evlocallabsigmoidthcie; 
+    rtengine::ProcEvent Evlocallabsigmoidblcie; 
+    rtengine::ProcEvent Evlocallabsigmoidsenscie;
+    rtengine::ProcEvent Evlocallabsigq;
+    rtengine::ProcEvent Evlocallabsigq_12;
+    rtengine::ProcEvent Evlocallabsigjz;
+    rtengine::ProcEvent Evlocallabforcebw;
+
+    rtengine::ProcEvent Evlocallabsigmoidldajzcie;
+    rtengine::ProcEvent Evlocallabsigmoidthjzcie;
+    rtengine::ProcEvent Evlocallabsigmoidbljzcie;
+    rtengine::ProcEvent Evlocallablogcie_12;
     // LocallabTool parameters
     bool needMode;
     bool isLocActivated;
@@ -359,7 +388,7 @@ public:
     bool isMaskViewActive() override;
     void resetMaskView() override;
     void getMaskView(int &colorMask, int &colorMaskinv, int &expMask, int &expMaskinv, int &shMask, int &shMaskinv, int &vibMask, int &softMask, int &blMask, int &tmMask, int &retiMask, int &sharMask, int &lcMask, int &cbMask, int &logMask, int &maskMask, int &cieMask) override;
-
+    int nbmaskcol;
     Gtk::ToggleButton *getPreviewDeltaEButton() const override;
     sigc::connection *getPreviewDeltaEButtonConnection() override;
 
@@ -494,6 +523,7 @@ public:
     bool isMaskViewActive() override;
     void resetMaskView() override;
     void getMaskView(int &colorMask, int &colorMaskinv, int &expMask, int &expMaskinv, int &shMask, int &shMaskinv, int &vibMask, int &softMask, int &blMask, int &tmMask, int &retiMask, int &sharMask, int &lcMask, int &cbMask, int &logMask, int &maskMask, int &cieMask) override;
+    int nbmaskexp;
 
     Gtk::ToggleButton *getPreviewDeltaEButton() const override;
     sigc::connection *getPreviewDeltaEButtonConnection() override;
@@ -566,6 +596,33 @@ private:
     Gtk::Frame* const gamFrame;
     Adjuster* const gamSH;
     Adjuster* const sloSH;
+
+    MyComboBoxText* const ghsMethod;
+    Gtk::Frame* const gridFrameghs;
+    LabGrid* const labgridghs;
+   
+    Gtk::Frame* const ghsFrame;
+    Adjuster* const ghs_D;
+    Gtk::Frame* const Lab_Frame;
+    Adjuster* const ghs_slope;
+    Adjuster* const ghs_chro;
+    Adjuster* const ghs_B;
+    Adjuster* const ghs_SP;
+    Adjuster* const ghs_LP;
+    Adjuster* const ghs_HP;
+    Gtk::Frame* const LC_Frame;
+    Adjuster* const ghs_LC;
+    Adjuster* const ghs_MID;
+    
+    Gtk::Frame* const BP_Frame;
+    Adjuster* const ghs_BLP;
+    Adjuster* const ghs_HLP;
+    Gtk::Label* const ghsbpwpLabels;
+    Gtk::Label* const ghsbpwpvalueLabels;
+
+    Gtk::CheckButton* const ghs_smooth;
+    Gtk::CheckButton* const ghs_inv;
+
     MyExpander* const expgradsh;
     Adjuster* const strSH;
     Adjuster* const angSH;
@@ -592,8 +649,22 @@ private:
     Adjuster* const fatanchorSH;
 
     rtengine::ProcEvent EvlocallabTePivot;
+    rtengine::ProcEvent EvlocallabghsMethod;
+    rtengine::ProcEvent Evlocallabghs_D;
+    rtengine::ProcEvent Evlocallabghs_slope;
+    rtengine::ProcEvent Evlocallabghs_chro;
+    rtengine::ProcEvent Evlocallabghs_B;
+    rtengine::ProcEvent Evlocallabghs_SP;
+    rtengine::ProcEvent Evlocallabghs_LP;
+    rtengine::ProcEvent Evlocallabghs_HP;
+    rtengine::ProcEvent Evlocallabghs_LC;
+    rtengine::ProcEvent Evlocallabghs_MID;
+    rtengine::ProcEvent Evlocallabghs_BLP;
+    rtengine::ProcEvent Evlocallabghs_HLP;
+    rtengine::ProcEvent Evlocallabghs_smooth;
+    rtengine::ProcEvent Evlocallabghs_inv;
 
-    sigc::connection shMethodConn, previewshConn, inversshConn, showmaskSHMethodConn, showmaskSHMethodConninv, enaSHMaskConn;
+    sigc::connection shMethodConn, ghsMethodConn, previewshConn, inversshConn, ghs_smoothConn, ghs_invConn, showmaskSHMethodConn, showmaskSHMethodConninv, enaSHMaskConn;
 
 public:
     LocallabShadow();
@@ -609,7 +680,9 @@ public:
     void updateAdviceTooltips(const bool showTooltips) override;
     void updateguishad(int spottype);
     void updateguiscopesahd(int scope);
-         
+    int nbmasksh;
+
+    void updateghsbw(int bp, int wp, double minbp, double maxwp);
     void setDefaultExpanderVisibility() override;
     void disableListener() override;
     void enableListener() override;
@@ -629,13 +702,18 @@ private:
     void updateMaskBackground(const double normChromar, const double normLumar, const double normHuer, const double normHuerjz) override;
 
     void shMethodChanged();
+    void ghsMethodChanged();
     void inversshChanged();
+    void ghs_smoothChanged();
+    void ghs_invChanged();
     void showmaskSHMethodChanged();
     void showmaskSHMethodChangedinv();
     void enaSHMaskChanged();
 
-    void updateShadowGUI1();
-    void updateShadowGUI2();
+    void updateShadowGUImask();
+    void updateShadowGUIshmet();
+    void updateShadowGUIsym();
+
 };
 
 /* ==== LocallabVibrance ==== */
@@ -698,6 +776,7 @@ public:
     bool isMaskViewActive() override;
     void resetMaskView() override;
     void getMaskView(int &colorMask, int &colorMaskinv, int &expMask, int &expMaskinv, int &shMask, int &shMaskinv, int &vibMask, int &softMask, int &blMask, int &tmMask, int &retiMask, int &sharMask, int &lcMask, int &cbMask, int &logMask, int &maskMask, int &cieMask) override;
+    int nbmaskvib;
 
     Gtk::ToggleButton *getPreviewDeltaEButton() const override;
     sigc::connection *getPreviewDeltaEButtonConnection() override;
@@ -879,9 +958,12 @@ private:
     Adjuster* const nlpat;
     Adjuster* const nlrad;
     Adjuster* const nlgam;
+    Adjuster* const nliter;
     Adjuster* const bilateral;
     Adjuster* const sensiden;
-    
+
+    rtengine::ProcEvent Evlocallabnliter;
+   
     Adjuster* const reparden;
     Gtk::Button* neutral;
     MyExpander* const expmaskbl;
@@ -1224,9 +1306,12 @@ private:
     Adjuster* const lclightness;
     Gtk::Frame* const contFrame;
     Adjuster* const sigmalc;
+    Adjuster* const offslc;
     CurveEditorGroup* const LocalcurveEditorwav;
     FlatCurveEditor* const wavshape;
     ThresholdAdjuster* const csThreshold;
+    Gtk::CheckButton* const processwav;
+    
     Adjuster* const levelwav;
     MyExpander* const expresidpyr;
     Adjuster* const residcont;
@@ -1248,6 +1333,7 @@ private:
     Adjuster* const clarisoft;
     Gtk::CheckButton* const origlc;
     MyExpander* const expcontrastpyr;
+    Gtk::Frame* const gradwavFrame;
     Gtk::CheckButton* const wavgradl;
     Adjuster* const sigmalc2;
     Adjuster* const strwav;
@@ -1317,7 +1403,8 @@ private:
     CurveEditorGroup* const mask2lcCurveEditorG;
     DiagonalCurveEditor* const Lmasklcshape;
 
-    sigc::connection localcontMethodConn, previewlcConn, origlcConn, wavgradlConn, wavedgConn, localedgMethodConn, waveshowConn, localneiMethodConn, wavblurConn, blurlcConn, wavcontConn, wavcompreConn, wavcompConn, fftwlcConn, showmasklcMethodConn, enalcMaskConn;
+    sigc::connection localcontMethodConn, previewlcConn, origlcConn, processwavConn, wavgradlConn, wavedgConn, localedgMethodConn, waveshowConn, localneiMethodConn, wavblurConn, blurlcConn, wavcontConn, wavcompreConn, wavcompConn, fftwlcConn, showmasklcMethodConn, enalcMaskConn;
+    rtengine::ProcEvent Evlocallabprocesswav;
 
 public:
     LocallabContrast();
@@ -1326,6 +1413,7 @@ public:
     bool isMaskViewActive() override;
     void resetMaskView() override;
     void getMaskView(int &colorMask, int &colorMaskinv, int &expMask, int &expMaskinv, int &shMask, int &shMaskinv, int &vibMask, int &softMask, int &blMask, int &tmMask, int &retiMask, int &sharMask, int &lcMask, int &cbMask, int &logMask, int &maskMask, int &cieMask) override;
+    int nbmaskcont;
 
     Gtk::ToggleButton *getPreviewDeltaEButton() const override;
     sigc::connection *getPreviewDeltaEButtonConnection() override;
@@ -1358,6 +1446,7 @@ private:
 
     void localcontMethodChanged();
     void origlcChanged();
+    void processwavChanged();
     void wavgradlChanged();
     void wavedgChanged();
     void localedgMethodChanged();
@@ -1545,7 +1634,7 @@ public:
     void getMaskView(int &colorMask, int &colorMaskinv, int &expMask, int &expMaskinv, int &shMask, int &shMaskinv, int &vibMask, int &softMask, int &blMask, int &tmMask, int &retiMask, int &sharMask, int &lcMask, int &cbMask, int &logMask, int &maskMask, int &cieMask) override;
     void updateguilog(int spottype);
     void previewlogChanged();
-
+    int nbmasklog;
     Gtk::ToggleButton *getPreviewDeltaEButton() const override;
     sigc::connection *getPreviewDeltaEButtonConnection() override;
 
@@ -1693,9 +1782,11 @@ private:
     Adjuster* const reparcie;
     Gtk::CheckButton* const jabcie;
     MyComboBoxText*  const modecam;
+    MyComboBoxText*  const modeQJ;
     MyComboBoxText*  const modecie;
     Gtk::Frame* const jzFrame;
     Gtk::Box* const modeHBoxcam;
+    Gtk::Box* const modeHBoxQJ;
     Gtk::Box* const modeHBoxcie;
     Gtk::Frame* const cieFrame;
     MyExpander* const expcamscene;
@@ -1721,7 +1812,6 @@ private:
     Adjuster* const jz100;
     Adjuster* const pqremap;
     Adjuster* const pqremapcam16;
-    Gtk::CheckButton* const forcejz;
     MyExpander* const expjz;
     Gtk::Frame* const jzshFrame;
     Adjuster* const hljzcie;
@@ -1757,20 +1847,32 @@ private:
     Adjuster* const whiteEvjz;
     Adjuster* const targetjz;
     Gtk::Frame* const bevwevFrame;
-    Gtk::CheckButton* const forcebw;
-    ToolParamBlock* const sigBox;
+    Gtk::CheckButton* const sigybjz12;
+    ToolParamBlock* const sigBox12;
+    Gtk::Frame* const sigmoidFrame12;
+    Gtk::CheckButton* const sigq12;
+    Adjuster* const slopesmoq;
+    Adjuster* const sigmoidldacie12;
+    Adjuster* const sigmoidthcie12;
+    Adjuster* const sigmoidblcie12;
+    Gtk::Box* autocomprHBox;
+    Gtk::ToggleButton* const comprcieauto;
+    Gtk::CheckButton* const normcie12;
+    Gtk::CheckButton* const normcie;
+    Gtk::Box* const modeHBoxbwev12;
+    MyComboBoxText* const bwevMethod12;
+    Gtk::Box* const modeHBoxbwev;
+    MyComboBoxText* const bwevMethod;
+
+     ToolParamBlock* const sigBox;
     Gtk::Frame* const sigmoidFrame;
-    Gtk::Frame* const sigmoidnormFrame;
     Gtk::CheckButton* const sigq;
+    Gtk::Frame* const sigmoidnormFrame;
     Adjuster* const sigmoidldacie;
     Adjuster* const sigmoidthcie;
     Adjuster* const sigmoidsenscie;
     Adjuster* const sigmoidblcie;
-    Gtk::Box* autocomprHBox;
-    Gtk::ToggleButton* const comprcieauto;
-    Gtk::CheckButton* const normcie;
-    Gtk::Box* const modeHBoxbwev;
-    MyComboBoxText* const bwevMethod;
+   
     Gtk::Frame* const logcieFrame;
     Gtk::CheckButton* const logcie;
     ToolParamBlock* const comprBox;
@@ -1785,8 +1887,13 @@ private:
     Adjuster* const slopjcie;
     Adjuster* const midtcie;
     Gtk::CheckButton* const smoothcie;
+    Gtk::CheckButton* const smoothcielnk;
+    Gtk::CheckButton* const smoothcietrc;
+    Gtk::CheckButton* const smoothcietrcrel;
     Gtk::CheckButton* const smoothcieyb;
     Gtk::CheckButton* const smoothcielum;
+    Gtk::CheckButton* const smoothciehigh;
+    Adjuster* const smoothcieth;
     ToolParamBlock* const ciesmoothBox;
     Gtk::Box* smoothBox;
     MyComboBoxText* const smoothciemet;
@@ -1794,6 +1901,12 @@ private:
     Adjuster* const slopesmor;
     Adjuster* const slopesmog;
     Adjuster* const slopesmob;
+    Adjuster* const kslopesmor;
+    Adjuster* const kslopesmog;
+    Adjuster* const kslopesmob;
+    Adjuster* const contsig;
+    Adjuster* const skewsig;
+    Adjuster* const whitsig;
 
     Adjuster* const whitescie;
     Adjuster* const blackscie;
@@ -1827,10 +1940,18 @@ private:
     Gtk::Box* bwcieBox;
     Gtk::CheckButton* const bwcie;
 
+    Gtk::Frame* const sigmoidjzFrame12;
     Gtk::Frame* const sigmoidjzFrame;
+    Gtk::Frame* const sigmoid2Frame12;
     Gtk::Frame* const sigmoid2Frame;
     Gtk::CheckButton* const sigcie;
+    Gtk::CheckButton* const sigjz12;
+    Adjuster* const sigmoidldajzcie12;
+    Adjuster* const sigmoidthjzcie12;
+    Adjuster* const sigmoidbljzcie12;
+
     Gtk::CheckButton* const sigjz;
+    Gtk::CheckButton* const forcebw;
     Adjuster* const sigmoidldajzcie;
     Adjuster* const sigmoidthjzcie;
     Adjuster* const sigmoidbljzcie;
@@ -1927,7 +2048,7 @@ private:
     ThresholdAdjuster* const csThresholdcie;
     int nextcomprciecount = 0;
    
-    sigc::connection AutograycieConn, primMethodconn, illMethodconn, smoothciemetconn, catMethodconn, forcejzConn, forcebwConn, qtojConn, showmaskcieMethodConn, enacieMaskConn, enacieMaskallConn, jabcieConn, sursourcieconn, surroundcieconn, modecieconn, modecamconn, comprcieautoconn, normcieconn, logcieconn, satcieconn, logcieqconn,smoothcieconn, smoothcieybconn,smoothcielumconn, logjzconn, sigjzconn, sigqconn, chjzcieconn, toneMethodcieConn, toneMethodcieConn2, toolcieConn, bwevMethodConn, fftcieMaskConn, gamutcieconn, bwcieconn, expprecamconn, sigcieconn;
+    sigc::connection AutograycieConn, primMethodconn, illMethodconn, smoothciemetconn, catMethodconn, sigybjz12Conn, qtojConn, showmaskcieMethodConn, enacieMaskConn, enacieMaskallConn, jabcieConn, sursourcieconn, surroundcieconn, modecieconn, modecamconn, modeQJconn, comprcieautoconn, normcie12conn, normcieconn, logcieconn, satcieconn, logcieqconn, smoothcieconn, smoothcielnkconn, smoothciehighconn, smoothcietrcconn, smoothcietrcrelconn, smoothcieybconn,smoothcielumconn, logjzconn, sigjz12conn, forcebwconn, sigjzconn, sigq12conn, sigqconn, chjzcieconn, toneMethodcieConn, toneMethodcieConn2, toolcieConn, bwevMethod12Conn, bwevMethodConn,fftcieMaskConn, gamutcieconn, bwcieconn, expprecamconn, sigcieconn;
     sigc::connection previewcieConn, sigmoidqjcieconn;
 public:
     Locallabcie();
@@ -1938,7 +2059,7 @@ public:
     bool isMaskViewActive() override;
     void resetMaskView() override;
     void getMaskView(int &colorMask, int &colorMaskinv, int &expMask, int &expMaskinv, int &shMask, int &shMaskinv, int &vibMask, int &softMask, int &blMask, int &tmMask, int &retiMask, int &sharMask, int &lcMask, int &cbMask, int &logMask, int &maskMask, int &cieMask) override;
-
+    int nbmaskcie;
     Gtk::ToggleButton *getPreviewDeltaEButton() const override;
     sigc::connection *getPreviewDeltaEButtonConnection() override;
 
@@ -1962,13 +2083,18 @@ public:
     void surroundcieChanged();
     void modecieChanged();
     void modecamChanged();
+    void modeQJChanged();
+    void qjmodall();
+    void qjmodjz();
+    void qjmodcam();
     void curveChanged(CurveEditor* ce) override;
     void toneMethodcieChanged();
     void toneMethodcie2Changed();
+    void bwevMethod12Changed();
     void bwevMethodChanged();
     void updateAutocompute(const float blackev, const float whiteev, const float sourceg, const float sourceab, const float targetg, const float jz1);
     void updatePrimloc(const float redx, const float redy, const float grex, const float grey, const float blux, const float bluy);
-    void updateiPrimloc(const float r_x, const float r_y, const float g_x, const float g_y, const float b_x, const float b_y, const float w_x, const float w_y, const float m_x, const float m_y,  const float me_x, const float me_y, const int pri_);
+    void updateiPrimloc(const float r_x, const float r_y, const float g_x, const float g_y, const float b_x, const float b_y, const float w_x, const float w_y, const float m_x, const float m_y,  const float me_x, const float me_y, const int pri_, const float slg, const bool lkg);
     void updatesigloc(const float cont_sig, const float light_sig);
 
 private:
@@ -1978,11 +2104,11 @@ private:
     void updateGUIToMode(const modeType new_type) override;
     void complexityModeChanged();
     void AutograycieChanged();
-    void forcejzChanged();
-    void forcebwChanged();
+    void sigybjz12Changed();
     void qtojChanged();
     void jabcieChanged();
     void comprcieautoChanged();
+    void normcie12Changed();
     void normcieChanged();
     void gamutcieChanged();
     void bwcieChanged();
@@ -1994,14 +2120,22 @@ private:
     void satcieChanged();
     void logcieqChanged();
     void smoothcieChanged();
+    void smoothcielnkChanged();
+    void smoothciehighChanged();
+    void smoothcietrcChanged();
+    void smoothcietrcrelChanged();
     void smoothcieybChanged();
     void smoothcielumChanged();
     void sigcieChanged();
     void logjzChanged();
+    void sigjz12Changed();
     void sigjzChanged();
+    void forcebwChanged();
+    void sigq12Changed();
     void sigqChanged();
     void chjzcieChanged();
     void updatecieGUI();
+    void updatecielnkGUI();
     void updateMaskBackground(const double normChromar, const double normLumar, const double normHuer, const double normHuerjz) override;
     void showmaskcieMethodChanged();
     void enacieMaskChanged();

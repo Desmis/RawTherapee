@@ -42,8 +42,8 @@
 #include "rtimage.h"
 #include "version.h"
 #include "extprog.h"
-#include "../rtengine/dynamicprofile.h"
-#include "../rtengine/procparams.h"
+#include "rtengine/dynamicprofile.h"
+#include "rtengine/procparams.h"
 #include "pathutils.h"
 
 #ifndef _WIN32
@@ -149,7 +149,7 @@ int processLineParams ( int argc, char **argv )
                         break;
                     }
 
-                // no break here on purpose
+                // fall through
 
                 case 'h':
                 case '?':
@@ -158,7 +158,7 @@ int processLineParams ( int argc, char **argv )
                     printf("  Website: http://www.rawtherapee.com/\n");
                     printf("  Documentation: http://rawpedia.rawtherapee.com/\n");
                     printf("  Forum: https://discuss.pixls.us/c/software/rawtherapee\n");
-                    printf("  Code and bug reports: https://github.com/Beep6581/RawTherapee\n\n");
+                    printf("  Code and bug reports: https://github.com/RawTherapee/RawTherapee\n\n");
                     printf("Symbols:\n");
                     printf("  <Chevrons> indicate parameters you can change.\n\n");
                     printf("Usage:\n");

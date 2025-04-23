@@ -32,6 +32,7 @@
 #include "coarsepanel.h"
 #include "colorappearance.h"
 #include "colortoning.h"
+#include "compressgamut.h"
 #include "crop.h"
 #include "darkframe.h"
 #include "defringe.h"
@@ -44,6 +45,7 @@
 #include "filmnegative.h"
 #include "filmsimulation.h"
 #include "flatfield.h"
+#include "framing.h"
 #include "gradient.h"
 #include "guiutils.h"
 #include "hsvequalizer.h"
@@ -89,8 +91,8 @@
 #include "xtransprocess.h"
 #include "xtransrawexposure.h"
 
-#include "../rtengine/noncopyable.h"
-#include "../rtengine/rtengine.h"
+#include "rtengine/noncopyable.h"
+#include "rtengine/rtengine.h"
 
 class ImageEditorCoordinator;
 class MetaDataPanel;
@@ -130,6 +132,7 @@ protected:
     ChMixer* chmixer;
     BlackWhite* blackwhite;
     Resize* resize;
+    Framing* framing;
     PrSharpening* prsharpening;
     ICMPanel* icm;
     Crop* crop;
@@ -139,6 +142,7 @@ protected:
     LocalContrast *localContrast;
     Spot* spot;
     Defringe* defringe;
+    Compressgamut* compressgamut;
     ImpulseDenoise* impulsedenoise;
     DirPyrDenoise* dirpyrdenoise;
     EdgePreservingDecompositionUI *epd;
@@ -251,6 +255,7 @@ public:
         TONE_EQUALIZER,
         IMPULSE_DENOISE,
         DEFRINGE_TOOL,
+        COMPRESSGAMUT_TOOL,
         SPOT,
         DIR_PYR_DENOISE,
         EPD,
@@ -279,6 +284,7 @@ public:
         BLACK_WHITE,
         RESIZE_TOOL,
         PR_SHARPENING,
+        FRAMING,
         CROP_TOOL,
         ICM,
         WAVELET,

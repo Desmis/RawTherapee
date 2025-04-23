@@ -49,7 +49,7 @@
 #include "StopWatch.h"
 #include "utils.h"
 
-#include "../rtgui/editcallbacks.h"
+#include "rtgui/editcallbacks.h"
 
 #pragma GCC diagnostic warning "-Wextra"
 #pragma GCC diagnostic warning "-Wdouble-promotion"
@@ -1228,8 +1228,10 @@ void ImProcFunctions::ciecam_02float(CieImage* ncie, float adap, int pW, int pwb
                         Qpro = (Qpro == 0.f ? epsil : Qpro); // avoid division by zero
                         spro = 100.0f * sqrtf(Mpro / Qpro);
 
-                        if (Jpro > 99.9f) {
-                            Jpro = 99.9f;
+                        if(settings->autocielab) {//avoid artifacts
+                            if (Jpro > 99.9f) {
+                                Jpro = 99.9f;
+                            }
                         }
 
                         Jpro = CAMBrightCurveJ[(float)(Jpro * 327.68f)];   //lightness CIECAM02 + contrast
@@ -2039,9 +2041,9 @@ void ImProcFunctions::rgbProc(Imagefloat* working, LabImage* lab, PipetteBuffer 
     };
 
     bool mixchannels = params->chmixer.enabled &&
-                       (params->chmixer.red[0] != 100 || params->chmixer.red[1] != 0     || params->chmixer.red[2] != 0   ||
-                        params->chmixer.green[0] != 0 || params->chmixer.green[1] != 100 || params->chmixer.green[2] != 0 ||
-                        params->chmixer.blue[0] != 0  || params->chmixer.blue[1] != 0    || params->chmixer.blue[2] != 100);
+                       (params->chmixer.red[0] != 1000 || params->chmixer.red[1] != 0     || params->chmixer.red[2] != 0   ||
+                        params->chmixer.green[0] != 0 || params->chmixer.green[1] != 1000 || params->chmixer.green[2] != 0 ||
+                        params->chmixer.blue[0] != 0  || params->chmixer.blue[1] != 0    || params->chmixer.blue[2] != 1000);
 
     FlatCurve* hCurve = nullptr;
     FlatCurve* sCurve = nullptr;

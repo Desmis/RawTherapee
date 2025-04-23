@@ -66,6 +66,34 @@ auto to_long(const Iterator &iter, Integer n = Integer{0}) -> decltype(
 }
 
 /**
+ * Returns if the values at the iterator are equal to the given values.
+ *
+ * @param iter The iterator.
+ * @param compare_to The values to compare to.
+ * @param get_value A function that accepts the iterator and an index and
+ * returns the value at the index.
+ * @return If the values are equal.
+ */
+template <typename Iterator, typename T>
+bool tag_values_equal(
+    const Iterator &iter,
+    const std::initializer_list<T> compare_to,
+    std::function<T (const Iterator &, std::size_t)> get_value)
+{
+    const auto size = compare_to.size();
+    if (size != iter->count()) {
+        return false;
+    }
+    std::size_t i = 0;
+    for (const auto value : compare_to) {
+        if (get_value(iter, i++) != value) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
  * Convenience class for reading data from a metadata tag's bytes value.
  *
  * It maintains an offset. Data is read starting from the offset, then the
@@ -604,14 +632,18 @@ FramesData::FramesData(const Glib::ustring &fname, time_t ts) :
         } else if (!make.compare(0, 4, "SONY")) {
             // ExifTool prefers LensType2 over LensType (called
             // Exif.Sony2.LensID by Exiv2). Exiv2 doesn't support LensType2 yet,
-            // so we let Exiv2 try it's best. For non ILCE/NEX cameras which
-            // likely don't have LensType2, we use Exif.Sony2.LensID because
-            // Exif.Photo.LensModel may be incorrect (see
-            // https://discuss.pixls.us/t/call-for-testing-rawtherapee-metadata-handling-with-exiv2-includes-cr3-support/36240/36).
+            // so we let Exiv2 try it's best. If the LensSpec is unknown, the
+            // lens information may be incorrect, so we use Exif.Sony2.LensID
+            // which lists all possible lenses.
             if (
-                // Camera model is neither a ILCE, ILME, nor NEX.
-                (!find_exif_tag("Exif.Image.Model") ||
-                    (pos->toString().compare(0, 4, "ILCE") && pos->toString().compare(0, 4, "ILME") && pos->toString().compare(0, 3, "NEX"))) &&
+                // LensSpec is unknown.
+                (find_exif_tag("Exif.Sony2.LensSpec") &&
+                    tag_values_equal<decltype(pos), long>(
+                        pos,
+                        {0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L},
+                        [](const decltype(pos) &iter, std::size_t n) {
+                            return to_long(iter, n);
+                        })) &&
                 // LensID exists. 0xFFFF could be one of many lenses.
                 find_exif_tag("Exif.Sony2.LensID") && to_long(pos) && to_long(pos) != 0xFFFF) {
                 lens = pos->print(&exif);
@@ -736,7 +768,7 @@ FramesData::FramesData(const Glib::ustring &fname, time_t ts) :
         // -----------------------
         // Special file type detection (HDR, PixelShift)
         // ------------------------
-        uint16 bitspersample = 0, samplesperpixel = 0, sampleformat = 0, photometric = 0, compression = 0;
+        std::uint16_t bitspersample = 0, samplesperpixel = 0, sampleformat = 0, photometric = 0, compression = 0;
         const auto bps = exif.findKey(Exiv2::ExifKey("Exif.Image.BitsPerSample"));
         const auto spp = exif.findKey(Exiv2::ExifKey("Exif.Image.SamplesPerPixel"));
         const auto sf = exif.findKey(Exiv2::ExifKey("Exif.Image.SampleFormat"));
@@ -785,7 +817,7 @@ FramesData::FramesData(const Glib::ustring &fname, time_t ts) :
                     find_exif_tag("Exif.SubImage1.Compression") && to_long(pos) == 1) {
                     isPixelShift = true;
                 }
-            } else if (bps != exif.end() && to_long(bps) == 14 &&
+            } else if (bps != exif.end() && (to_long(bps) == 14 || to_long(bps) == 16) &&
                        spp != exif.end() && to_long(spp) == 4 &&
                        c != exif.end() && to_long(c) == 1 &&
                        find_exif_tag("Exif.Image.Software") &&

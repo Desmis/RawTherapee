@@ -29,7 +29,7 @@
 #else
 #include <gtkmm/enums.h>
 #endif
-#include "../rtengine/settings.h"
+#include "rtengine/settings.h"
 #include <exception>
 
 #define STARTUPDIR_CURRENT 0
@@ -486,7 +486,9 @@ public:
     Glib::ustring lastRetinexDir;
     Glib::ustring lastDenoiseCurvesDir;
     Glib::ustring lastWaveletCurvesDir;
+    Glib::ustring lastIcmCurvesDir;
     Glib::ustring lastlocalCurvesDir;
+    Glib::ustring lastlocalCurvesDirghs;
     Glib::ustring lastPFCurvesDir;
     Glib::ustring lastHsvCurvesDir;
     Glib::ustring lastToneCurvesDir;

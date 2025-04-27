@@ -1,49 +1,7 @@
-if(EXTRA_INCDIR)
-    include_directories("${EXTRA_INCDIR}")
-endif()
-if(EXPAT_INCLUDE_DIRS)
-    include_directories("${EXPAT_INCLUDE_DIRS}")
-endif()
-if(FFTW3F_INCLUDE_DIRS)
-    include_directories("${FFTW3F_INCLUDE_DIRS}")
-endif()
-if(GLIB2_INCLUDE_DIRS)
-    include_directories("${GLIB2_INCLUDE_DIRS}")
-endif()
-if(GLIBMM_INCLUDE_DIRS)
-    include_directories("${GLIBMM_INCLUDE_DIRS}")
-endif()
-if(GOBJECT_INCLUDE_DIRS)
-    include_directories("${GOBJECT_INCLUDE_DIRS}")
-endif()
-if(GTHREAD_INCLUDE_DIRS)
-    include_directories("${GTHREAD_INCLUDE_DIRS}")
-endif()
-if(GTKMM_INCLUDE_DIRS)
-    include_directories("${GTKMM_INCLUDE_DIRS}")
-endif()
-if(GTK_INCLUDE_DIRS)
-    include_directories("${GTK_INCLUDE_DIRS}")
-endif()
-if(IPTCDATA_INCLUDE_DIRS)
-    include_directories("${IPTCDATA_INCLUDE_DIRS}")
-endif()
-if(LCMS_INCLUDE_DIRS)
-    include_directories("${LCMS_INCLUDE_DIRS}")
-endif()
-if(LENSFUN_INCLUDE_DIRS)
-    include_directories("${LENSFUN_INCLUDE_DIRS}")
-endif()
-if(RSVG_INCLUDE_DIRS)
-    include_directories("${RSVG_INCLUDE_DIRS}")
-endif()
 if(NOT WITH_SYSTEM_KLT)
     include_directories("${CMAKE_SOURCE_DIR}/rtengine/klt")
 else()
     include_directories("${KLT_INCLUDE_DIRS}")
-endif()
-if(EXIV2_INCLUDE_DIRS)
-    include_directories("${EXIV2_INCLUDE_DIRS}")
 endif()
 if(JXL_INCLUDE_DIRS)
     include_directories("${JXL_INCLUDE_DIRS}")
@@ -52,24 +10,6 @@ if(NOT WITH_SYSTEM_LIBRAW)
     include_directories("${CMAKE_SOURCE_DIR}/rtengine/libraw")
 else()
     include_directories("${LIBRAW_INCLUDE_DIRS}")
-endif()
-
-link_directories(
-    "${EXPAT_LIBRARY_DIRS}"
-    "${EXTRA_LIBDIR}"
-    "${FFTW3F_LIBRARY_DIRS}"
-    "${GLIB2_LIBRARY_DIRS}"
-    "${GLIBMM_LIBRARY_DIRS}"
-    "${GOBJECT_LIBRARY_DIRS}"
-    "${GTHREAD_LIBRARY_DIRS}"
-    "${IPTCDATA_LIBRARY_DIRS}"
-    "${LCMS_LIBRARY_DIRS}"
-    "${LENSFUN_LIBRARY_DIRS}"
-    "${RSVG_LIBRARY_DIRS}"
-)
-
-if(OpenMP_FOUND)
-    include_directories(${OpenMP_CXX_INCLUDE_DIRS})
 endif()
 
 set(CAMCONSTSFILE "camconst.json")
@@ -247,30 +187,37 @@ target_include_directories(rtengine
 # UpdateInfo creates "rtgui/version.h"
 target_include_directories(rtengine BEFORE PRIVATE ${CMAKE_BINARY_DIR})
 
-target_link_libraries(rtengine
-    ${EXPAT_LIBRARIES}
-    ${EXTRA_LIB}
-    ${FFTW3F_LIBRARIES}
-    ${GLIB2_LIBRARIES}
-    ${GLIBMM_LIBRARIES}
-    ${GOBJECT_LIBRARIES}
-    ${GTHREAD_LIBRARIES}
-    ${IPTCDATA_LIBRARIES}
-    ${JPEG_LIBRARIES}
-    ${LCMS_LIBRARIES}
-    ${PNG_LIBRARIES}
-    ${TIFF_LIBRARIES}
-    ${ZLIB_LIBRARIES}
-    ${LENSFUN_LIBRARIES}
-    ${RSVG_LIBRARIES}
-    ${KLT_LIBRARIES}
-    ${EXIV2_LIBRARIES}
-    ${JXL_LIBRARIES}
-    ${LIBRAW_LIBRARIES}
-    )
+if(EXTRA_INCDIR)
+    target_include_directories(rtengine "${EXTRA_INCDIR}")
+endif()
 
-if(OpenMP_FOUND)
-    target_link_libraries(rtengine ${OpenMP_CXX_LIBRARIES})
+target_link_libraries(rtengine
+    PUBLIC
+        JPEG::JPEG
+        PNG::PNG
+        TIFF::TIFF
+        ZLIB::ZLIB
+        PkgConfig::EXIV2
+        PkgConfig::EXPAT
+        PkgConfig::FFTW3F
+        ${FFTW3F_LIBRARIES} # For FFTW3F_OMP integration
+        PkgConfig::IPTCDATA
+        PkgConfig::LCMS
+        PkgConfig::LENSFUN
+        PkgConfig::RSVG
+        ${EXTRA_LIB}
+        ${KLT_LIBRARIES}
+        ${JXL_LIBRARIES}
+        ${LIBRAW_LIBRARIES}
+    PRIVATE
+        # FIXME: rtengine really shouldn't need GTKMM or GLIBMM
+        PkgConfig::CAIROMM
+        PkgConfig::GLIBMM
+        PkgConfig::GTKMM
+)
+
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(rtengine PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
 # Configure LibRaw

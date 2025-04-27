@@ -100,6 +100,34 @@
             }
         },
         {
+            "name": "default_options",
+            "description": "Default configuration options. This should be inherited last to not override user options.",
+            "hidden": true,
+            "cacheVariables": {
+                "BUILD_SHARED": "OFF",
+                "ENABLE_TCMALLOC": "OFF",
+                "OPTION_OMP": "ON",
+                "WARNINGS_AS_ERRORS": "OFF",
+
+                "WITH_BENCHMARK": "OFF",
+                "WITH_LTO": "OFF",
+                "WITH_MYFILE_MMAP": "ON",
+                "WITH_SAN": "OFF",
+                "WITH_PROF": "OFF",
+                "WITH_SYSTEM_KLT": "OFF",
+                "WITH_SYSTEM_LIBRAW": "ON",
+
+                "STRICT_MUTEX": "ON",
+                "TRACE_MYRWMUTEX": "ON",
+                "AUTO_GDK_FLUSH": "OFF",
+
+                "OSX_DEV_BUILD": "OFF",
+                "OSX_NIGHTLY": "OFF",
+                "OSX_CONTINUOUS": "OFF",
+                "OSX_UNIVERSAL": "OFF"
+            }
+        },
+        {
             "name": "dev-mode",
             "description": "Enable developer mode options",
             "hidden": true,
@@ -120,11 +148,8 @@
         },
         {
             "name": "dev",
-            "inherits": ["dev-mode", "unixlike-gcc-release"],
-            "binaryDir": "${sourceDir}/build/dev",
-            "cacheVariables": {
-                "WARNINGS_AS_ERRORS": "OFF"
-            }
+            "inherits": ["dev-mode", "default_options", "unixlike-gcc-release"],
+            "binaryDir": "${sourceDir}/build/dev"
         },
         {
             "name": "dev-strict",

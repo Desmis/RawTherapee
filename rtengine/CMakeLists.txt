@@ -193,10 +193,6 @@ endif()
 
 target_link_libraries(rtengine
     PUBLIC
-        JPEG::JPEG
-        PNG::PNG
-        TIFF::TIFF
-        ZLIB::ZLIB
         PkgConfig::EXIV2
         PkgConfig::EXPAT
         PkgConfig::FFTW3F
@@ -205,10 +201,18 @@ target_link_libraries(rtengine
         PkgConfig::LCMS
         PkgConfig::LENSFUN
         PkgConfig::RSVG
+        PNG::PNG
+        TIFF::TIFF
         ${EXTRA_LIB}
         ${KLT_LIBRARIES}
         ${JXL_LIBRARIES}
         ${LIBRAW_LIBRARIES}
+
+        # While JPEG::JPEG and ZLIB::ZLIB are available targets, the LibRaw
+        # autoconf seems to conflict with the CMake settings for MSYS2.
+        # I suspect it is because *.dll.a is picked up instead of *.a when
+        # using LibRaw.
+        "-ljpeg -lz"
     PRIVATE
         # FIXME: rtengine really shouldn't need GTKMM or GLIBMM
         PkgConfig::CAIROMM

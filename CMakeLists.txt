@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 
-# Compiler id for Apple Clang
-if(APPLE)
-    cmake_policy(SET CMP0025 NEW)
-    cmake_policy(SET CMP0037 NEW)
-endif()
+cmake_policy(SET CMP0177 OLD) # Added in CMake 3.31
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 

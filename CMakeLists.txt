@@ -1,15 +1,12 @@
-# Use of SOURCE_DIR target property begins at cmake 3.7
-if(APPLE)
-    cmake_minimum_required(VERSION 3.7)
-else()
-    cmake_minimum_required(VERSION 3.5)
-endif()
+cmake_minimum_required(VERSION 3.25)
 
 # Compiler id for Apple Clang
 if(APPLE)
     cmake_policy(SET CMP0025 NEW)
     cmake_policy(SET CMP0037 NEW)
 endif()
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 # Must stay before the project() command:
 if(${CMAKE_EXTRA_GENERATOR} MATCHES "Eclipse CDT4")
@@ -23,14 +20,9 @@ endif()
 
 project(RawTherapee)
 
-# The default target is Debug:
-if(CMAKE_BUILD_TYPE STREQUAL "")
-    set(CMAKE_BUILD_TYPE
-        Debug
-        CACHE STRING "One of: None Debug Release RelWithDebInfo MinSizeRel"
-              FORCE)
-endif()
-
+include(cmake/StandardProjectSettings.cmake)
+rt_force_out_of_source_builds()
+rt_set_default_build_type_and_install_prefix()
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_CMAKE_BUILD_TYPE)
 
 # Set required C and C++ standards and check GCC version:
@@ -68,16 +60,10 @@ else()
     add_definitions(-D_DNDEBUG)
 endif()
 
-message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
-
 # Cache name suffix examples: "" = ~/.config/RawTherapee, "5" =
 # ~/.config/RawTherapee-5, "_testing" = ~/.config/RawTherapee_testing Use "" for
 # stable releases and "5-dev" for anything else.
-set(CACHE_NAME_SUFFIX
-    ""
-    CACHE STRING "RawTherapee's cache folder suffix")
+set(CACHE_NAME_SUFFIX "" CACHE STRING "RawTherapee's cache folder suffix")
 
 # For macOS only, OSX_DEV_BUILD option allows using relative paths instead of absolute
 # paths. Consequently, for development builds, application can be launching without
@@ -700,46 +686,6 @@ int main()
             set(FFTW3F_LIBRARIES ${FFTW3F_LIBRARIES} ${fftw3f_omp})
         endif()
     endif()
-endif()
-
-# Find out whether we are building out of source:
-get_filename_component(ABS_SOURCE_DIR "${PROJECT_SOURCE_DIR}" ABSOLUTE)
-get_filename_component(ABS_BINARY_DIR "${CMAKE_BINARY_DIR}" ABSOLUTE)
-set(OUT_OF_SOURCE_BUILD TRUE)
-if(ABS_SOURCE_DIR STREQUAL ABS_BINARY_DIR)
-    set(OUT_OF_SOURCE_BUILD FALSE)
-    message(
-        WARNING
-            "You are performing an in-source build. This is discouraged. For an explanation and the advantages of out-of-source builds, please refer to http://www.cmake.org/Wiki/CMake_FAQ#What_is_an_.22out-of-source.22_build.3F"
-    )
-endif()
-
-# Remove files which could require manual work. We will remove this after some
-# time to have a clean build system without file modifications in the source
-# tree again. (?)
-set(OOSB_FILES
-    "${PROJECT_SOURCE_DIR}/rtdata/rawtherapee.desktop"
-    "${PROJECT_SOURCE_DIR}/rtgui/version.h"
-    "${PROJECT_SOURCE_DIR}/rtgui/config.h"
-    "${PROJECT_SOURCE_DIR}/AboutThisBuild.txt")
-if(OUT_OF_SOURCE_BUILD)
-    foreach(f ${OOSB_FILES})
-        file(REMOVE "${f}")
-    endforeach()
-endif()
-
-# Check for generated files in the source tree which should not be there when
-# doing an out-of-source build. Without checking for this it might happen that
-# old versions are used for the compilation:
-if(OUT_OF_SOURCE_BUILD)
-    foreach(f ${OOSB_FILES})
-        if(EXISTS "${f}")
-            message(
-                SEND_ERROR
-                    "Generated \"${f}\" found inside the source tree. Please remove it as it is a relic of the old build system and prevents valid compilation now."
-            )
-        endif()
-    endforeach()
 endif()
 
 # Start generating AboutThisBuild.txt Set the platform bit-depth:

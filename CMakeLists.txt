@@ -462,13 +462,6 @@ else()
     add_definitions(-DAUTO_GDK_FLUSH=0)
 endif()
 
-if(NOT WITH_SYSTEM_LIBRAW)
-    set(LIBRAW_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/rtengine/libraw/lib/.libs/libraw_r.a")
-    if(WIN32)
-        set(LIBRAW_LIBRARIES ${LIBRAW_LIBRARIES} -lws2_32)
-    endif()
-endif()
-
 if(WIN32)
     add_definitions(-DWIN32)
     add_definitions(-D_WIN32)
@@ -655,68 +648,6 @@ endif()
 if(UNIX)
     install(FILES com.rawtherapee.RawTherapee.appdata.xml
             DESTINATION "${APPDATADIR}")
-endif()
-
-# check whether the used version of lensfun has lfDatabase::LoadDirectory
-include(CheckCXXSourceCompiles)
-set(CMAKE_REQUIRED_INCLUDES ${LENSFUN_INCLUDE_DIRS})
-set(CMAKE_REQUIRED_LIBRARIES)
-foreach(l ${LENSFUN_LIBRARIES})
-    if(LENSFUN_LIBRARY_DIRS)
-        # the NO_DEFAULT_PATH is to make sure we find the lensfun version we
-        # want, and not the system's one (e.g. if we have a custom version
-        # installed in a non-standard location)
-        set(_l "_l-NOTFOUND")
-        message(STATUS "searching for library ${l} in ${LENSFUN_LIBRARY_DIRS}")
-        find_library(_l ${l} PATHS ${LENSFUN_LIBRARY_DIRS} NO_DEFAULT_PATH)
-    else()
-        # LENSFUN_LIBRARY_DIRS can be empty if lensfun is installed in the
-        # default path. In this case, adding NO_DEFAULT_PATH would make
-        # find_library fail...
-        set(_l "_l-NOTFOUND")
-        message(STATUS "searching for library ${l}")
-        find_library(_l ${l})
-    endif()
-    message(STATUS "  result: ${_l}")
-    set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${_l})
-endforeach()
-check_cxx_source_compiles(
-    "#include <lensfun.h>
-int main()
-{
-    lfDatabase *db = 0;
-    bool b = db->LoadDirectory(0);
-    return 0;
-}"
-    LENSFUN_HAS_LOAD_DIRECTORY)
-
-set(TCMALLOC_LIB_DIR)
-if(ENABLE_TCMALLOC)
-    if(TCMALLOC_LIB_DIR)
-        find_library(TCMALLOC_LIBRARIES tcmalloc PATHS ${TCMALLOC_LIB_DIR}
-                                                       NO_DEFAULT_PATH)
-    else()
-        # On Debian libtcmalloc-minimal4 has no .so symlink, so let's adjust for that
-        set(OLD_CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES}")
-        list(APPEND CMAKE_FIND_LIBRARY_SUFFIXES ".so.4")
-
-        find_library(TCMALLOC_LIBRARIES NAMES tcmalloc tcmalloc_minimal)
-
-        set(CMAKE_FIND_LIBRARY_SUFFIXES "${OLD_CMAKE_FIND_LIBRARY_SUFFIXES}")
-        unset(OLD_CMAKE_FIND_LIBRARY_SUFFIXES)
-    endif()
-    if(TCMALLOC_LIBRARIES)
-        message(STATUS "using tcmalloc library in ${TCMALLOC_LIBRARIES}")
-    else()
-        set(TCMALLOC_LIBRARIES
-            ""
-            CACHE INTERNAL "" FORCE)
-        message(STATUS "tcmalloc not found")
-    endif()
-else()
-    set(TCMALLOC_LIBRARIES
-        ""
-        CACHE INTERNAL "" FORCE)
 endif()
 
 add_subdirectory(rtengine)

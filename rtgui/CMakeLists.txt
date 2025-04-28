@@ -237,7 +237,6 @@ target_link_libraries(rth
     PkgConfig::GTKMM
     ${EXTRA_LIB_RTGUI}
     ${EXTRA_LIBDIR}
-    ${TCMALLOC_LIBRARIES}
 )
 
 target_link_libraries(rth-cli
@@ -245,9 +244,12 @@ target_link_libraries(rth-cli
     PkgConfig::GTKMM
     ${EXTRA_LIB_RTGUI}
     ${EXTRA_LIBDIR}
-    ${TCMALLOC_LIBRARIES}
 )
 
+if(TCMALLOC_FOUND)
+    target_link_libraries(rth TCMALLOC::TCMALLOC)
+    target_link_libraries(rth-cli TCMALLOC::TCMALLOC)
+endif()
 if(USE_LIBCANBERRA)
     target_link_libraries(rth PkgConfig::CANBERRA)
 endif()

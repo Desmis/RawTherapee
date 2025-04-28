@@ -2,13 +2,18 @@ include(FetchContent)
 find_package(PkgConfig REQUIRED)
 
 include(CheckCSourceCompiles)
+include(CheckCXXSourceCompiles)
 
-# Use a macro as find_package() or pkg_check_modules() may not set variables
-# at the global/parent scope.
+# Use a macro as functions/find_package()/pkg_check_modules() do not set
+# variables in the top-level CMakeLists scope.
 macro(rt_setup_dependencies)
     rt_fetch_content()
 
     find_package(ATOMIC)
+    if(ENABLE_TCMALLOC)
+        find_package(TCMALLOC)
+    endif()
+
     find_package(JPEG REQUIRED)
     find_package(PNG REQUIRED)
     find_package(TIFF 4.0.4 REQUIRED)
@@ -58,8 +63,11 @@ macro(rt_setup_dependencies)
     # Check before OpenMP as rt_setup_openmp() handles fftw3f + omp integration
     pkg_check_modules(FFTW3F REQUIRED IMPORTED_TARGET fftw3f)
     if(OPTION_OMP)
-        # Assumes FFTW3F is the package name for fftw3f
-        rt_setup_openmp()
+        find_package(OpenMP)
+        if(OpenMP_CXX_FOUND)
+            # Assumes FFTW3F is the package name for fftw3f
+            rt_add_fftw3f_omp_support()
+        endif()
     endif()
 
     rt_setup_jxl()
@@ -67,8 +75,14 @@ macro(rt_setup_dependencies)
     if(WITH_SYSTEM_KLT)
         find_package(KLT REQUIRED)
     endif()
+
     if(WITH_SYSTEM_LIBRAW)
         pkg_check_modules(LIBRAW REQUIRED IMPORTED_TARGET libraw_r>=0.21)
+    else()
+        set(LIBRAW_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/rtengine/libraw/lib/.libs/libraw_r.a")
+        if(WIN32)
+            list(APPEND LIBRAW_LIBRARIES "-lws2_32")
+        endif()
     endif()
 
     # Check for libcanberra-gtk3 (sound events on Linux):
@@ -76,6 +90,8 @@ macro(rt_setup_dependencies)
         pkg_check_modules(CANBERRA REQUIRED IMPORTED_TARGET libcanberra-gtk3)
         target_compile_definitions(PkgConfig::CANBERRA INTERFACE "USE_CANBERRA")
     endif()
+
+    rt_check_lensfun_has_load_directory()
 endmacro()
 
 function(rt_fetch_content)
@@ -94,47 +110,44 @@ function(rt_fetch_content)
     )
 endfunction()
 
-macro(rt_setup_openmp)
-    find_package(OpenMP)
-    if(OpenMP_CXX_FOUND)
-        # Check for libfftw3f_omp
-        if(NOT FFTW3F_FOUND)
-            message(FATAL_ERROR "Missing PkgConfig::FFTW3F target")
-        endif()
-
-        # Prepare for check_c_source_compiles()
-        set(CMAKE_REQUIRED_INCLUDES ${FFTW3F_INCLUDE_DIRS})
-        set(CMAKE_REQUIRED_LIBRARIES)
-        foreach(l ${FFTW3F_LIBRARIES})
-            set(_f "_f-NOTFOUND")
-            find_library(_f ${l} PATHS ${FFTW3F_LIBRARY_DIRS})
-            list(APPEND CMAKE_REQUIRED_LIBRARIES ${_f})
-        endforeach()
-
-        check_c_source_compiles(
-            "
-            #include <fftw3.h>
-            int main()
-            {
-                fftwf_init_threads();
-                fftwf_plan_with_nthreads(1);
-                return 0;
-            }
-            "
-            FFTW3F_SUPPORTS_MULTITHREADING
-        )
-        if(FFTW3F_SUPPORTS_MULTITHREADING)
-            target_compile_definitions(PkgConfig::FFTW3F INTERFACE "RT_FFTW3F_OMP")
-            return()
-        endif()
-
-        find_library(fftw3f_omp fftw3f_omp PATHS ${FFTW3F_LIBRARY_DIRS})
-        if(fftw3f_omp)
-            target_link_libraries(PkgConfig::FFTW3F INTERFACE ${fftw3f_omp})
-            target_compile_definitions(PkgConfig::FFTW3F INTERFACE "RT_FFTW3F_OMP")
-        endif()
+function(rt_add_fftw3f_omp_support)
+    # Check for libfftw3f_omp
+    if(NOT FFTW3F_FOUND)
+        message(FATAL_ERROR "Missing PkgConfig::FFTW3F target")
     endif()
-endmacro()
+
+    # Prepare for check_c_source_compiles()
+    set(CMAKE_REQUIRED_INCLUDES ${FFTW3F_INCLUDE_DIRS})
+    set(CMAKE_REQUIRED_LIBRARIES)
+    foreach(l ${FFTW3F_LIBRARIES})
+        set(_f "_f-NOTFOUND")
+        find_library(_f ${l} PATHS ${FFTW3F_LIBRARY_DIRS})
+        list(APPEND CMAKE_REQUIRED_LIBRARIES ${_f})
+    endforeach()
+
+    check_c_source_compiles(
+        "
+        #include <fftw3.h>
+        int main()
+        {
+            fftwf_init_threads();
+            fftwf_plan_with_nthreads(1);
+            return 0;
+        }
+        "
+        FFTW3F_SUPPORTS_MULTITHREADING
+    )
+    if(FFTW3F_SUPPORTS_MULTITHREADING)
+        target_compile_definitions(PkgConfig::FFTW3F INTERFACE "RT_FFTW3F_OMP")
+        return()
+    endif()
+
+    find_library(fftw3f_omp fftw3f_omp PATHS ${FFTW3F_LIBRARY_DIRS})
+    if(fftw3f_omp)
+        target_link_libraries(PkgConfig::FFTW3F INTERFACE ${fftw3f_omp})
+        target_compile_definitions(PkgConfig::FFTW3F INTERFACE "RT_FFTW3F_OMP")
+    endif()
+endfunction()
 
 macro(rt_setup_jxl)
     if(NOT (WITH_JXL OR WITH_JXL STREQUAL "AUTO"))
@@ -156,3 +169,46 @@ macro(rt_setup_jxl)
         endif()
     endif()
 endmacro()
+
+# Check whether the used version of lensfun has lfDatabase::LoadDirectory
+function(rt_check_lensfun_has_load_directory)
+    if(NOT LENSFUN_FOUND)
+        message(FATAL_ERROR "Missing PkgConfig::LENSFUN")
+    endif()
+
+    set(CMAKE_REQUIRED_INCLUDES ${LENSFUN_INCLUDE_DIRS})
+    set(CMAKE_REQUIRED_LIBRARIES)
+    foreach(l ${LENSFUN_LIBRARIES})
+        if(LENSFUN_LIBRARY_DIRS)
+            # the NO_DEFAULT_PATH is to make sure we find the lensfun version we
+            # want, and not the system's one (e.g. if we have a custom version
+            # installed in a non-standard location)
+            set(_l "_l-NOTFOUND")
+            message(STATUS "Searching for library ${l} in ${LENSFUN_LIBRARY_DIRS}")
+            find_library(_l ${l} PATHS ${LENSFUN_LIBRARY_DIRS} NO_DEFAULT_PATH)
+        else()
+            # LENSFUN_LIBRARY_DIRS can be empty if lensfun is installed in the
+            # default path. In this case, adding NO_DEFAULT_PATH would make
+            # find_library fail...
+            set(_l "_l-NOTFOUND")
+            message(STATUS "searching for library ${l}")
+            find_library(_l ${l})
+        endif()
+        message(STATUS " Found ${_l}")
+        list(APPEND CMAKE_REQUIRED_LIBRARIES ${_l})
+    endforeach()
+
+    check_cxx_source_compiles(
+        "
+        #include <lensfun.h>
+        int main()
+        {
+            lfDatabase *db = 0;
+            bool b = db->LoadDirectory(0);
+            return 0;
+        }
+        "
+        LENSFUN_HAS_LOAD_DIRECTORY
+    )
+    set(LENSFUN_HAS_LOAD_DIRECTORY ${LENSFUN_HAS_LOAD_DIRECTORY} PARENT_SCOPE)
+endfunction()

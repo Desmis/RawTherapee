@@ -248,16 +248,8 @@ target_link_libraries(rth-cli
     ${TCMALLOC_LIBRARIES}
 )
 
-# Atomic is required in some builds: #6821
-find_package(ATOMIC)
-if(ATOMIC_FOUND)
-    target_link_libraries(rth ${ATOMIC_LIBRARIES})
-    target_link_libraries(rth-cli ${ATOMIC_LIBRARIES})
-endif()
-
-if(USE_LIBCANBERRA AND CANBERRA_FOUND)
+if(USE_LIBCANBERRA)
     target_link_libraries(rth PkgConfig::CANBERRA)
-    target_compile_definitions(rth USE_CANBERRA)
 endif()
 
 # Install executables

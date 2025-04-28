@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.25)
 cmake_policy(SET CMP0177 OLD) # Added in CMake 3.31
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
+include(CMakeDependentOption)
 
 # Must stay before the project() command:
 if(${CMAKE_EXTRA_GENERATOR} MATCHES "Eclipse CDT4")
@@ -215,13 +216,19 @@ option(
     AUTO_GDK_FLUSH
     "Use gdk_flush on all gdk_thread_leave other than the GUI thread; set it ON if you experience X Server warning/errors"
     OFF)
-# option(TARGET32BIT "Build for 32-bit architecture when ON, otherwise 64-bit.
-# Default is OFF" OFF)
 
 option(ENABLE_TCMALLOC "Use the tcmalloc library if available" OFF)
 set(TCMALLOC_LIB_DIR
     ""
     CACHE PATH "Custom path for the tcmalloc library")
+
+cmake_dependent_option(
+    USE_LIBCANBERRA
+    "Build with libcanberra"
+    ON
+    "UNIX AND (NOT APPLE)"
+    OFF
+)
 
 set(WITH_JXL "AUTO" CACHE STRING "Build with JPEG XL support")
 set_property(CACHE WITH_JXL PROPERTY STRINGS AUTO ON OFF)
@@ -418,6 +425,9 @@ if(NOT BUILD_BUNDLE)
     endforeach()
 endif()
 
+include(cmake/Dependencies.cmake)
+rt_setup_dependencies()
+
 # MyMutex:
 if(STRICT_MUTEX OR UPPER_CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     add_definitions(-DSTRICT_MUTEX=1)
@@ -438,46 +448,6 @@ else()
     add_definitions(-DAUTO_GDK_FLUSH=0)
 endif()
 
-# Check for libraries:
-find_package(PkgConfig)
-
-# Gtk version shall be greater than 3.24.3 for fixed Hi-DPI support
-pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0>=3.24.3)
-pkg_check_modules(GTKMM REQUIRED IMPORTED_TARGET gtkmm-3.0>=3.24)
-
-if(GTK_VERSION VERSION_GREATER "3.24.1" AND GTK_VERSION VERSION_LESS "3.24.7")
-    if(GTK_VERSION VERSION_EQUAL "3.24.5")
-        set(CERTAINTY "known to")
-    else()
-        set(CERTAINTY "likely to")
-    endif()
-    message(
-        WARNING
-            "\nWarning! You are using GTK+ version "
-            ${GTK_VERSION}
-            " which is "
-            ${CERTAINTY}
-            " have an issue where combobox menu scroll-arrows are missing when a Gtk::ComboBox list does not fit vertically on the screen. As a result, users of your build will not be able to select items in the following comboboxes: Processing Profiles, Film Simulation, and the camera and lens profiles in Profiled Lens Correction.\nIt is recommended that you either downgrade GTK+ to <= 3.24.1 or upgrade to >= 3.24.7."
-    )
-endif()
-
-pkg_check_modules(GLIB2 REQUIRED IMPORTED_TARGET glib-2.0>=2.48)
-pkg_check_modules(GLIBMM REQUIRED IMPORTED_TARGET glibmm-2.4>=2.48)
-pkg_check_modules(CAIROMM REQUIRED IMPORTED_TARGET cairomm-1.0)
-pkg_check_modules(GIO REQUIRED IMPORTED_TARGET gio-2.0>=2.48)
-pkg_check_modules(GIOMM REQUIRED IMPORTED_TARGET giomm-2.4>=2.48)
-pkg_check_modules(GTHREAD REQUIRED IMPORTED_TARGET gthread-2.0>=2.48)
-pkg_check_modules(GOBJECT REQUIRED IMPORTED_TARGET gobject-2.0>=2.48)
-pkg_check_modules(SIGC REQUIRED IMPORTED_TARGET sigc++-2.0>=2.3.1)
-
-pkg_check_modules(EXPAT REQUIRED IMPORTED_TARGET expat>=2.1)
-pkg_check_modules(FFTW3F REQUIRED IMPORTED_TARGET fftw3f)
-pkg_check_modules(LCMS REQUIRED IMPORTED_TARGET lcms2>=2.6)
-pkg_check_modules(LENSFUN REQUIRED IMPORTED_TARGET lensfun>=0.2)
-pkg_check_modules(IPTCDATA REQUIRED IMPORTED_TARGET libiptcdata)
-pkg_check_modules(RSVG REQUIRED IMPORTED_TARGET librsvg-2.0>=2.52)
-pkg_check_modules(EXIV2 REQUIRED IMPORTED_TARGET exiv2>=0.24)
-
 if(NOT WITH_SYSTEM_LIBRAW)
     set(LIBRAW_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/rtengine/libraw/lib/.libs/libraw_r.a")
     if(WIN32)
@@ -497,59 +467,9 @@ if(WIN32)
     set(EXTRA_LIB "-lws2_32 -lshlwapi")
 endif()
 
-# By default little-cms2 uses 'register' keyword which is deprecated and removed in c++17
-# This definition forces not to use it
-add_definitions("-DCMS_NO_REGISTER_KEYWORD")
-
 #Set the appropriate FFTW flags on macOS
 if(APPLE AND OPTION_OMP)
         set(EXTRA_LIB "-L${LOCAL_PREFIX}/lib -lfftw3f_omp -lfftw3f -lm")
-endif()
-
-find_package(TIFF 4.0.4 REQUIRED)
-find_package(JPEG REQUIRED)
-find_package(PNG REQUIRED)
-find_package(ZLIB REQUIRED)
-if(WITH_SYSTEM_KLT)
-    find_package(KLT REQUIRED)
-endif()
-if(WITH_SYSTEM_LIBRAW)
-    pkg_check_modules(LIBRAW REQUIRED libraw_r>=0.21)
-endif()
-
-if(WITH_JXL AND NOT WITH_JXL STREQUAL "AUTO")
-    set(JXL_REQUIRED "REQUIRED")
-else()
-    set(JXL_REQUIRED "")
-endif()
-pkg_check_modules(JXL ${JXL_REQUIRED} IMPORTED_TARGET libjxl)
-pkg_check_modules(JXLTHREADS ${JXL_REQUIRED} IMPORTED_TARGET libjxl_threads)
-if(JXL_FOUND)
-    if(WITH_JXL OR WITH_JXL STREQUAL "AUTO")
-        add_definitions(-DLIBJXL)
-        list(APPEND JXL_INCLUDE_DIRS ${JXLTHREADS_INCLUDE_DIRS})
-        list(APPEND JXL_LIBRARIES ${JXLTHREADS_LIBRARIES})
-    else()
-        message(STATUS "  JXL support disabled by WITH_JXL = ${WITH_JXL}")
-        string(APPEND JXL_VERSION " - Disabled")
-        set(JXL_INCLUDE_DIRS "")
-        set(JXL_LIBRARIES "")
-        set(JXLTHREADS_INCLUDE_DIRS "")
-        set(JXLTHREADS_LIBRARIES "")
-    endif()
-elseif(WITH_JXL STREQUAL "AUTO")
-    set(JXL_VERSION "Disabled, Auto")
-else()
-    set(JXL_VERSION "Disabled")
-endif()
-
-# Check for libcanberra-gtk3 (sound events on Linux):
-if(UNIX AND (NOT APPLE))
-    option(USE_LIBCANBERRA "Build with libcanberra" ON)
-    if(USE_LIBCANBERRA)
-        pkg_check_modules(CANBERRA REQUIRED IMPORTED_TARGET libcanberra-gtk3)
-        add_definitions(-DUSE_CANBERRA)
-    endif()
 endif()
 
 if(WITH_MYFILE_MMAP)
@@ -608,43 +528,6 @@ endif()
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -Wall -Wuninitialized -Wcast-qual -Wno-deprecated-declarations -Wno-unused-result -Wunused-macros"
 )
-if(OPTION_OMP)
-    find_package(OpenMP)
-    if(OpenMP_CXX_FOUND)
-        set(CMAKE_CXX_FLAGS
-            "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -Werror=unknown-pragmas")
-    endif()
-endif()
-
-# check for libfftw3f_omp
-include(CheckCSourceCompiles)
-if(OPENMP_FOUND)
-    set(CMAKE_REQUIRED_INCLUDES ${FFTW3F_INCLUDE_DIRS})
-    set(CMAKE_REQUIRED_LIBRARIES)
-    foreach(l ${FFTW3F_LIBRARIES})
-        set(_f "_f-NOTFOUND")
-        find_library(_f ${l} PATHS ${FFTW3F_LIBRARY_DIRS})
-        set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${_f})
-    endforeach()
-    check_c_source_compiles(
-        "#include <fftw3.h>
-int main()
-{
-    fftwf_init_threads();
-    fftwf_plan_with_nthreads(1);
-    return 0;
-}"
-        _fftw3f_multithread)
-    if(_fftw3f_multithread)
-        add_definitions(-DRT_FFTW3F_OMP)
-    else()
-        find_library(fftw3f_omp fftw3f_omp PATHS ${FFTW3F_LIBRARY_DIRS})
-        if(fftw3f_omp)
-            add_definitions(-DRT_FFTW3F_OMP)
-            set(FFTW3F_LIBRARIES ${FFTW3F_LIBRARIES} ${fftw3f_omp})
-        endif()
-    endif()
-endif()
 
 # Start generating AboutThisBuild.txt Set the platform bit-depth:
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)

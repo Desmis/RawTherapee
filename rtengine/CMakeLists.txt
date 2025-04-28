@@ -3,14 +3,6 @@ if(NOT WITH_SYSTEM_KLT)
 else()
     include_directories("${KLT_INCLUDE_DIRS}")
 endif()
-if(JXL_INCLUDE_DIRS)
-    include_directories("${JXL_INCLUDE_DIRS}")
-endif()
-if(NOT WITH_SYSTEM_LIBRAW)
-    include_directories("${CMAKE_SOURCE_DIR}/rtengine/libraw")
-else()
-    include_directories("${LIBRAW_INCLUDE_DIRS}")
-endif()
 
 set(CAMCONSTSFILE "camconst.json")
 
@@ -193,6 +185,7 @@ endif()
 
 target_link_libraries(rtengine
     PUBLIC
+        fmt::fmt
         PkgConfig::EXIV2
         PkgConfig::EXPAT
         PkgConfig::FFTW3F
@@ -205,8 +198,6 @@ target_link_libraries(rtengine
         TIFF::TIFF
         ${EXTRA_LIB}
         ${KLT_LIBRARIES}
-        ${JXL_LIBRARIES}
-        ${LIBRAW_LIBRARIES}
 
         # While JPEG::JPEG and ZLIB::ZLIB are available targets, the LibRaw
         # autoconf seems to conflict with the CMake settings for MSYS2.
@@ -220,13 +211,27 @@ target_link_libraries(rtengine
         PkgConfig::GTKMM
 )
 
+# Atomic is required in some builds: #6821
+if(ATOMIC_FOUND)
+    target_link_libraries(rtengine PUBLIC ${ATOMIC_LIBRARIES})
+endif()
+
+if(JXL_FOUND)
+    target_link_libraries(rtengine PUBLIC PkgConfig::JXL)
+    if (JXLTHREADS_FOUND)
+        target_link_libraries(rtengine PUBLIC PkgConfig::JXLTHREADS)
+    endif()
+endif()
 if(OpenMP_CXX_FOUND)
     target_link_libraries(rtengine PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
-# Configure LibRaw
 if(NOT WITH_SYSTEM_LIBRAW)
     include(LibRaw.cmake)
+    target_include_directories(rtengine PRIVATE "${CMAKE_SOURCE_DIR}/rtengine/libraw")
+    target_link_libraries(rtengine PUBLIC ${LIBRAW_LIBRARIES})
+else()
+    target_link_libraries(rtengine PUBLIC PkgConfig::LIBRAW)
 endif()
 
 install(FILES ${CAMCONSTSFILE} DESTINATION "${DATADIR}" PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)

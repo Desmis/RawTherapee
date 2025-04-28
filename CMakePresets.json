@@ -110,6 +110,7 @@
                 "WARNINGS_AS_ERRORS": "OFF",
 
                 "WITH_BENCHMARK": "OFF",
+                "WITH_JXL": "AUTO",
                 "WITH_LTO": "OFF",
                 "WITH_MYFILE_MMAP": "ON",
                 "WITH_SAN": "OFF",

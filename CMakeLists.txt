@@ -59,16 +59,32 @@ set(CACHE_NAME_SUFFIX "" CACHE STRING "RawTherapee's cache folder suffix")
 # For macOS only, OSX_DEV_BUILD option allows using relative paths instead of absolute
 # paths. Consequently, for development builds, application can be launching without
 # being bundled. However, file access can be restricted for some folder.
-option(OSX_DEV_BUILD "Generate macOS development builds" OFF)
+cmake_dependent_option(
+    OSX_DEV_BUILD "Generate macOS development builds"
+    OFF "APPLE"
+    OFF # otherwise
+)
 
 # On macOS, optionally generate the final zip artifact file without version in the name for nightly upload purposes.
-option(OSX_NIGHTLY "Generate a generically-named zip" OFF)
+cmake_dependent_option(
+    OSX_NIGHTLY "Generate a generically-named zip"
+    OFF "APPLE"
+    OFF # otherwise
+)
 
 # On macOS, optionally generate RawTherapee_<branch>_macOS_<buildtype>.zip for the CI
-option(OSX_CONTINUOUS "Generate a generically-named zip for CI" OFF)
+cmake_dependent_option(
+    OSX_CONTINUOUS "Generate a generically-named zip for CI"
+    OFF "APPLE"
+    OFF # otherwise
+)
 
 # Generate a universal macOS build
-option(OSX_UNIVERSAL "Generate a universal app" OFF)
+cmake_dependent_option(
+    OSX_UNIVERSAL "Generate a universal app"
+    OFF "APPLE"
+    OFF # otherwise
+)
 
 # On macOS: merge the app via a specific url to generate a universal bundle with both x86_64 and arm64
 if(OSX_UNIVERSAL)
@@ -223,11 +239,9 @@ set(TCMALLOC_LIB_DIR
     CACHE PATH "Custom path for the tcmalloc library")
 
 cmake_dependent_option(
-    USE_LIBCANBERRA
-    "Build with libcanberra"
-    ON
-    "UNIX AND (NOT APPLE)"
-    OFF
+    USE_LIBCANBERRA "Build with libcanberra"
+    ON "UNIX AND (NOT APPLE)"
+    OFF # otherwise
 )
 
 set(WITH_JXL "AUTO" CACHE STRING "Build with JPEG XL support")

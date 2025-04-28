@@ -120,12 +120,7 @@
 
                 "STRICT_MUTEX": "ON",
                 "TRACE_MYRWMUTEX": "ON",
-                "AUTO_GDK_FLUSH": "OFF",
-
-                "OSX_DEV_BUILD": "OFF",
-                "OSX_NIGHTLY": "OFF",
-                "OSX_CONTINUOUS": "OFF",
-                "OSX_UNIVERSAL": "OFF"
+                "AUTO_GDK_FLUSH": "OFF"
             }
         },
         {

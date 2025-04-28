@@ -52,13 +52,16 @@ macro(rt_setup_dependencies)
     pkg_check_modules(EXIV2 REQUIRED IMPORTED_TARGET exiv2>=0.24)
     pkg_check_modules(EXPAT REQUIRED IMPORTED_TARGET expat>=2.1)
     pkg_check_modules(IPTCDATA REQUIRED IMPORTED_TARGET libiptcdata)
-    pkg_check_modules(LENSFUN REQUIRED IMPORTED_TARGET lensfun>=0.2)
     pkg_check_modules(RSVG REQUIRED IMPORTED_TARGET librsvg-2.0>=2.52)
 
     pkg_check_modules(LCMS REQUIRED IMPORTED_TARGET lcms2>=2.6)
     # By default, little-cms2 uses the 'register' keyword which is deprecated
     # and removed in c++17. This definition forces it not to use the keyword.
     target_compile_definitions(PkgConfig::LCMS INTERFACE "CMS_NO_REGISTER_KEYWORD")
+
+    pkg_check_modules(LENSFUN REQUIRED IMPORTED_TARGET lensfun>=0.2)
+    # Sets LENSFUN_HAS_LOAD_DIRECTORY
+    rt_check_lensfun_has_load_directory()
 
     # Check before OpenMP as rt_setup_openmp() handles fftw3f + omp integration
     pkg_check_modules(FFTW3F REQUIRED IMPORTED_TARGET fftw3f)
@@ -90,8 +93,6 @@ macro(rt_setup_dependencies)
         pkg_check_modules(CANBERRA REQUIRED IMPORTED_TARGET libcanberra-gtk3)
         target_compile_definitions(PkgConfig::CANBERRA INTERFACE "USE_CANBERRA")
     endif()
-
-    rt_check_lensfun_has_load_directory()
 endmacro()
 
 function(rt_fetch_content)
@@ -142,8 +143,10 @@ function(rt_add_fftw3f_omp_support)
         return()
     endif()
 
+    message(STATUS "Searching for library fftw3f_omp")
     find_library(fftw3f_omp fftw3f_omp PATHS ${FFTW3F_LIBRARY_DIRS})
     if(fftw3f_omp)
+        message(STATUS "  Found ${fftw3f_omp}")
         target_link_libraries(PkgConfig::FFTW3F INTERFACE ${fftw3f_omp})
         target_compile_definitions(PkgConfig::FFTW3F INTERFACE "RT_FFTW3F_OMP")
     endif()

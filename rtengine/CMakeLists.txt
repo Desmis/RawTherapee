@@ -120,7 +120,10 @@ set(RTENGINESOURCEFILES
 )
 
 if(LENSFUN_HAS_LOAD_DIRECTORY)
-    set_source_files_properties(rtlensfun.cc PROPERTIES COMPILE_DEFINITIONS RT_LENSFUN_HAS_LOAD_DIRECTORY)
+    set_source_files_properties(
+        rtlensfun.cc PROPERTIES
+        COMPILE_DEFINITIONS RT_LENSFUN_HAS_LOAD_DIRECTORY
+    )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0")
@@ -133,11 +136,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_G
         set(PROCPARAMS_COMPILE_OPTIONS "${PROCPARAMS_COMPILE_OPTIONS};")
     endif()
     set(PROCPARAMS_COMPILE_OPTIONS "${PROCPARAMS_COMPILE_OPTIONS}-fno-tree-pta")
-    set_source_files_properties(procparams.cc PROPERTIES COMPILE_OPTIONS ${PROCPARAMS_COMPILE_OPTIONS})
-endif()
 
-if(WITH_BENCHMARK)
-    add_definitions(-DBENCHMARK)
+    set_source_files_properties(
+        procparams.cc PROPERTIES
+        COMPILE_OPTIONS ${PROCPARAMS_COMPILE_OPTIONS}
+    )
 endif()
 
 if(NOT WITH_SYSTEM_KLT)
@@ -160,13 +163,6 @@ add_library(rtengine STATIC "${RTENGINESOURCEFILES}")
 
 add_dependencies(rtengine UpdateInfo)
 
-# It may be nice to store library version too
-if(BUILD_SHARED_LIBS)
-    install(TARGETS rtengine DESTINATION "${LIBDIR}")
-endif()
-
-set_target_properties(rtengine PROPERTIES COMPILE_FLAGS "${RTENGINE_CXX_FLAGS}")
-
 target_include_directories(rtengine
     PUBLIC
         # Other libraries should use #include "rtengine/header.h"
@@ -183,9 +179,27 @@ if(EXTRA_INCDIR)
     target_include_directories(rtengine "${EXTRA_INCDIR}")
 endif()
 
+rt_setup_target(rtengine)
+target_compile_options(rtengine PRIVATE ${RTENGINE_CXX_FLAGS})
+
+if(WITH_BENCHMARK)
+    target_compile_definitions(rtengine "BENCHMARK")
+endif()
+
+# When linking against RT's version of libraw, there will be linking issues for
+# jpeg and zlib if libraw is not linked before them.
+if(NOT WITH_SYSTEM_LIBRAW)
+    include(LibRaw.cmake)
+    target_include_directories(rtengine PRIVATE "${CMAKE_SOURCE_DIR}/rtengine/libraw")
+    target_link_libraries(rtengine PUBLIC ${LIBRAW_LIBRARIES})
+else()
+    target_link_libraries(rtengine PUBLIC PkgConfig::LIBRAW)
+endif()
+
 target_link_libraries(rtengine
     PUBLIC
         fmt::fmt
+        JPEG::JPEG
         PkgConfig::EXIV2
         PkgConfig::EXPAT
         PkgConfig::FFTW3F
@@ -196,14 +210,9 @@ target_link_libraries(rtengine
         PkgConfig::RSVG
         PNG::PNG
         TIFF::TIFF
+        ZLIB::ZLIB
         ${EXTRA_LIB}
         ${KLT_LIBRARIES}
-
-        # While JPEG::JPEG and ZLIB::ZLIB are available targets, the LibRaw
-        # autoconf seems to conflict with the CMake settings for MSYS2.
-        # I suspect it is because *.dll.a is picked up instead of *.a when
-        # using LibRaw.
-        "-ljpeg -lz"
     PRIVATE
         # FIXME: rtengine really shouldn't need GTKMM or GLIBMM
         PkgConfig::CAIROMM
@@ -226,12 +235,9 @@ if(OpenMP_CXX_FOUND)
     target_link_libraries(rtengine PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
-if(NOT WITH_SYSTEM_LIBRAW)
-    include(LibRaw.cmake)
-    target_include_directories(rtengine PRIVATE "${CMAKE_SOURCE_DIR}/rtengine/libraw")
-    target_link_libraries(rtengine PUBLIC ${LIBRAW_LIBRARIES})
-else()
-    target_link_libraries(rtengine PUBLIC PkgConfig::LIBRAW)
+# It may be nice to store library version too
+if(BUILD_SHARED_LIBS)
+    install(TARGETS rtengine DESTINATION "${LIBDIR}")
 endif()
 
 install(FILES ${CAMCONSTSFILE} DESTINATION "${DATADIR}" PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)

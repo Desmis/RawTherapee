@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.25)
 cmake_policy(SET CMP0177 OLD) # Added in CMake 3.31
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
-include(CMakeDependentOption)
 
 # Must stay before the project() command:
 if(${CMAKE_EXTRA_GENERATOR} MATCHES "Eclipse CDT4")
@@ -17,14 +16,13 @@ endif()
 
 project(RawTherapee)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 include(cmake/StandardProjectSettings.cmake)
 rt_force_out_of_source_builds()
 rt_set_default_build_type_and_install_prefix()
-string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_CMAKE_BUILD_TYPE)
-
-# Set required C and C++ standards and check GCC version:
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION
                                             VERSION_LESS "4.9")
@@ -44,12 +42,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSI
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-contract=off")
 endif()
 
-if(UPPER_CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-    add_definitions(-D_DEBUG)
-else()
-    add_definitions(-DNDEBUG)
-    add_definitions(-D_DNDEBUG)
-endif()
+include(CMakeDependentOption)
 
 # Cache name suffix examples: "" = ~/.config/RawTherapee, "5" =
 # ~/.config/RawTherapee-5, "_testing" = ~/.config/RawTherapee_testing Use "" for
@@ -152,30 +145,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${PROC_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${PROC_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${PROC_FLAGS}")
 
-# Stop compilation on typos such as std:swap (missing colon will be detected as
-# unused label):
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=unused-label")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=delete-incomplete")
-
-# Do net set math errno, as we never check its value.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-math-errno")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-math-errno")
-
-# suppress warning https://github.com/Beep6581/RawTherapee/issues/6105
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-attributes")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
-
-# Special treatment for x87 and x86-32 SSE (see GitHub issue #4324)
-include(FindX87Math)
-if(HAVE_X87_MATH)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffloat-store")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffloat-store")
-endif()
-if(HAVE_X86_SSE_MATH)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -mfpmath=sse")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2 -mfpmath=sse")
-endif()
-
 # On i386 Linux we can fix unaligned SSE malloc (see GitHub issue #4432)
 include(FindUnalignedMalloc)
 
@@ -212,6 +181,7 @@ if(APPLE) # TODO make -mtune generic conditional and/or specifiable.
 endif()
 
 option(BUILD_SHARED "Build with shared libraries" OFF)
+option(WARNINGS_AS_ERRORS "Error out on compiler warnings" OFF)
 option(WITH_BENCHMARK "Build with benchmark code" OFF)
 option(WITH_MYFILE_MMAP "Build using memory mapped file" ON)
 option(WITH_LTO "Build with link-time optimizations" OFF)
@@ -442,99 +412,19 @@ endif()
 include(cmake/Dependencies.cmake)
 rt_setup_dependencies()
 
-# MyMutex:
-if(STRICT_MUTEX OR UPPER_CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-    add_definitions(-DSTRICT_MUTEX=1)
-else()
-    add_definitions(-DSTRICT_MUTEX=0)
-endif()
-
-# MyRWMutex:
-if(TRACE_MYRWMUTEX)
-    add_definitions(-DTRACE_MYRWMUTEX=1)
-else()
-    add_definitions(-DTRACE_MYRWMUTEX=0)
-endif()
-
-if(AUTO_GDK_FLUSH)
-    add_definitions(-DAUTO_GDK_FLUSH=1)
-else()
-    add_definitions(-DAUTO_GDK_FLUSH=0)
-endif()
-
 if(WIN32)
-    add_definitions(-DWIN32)
-    add_definitions(-D_WIN32)
-    if(MINGW)
-        add_definitions(-D__MINGW32__)
-    endif()
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        add_definitions(-DWINVER=0x0501)
-    endif()
     set(EXTRA_LIB "-lws2_32 -lshlwapi")
 endif()
 
-#Set the appropriate FFTW flags on macOS
+# Set the appropriate FFTW flags on macOS
 if(APPLE AND OPTION_OMP)
-        set(EXTRA_LIB "-L${LOCAL_PREFIX}/lib -lfftw3f_omp -lfftw3f -lm")
+    set(EXTRA_LIB "-L${LOCAL_PREFIX}/lib -lfftw3f_omp -lfftw3f -lm")
 endif()
 
-if(WITH_MYFILE_MMAP)
-    add_definitions(-DMYFILE_MMAP)
-endif()
-
-if(WITH_LTO)
-    # Using LTO with older versions of binutils requires setting extra flags
-    set(BINUTILS_VERSION_MININUM "2.29")
-    execute_process(COMMAND ar --version
-                    OUTPUT_VARIABLE BINUTILS_VERSION_DETECTED)
-    string(REGEX REPLACE ".* ([0-9.]+)\n.*" "\\1" BINUTILS_VERSION_DETECTED
-                         "${BINUTILS_VERSION_DETECTED}")
-    if("${BINUTILS_VERSION_DETECTED}" VERSION_LESS
-       "${BINUTILS_VERSION_MININUM}")
-        if(APPLE)
-            if(!CMAKE_AR)
-                set(CMAKE_AR "/opt/local/bin/ar")
-            endif()
-            if(!CMAKE_RANLIB)
-                set(CMAKE_RANLIB "/opt/local/bin/ranlib")
-            endif()
-        else()
-            set(CMAKE_AR "/usr/bin/gcc-ar")
-            set(CMAKE_RANLIB "/usr/bin/gcc-ranlib")
-        endif()
-        message(
-            STATUS
-                "Binutils version detected as less than "
-                ${BINUTILS_VERSION_MININUM}
-                " - setting CMake parameters to enable LTO linking:\n    CMAKE_AR=\""
-                ${CMAKE_AR}
-                "\"\n    CMAKE_RANLIB=\""
-                ${CMAKE_RANLIB}
-                "\"")
-    endif()
-
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -flto")
-endif()
-
-if(WITH_SAN)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=${WITH_SAN}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=${WITH_SAN}")
-    set(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=${WITH_SAN}")
-endif()
-
-if(WITH_PROF)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
-endif()
-
-set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -Wall -Wuninitialized -Wcast-qual -Wno-deprecated-declarations -Wno-unused-result -Wunused-macros"
-)
+include(cmake/Compile.cmake)
+add_subdirectory(rtengine)
+add_subdirectory(rtgui)
+add_subdirectory(rtdata)
 
 # Start generating AboutThisBuild.txt Set the platform bit-depth:
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -547,14 +437,9 @@ endif()
 get_filename_component(COMPILER_INFO ${CMAKE_C_COMPILER} NAME_WE)
 set(COMPILER_INFO "${COMPILER_INFO} ${CMAKE_C_COMPILER_VERSION}")
 
-# Get C++ and linker flags for rtengine (the GUI's C++ flags may have fewer
-# flags):
-set(CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${UPPER_CMAKE_BUILD_TYPE}} ${RTENGINE_CXX_FLAGS}"
-)
-set(LFLAGS
-    "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_${UPPER_CMAKE_BUILD_TYPE}}"
-)
+# Get C++ and linker flags for rtengine (GUI's flags may have fewer)
+rt_get_target_flags(CXX_FLAGS rtengine COMPILE_OPTIONS CMAKE_CXX_FLAGS)
+rt_get_target_flags(LFLAGS rtengine LINK_OPTIONS CMAKE_EXE_LINKER_FLAGS)
 
 if(NOT APPLE)
     set(ABOUT_COMMAND_WITH_ARGS
@@ -587,8 +472,8 @@ elseif(APPLE)
              -DPROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR}
              -DCACHE_NAME_SUFFIX:STRING=${CACHE_NAME_SUFFIX}
              -DSYSTEM:STRING=Apple
-             -DCXX_FLAGS:STRING=${CXX_FLAGS}
-             -DLFLAGS:STRING=${LFLAGS}
+             -DCXX_FLAGS:STRING="${CXX_FLAGS}"
+             -DLFLAGS:STRING="${LFLAGS}"
              -DCOMPILER_INFO:STRING=${COMPILER_INFO}
              -DPROC_LABEL:STRING="${PROC_LABEL}"
              -DPROC_BIT_DEPTH:STRING="${PROC_BIT_DEPTH}"
@@ -601,7 +486,7 @@ elseif(APPLE)
              -P ${PROJECT_SOURCE_DIR}/UpdateInfo.cmake)
 else()
     list(APPEND ABOUT_COMMAND_WITH_ARGS -DSYSTEM:STRING=Linux
-         -DCXX_FLAGS:STRING=${CXX_FLAGS} -DLFLAGS:STRING=${LFLAGS}
+         -DCXX_FLAGS:STRING="${CXX_FLAGS}" -DLFLAGS:STRING="${LFLAGS}"
          -DCOMPILER_INFO:STRING=${COMPILER_INFO})
 endif()
 if(NOT APPLE)
@@ -649,7 +534,3 @@ if(UNIX)
     install(FILES com.rawtherapee.RawTherapee.appdata.xml
             DESTINATION "${APPDATADIR}")
 endif()
-
-add_subdirectory(rtengine)
-add_subdirectory(rtgui)
-add_subdirectory(rtdata)

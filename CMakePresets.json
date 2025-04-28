@@ -116,7 +116,7 @@
                 "WITH_SAN": "OFF",
                 "WITH_PROF": "OFF",
                 "WITH_SYSTEM_KLT": "OFF",
-                "WITH_SYSTEM_LIBRAW": "ON",
+                "WITH_SYSTEM_LIBRAW": "OFF",
 
                 "STRICT_MUTEX": "ON",
                 "TRACE_MYRWMUTEX": "ON",

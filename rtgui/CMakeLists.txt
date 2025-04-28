@@ -216,17 +216,20 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_BINARY
 target_include_directories(rth BEFORE PRIVATE ${CMAKE_BINARY_DIR}/rtgui)
 target_include_directories(rth-cli BEFORE PRIVATE ${CMAKE_BINARY_DIR}/rtgui)
 
+rt_setup_target(rth)
+rt_setup_target(rth-cli)
+
 #Define a target specific definition to use in code
 target_compile_definitions(rth PUBLIC GUIVERSION)
 target_compile_definitions(rth-cli PUBLIC CLIVERSION)
 
 # Set executables targets properties, i.e. output filename and compile flags
 # for "Debug" builds, open a console in all cases for Windows version
-if((WIN32) AND NOT(UPPER_CMAKE_BUILD_TYPE STREQUAL "DEBUG"))
+if((WIN32) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
     set_target_properties(rth PROPERTIES LINK_FLAGS "-mwindows")
 endif()
-set_target_properties(rth PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}" OUTPUT_NAME rawtherapee)
-set_target_properties(rth-cli PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS}" OUTPUT_NAME rawtherapee-cli)
+set_target_properties(rth PROPERTIES OUTPUT_NAME rawtherapee)
+set_target_properties(rth-cli PROPERTIES OUTPUT_NAME rawtherapee-cli)
 
 target_include_directories(rth PRIVATE ${EXTRA_INCDIR})
 target_include_directories(rth-cli PRIVATE ${EXTRA_INCDIR})

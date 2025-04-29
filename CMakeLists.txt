@@ -22,7 +22,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/StandardProjectSettings.cmake)
 rt_force_out_of_source_builds()
-rt_set_default_build_type_and_install_prefix()
+rt_basic_build_settings()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION
                                             VERSION_LESS "4.9")
@@ -194,10 +194,12 @@ option(
     STRICT_MUTEX
     "True (recommended): MyMutex will behave like POSIX Mutex; False: MyMutex will behave like POSIX RecMutex; Note: forced to ON for Debug builds"
     ON)
-option(
+cmake_dependent_option(
     TRACE_MYRWMUTEX
     "Trace custom R/W Mutex (Debug builds only); redirecting std::out to a file is strongly recommended!"
-    OFF)
+    OFF "CMAKE_BUILD_TYPE STREQUAL \"Debug\""
+    OFF # otherwise
+)
 option(
     AUTO_GDK_FLUSH
     "Use gdk_flush on all gdk_thread_leave other than the GUI thread; set it ON if you experience X Server warning/errors"
@@ -232,7 +234,12 @@ if(NOT DEFINED BUNDLE_BASE_INSTALL_DIR)
     if(APPLE)
         set(BUNDLE_BASE_INSTALL_DIR "${PROJECT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/MacOS")
     else()
-        set(BUNDLE_BASE_INSTALL_DIR "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
+        if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+            set(BUNDLE_BASE_INSTALL_DIR "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
+        else()
+            # Install path already set by user or CMake preset
+            set(BUNDLE_BASE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
+        endif()
     endif()
 endif()
 

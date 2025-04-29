@@ -63,7 +63,7 @@ macro(rt_setup_dependencies)
     # Sets LENSFUN_HAS_LOAD_DIRECTORY
     rt_check_lensfun_has_load_directory()
 
-    # Check before OpenMP as rt_setup_openmp() handles fftw3f + omp integration
+    # Check before calling rt_add_fftw3f_omp_support()
     pkg_check_modules(FFTW3F REQUIRED IMPORTED_TARGET fftw3f)
     if(OPTION_OMP)
         find_package(OpenMP)

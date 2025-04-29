@@ -10,7 +10,8 @@
             "name": "conf-common",
             "description": "General settings that apply to all configurations",
             "hidden": true,
-            "binaryDir": "${sourceDir}/build/${presetName}"
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/build/${presetName}"
         },
         {
             "name": "conf-unixlike-common",
@@ -119,7 +120,7 @@
                 "WITH_SYSTEM_LIBRAW": "OFF",
 
                 "STRICT_MUTEX": "ON",
-                "TRACE_MYRWMUTEX": "ON",
+                "TRACE_MYRWMUTEX": "OFF",
                 "AUTO_GDK_FLUSH": "OFF"
             }
         },
@@ -145,7 +146,8 @@
         {
             "name": "dev",
             "inherits": ["dev-mode", "default_options", "unixlike-gcc-release"],
-            "binaryDir": "${sourceDir}/build/dev"
+            "binaryDir": "${sourceDir}/build/dev",
+            "installDir": "${sourceDir}/build/dev"
         },
         {
             "name": "dev-strict",
@@ -154,7 +156,8 @@
         {
             "name": "dev-debug",
             "inherits": ["dev-mode", "unixlike-gcc-debug"],
-            "binaryDir": "${sourceDir}/build/debug"
+            "binaryDir": "${sourceDir}/build/debug",
+            "installDir": "${sourceDir}/build/debug"
         }
     ],
     "buildPresets": [

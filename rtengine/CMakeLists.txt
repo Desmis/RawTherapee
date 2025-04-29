@@ -1,11 +1,3 @@
-if(NOT WITH_SYSTEM_KLT)
-    include_directories("${CMAKE_SOURCE_DIR}/rtengine/klt")
-else()
-    include_directories("${KLT_INCLUDE_DIRS}")
-endif()
-
-set(CAMCONSTSFILE "camconst.json")
-
 set(RTENGINESOURCEFILES
     alpha.cc
     ahd_demosaic_RT.cc
@@ -203,7 +195,6 @@ target_link_libraries(rtengine
         PkgConfig::EXIV2
         PkgConfig::EXPAT
         PkgConfig::FFTW3F
-        ${FFTW3F_LIBRARIES} # For FFTW3F_OMP integration
         PkgConfig::IPTCDATA
         PkgConfig::LCMS
         PkgConfig::LENSFUN
@@ -212,7 +203,6 @@ target_link_libraries(rtengine
         TIFF::TIFF
         ZLIB::ZLIB
         ${EXTRA_LIB}
-        ${KLT_LIBRARIES}
     PRIVATE
         # FIXME: rtengine really shouldn't need GTKMM or GLIBMM
         PkgConfig::CAIROMM
@@ -231,6 +221,15 @@ if(JXL_FOUND)
         target_link_libraries(rtengine PUBLIC PkgConfig::JXLTHREADS)
     endif()
 endif()
+
+if(NOT WITH_SYSTEM_KLT)
+    target_include_directories(rtengine PUBLIC "${CMAKE_SOURCE_DIR}/rtengine/klt")
+    # Source files are compiled as part of rtengine directly.
+else()
+    target_include_directories(rtengine PUBLIC ${KLT_INCLUDE_DIRS})
+    target_link_libraries(rtengine PUBLIC ${KLT_LIBRARIES})
+endif()
+
 if(OpenMP_CXX_FOUND)
     target_link_libraries(rtengine PUBLIC OpenMP::OpenMP_CXX)
 endif()
@@ -240,4 +239,5 @@ if(BUILD_SHARED_LIBS)
     install(TARGETS rtengine DESTINATION "${LIBDIR}")
 endif()
 
+set(CAMCONSTSFILE "camconst.json")
 install(FILES ${CAMCONSTSFILE} DESTINATION "${DATADIR}" PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)

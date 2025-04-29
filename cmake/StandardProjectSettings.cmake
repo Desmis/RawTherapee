@@ -11,7 +11,7 @@ function(rt_force_out_of_source_builds)
     endif()
 endfunction()
 
-macro(rt_set_default_build_type_and_install_prefix)
+macro(rt_basic_build_settings)
     # Set a default build type if none was specified
     if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
@@ -28,12 +28,6 @@ macro(rt_set_default_build_type_and_install_prefix)
             "Release"
             "MinSizeRel"
             "RelWithDebInfo"
-        )
-    endif()
-
-    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-        set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
-            CACHE PATH "Default install path" FORCE
         )
     endif()
 

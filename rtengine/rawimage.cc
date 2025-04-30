@@ -22,6 +22,80 @@
 #include "utils.h"
 #include "rtengine.h"
 
+
+namespace
+{
+
+const std::string MAKE_PENTAX = "Pentax";
+const std::string MAKE_SAMSUNG = "Samsung";
+
+/**
+ * Make and model.
+ */
+struct MakeModel
+{
+    std::string make;
+    std::string model;
+
+    friend bool operator <(const MakeModel &lhs, const MakeModel &rhs)
+    {
+        return lhs.make < rhs.make || (lhs.make == rhs.make && lhs.model < rhs.model);
+    }
+};
+
+/**
+ * Map from make and model to other make and models that are essentially
+ * identical.
+ */
+const std::map<MakeModel, std::vector<MakeModel>> CAMERA_ALIASES = {
+    {{MAKE_PENTAX, "*istDL2"},
+        {{MAKE_SAMSUNG, "GX-1L"}}},
+    {{MAKE_PENTAX, "*istDS2"},
+        {{MAKE_SAMSUNG, "GX-1S"}}},
+    {{MAKE_PENTAX, "K10D"},
+        {{MAKE_SAMSUNG, "GX10"}, {MAKE_SAMSUNG, "GX-10"}}},
+    {{MAKE_PENTAX, "K20D"},
+        {{MAKE_SAMSUNG, "GX20"}, {MAKE_SAMSUNG, "GX-20"}}},
+};
+
+/**
+ * Transforms a map of make and model to like make and models into a map of make
+ * and model to the alias make and model.
+ */
+std::map<MakeModel, MakeModel> normalize_cameras(const std::map<MakeModel, std::vector<MakeModel>> &aliases)
+{
+    std::map<MakeModel, MakeModel> normalized;
+
+    for (const auto &alias : aliases) {
+        for (const auto &make_model : alias.second) {
+            normalized.emplace(make_model, alias.first);
+        }
+    }
+
+    return normalized;
+}
+
+/**
+ * Map from make and model to normalized make and model.
+ */
+const std::map<MakeModel, MakeModel> NORMALIZED_CAMERAS = normalize_cameras(CAMERA_ALIASES);
+
+/**
+ * Returns the normalized make and model.
+ */
+MakeModel normalize_make_model(const MakeModel &make_model)
+{
+    const auto normalized_iter = NORMALIZED_CAMERAS.find(make_model);
+
+    if (normalized_iter != NORMALIZED_CAMERAS.end()) {
+        return normalized_iter->second;
+    }
+
+    return make_model;
+}
+
+} // namespace
+
 namespace rtengine
 {
 
@@ -540,8 +614,10 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
         is_raw = d.raw_count;
         strncpy(make, d.normalized_make, sizeof(make)-1);
         make[sizeof(make)-1] = 0;
+        normalized_make = make;
         strncpy(model, d.normalized_model, sizeof(model)-1);
         model[sizeof(model)-1] = 0;
+        normalized_model = model;
         RT_software = d.software;
         dng_version = d.dng_version;
         filters = d.filters;
@@ -551,6 +627,12 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
 
         if (!strcmp("Hasselblad", make)) {
             // For Hasselblad, "model" provides the better name.
+            strncpy(model, d.model, sizeof(model) - 1);
+            model[sizeof(model) - 1] = 0;
+        } else if (!strcmp("Pentax", make) && !strcmp("Samsung", d.make)) {
+            // For Samsung cameras that have a Pentax counterpart.
+            strncpy(make, d.make, sizeof(make) - 1);
+            make[sizeof(make) - 1] = 0;
             strncpy(model, d.model, sizeof(model) - 1);
             model[sizeof(model) - 1] = 0;
         }
@@ -712,6 +794,9 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
 
     if (decoder == Decoder::DCRAW) {
         identify();
+        const MakeModel normalized_make_model = normalize_make_model({make, model});
+        normalized_make = normalized_make_model.make;
+        normalized_model = normalized_make_model.model;
     }
 
     // in case dcraw didn't handle the above mentioned case...
@@ -1560,11 +1645,14 @@ DCraw::dcraw_coeff_overrides(const char make[], const char model[], const int is
     *white_level = -1;
 
     const bool is_pentax_dng = dng_version && !strncmp(RT_software.c_str(), "PENTAX", 6);
+    const bool is_samsung_dng = dng_version && !strcmp("Samsung", make) && normalized_make == "Pentax" && RT_software.rfind(model, 0) == 0;
+    /** Is it a DNG from the camera? */
+    const bool is_camera_dng = is_pentax_dng || is_samsung_dng;
     
-    if (RT_blacklevel_from_constant == ThreeValBool::F && !is_pentax_dng) {
+    if (RT_blacklevel_from_constant == ThreeValBool::F && !is_camera_dng) {
         *black_level = black;
     }
-    if (RT_whitelevel_from_constant == ThreeValBool::F && !is_pentax_dng) {
+    if (RT_whitelevel_from_constant == ThreeValBool::F && !is_camera_dng) {
         *white_level = maximum;
     }
     memset(trans, 0, sizeof(*trans) * 12);
@@ -1574,10 +1662,10 @@ DCraw::dcraw_coeff_overrides(const char make[], const char model[], const int is
     // // from file, but then we will not provide any black level in the tables. This case is mainly just
     // // to avoid loading table values if we have loaded a DNG conversion of a raw file (which already
     // // have constants stored in the file).
-    // if (RT_whitelevel_from_constant == ThreeValBool::X || is_pentax_dng) {
+    // if (RT_whitelevel_from_constant == ThreeValBool::X || is_camera_dng) {
     //     RT_whitelevel_from_constant = ThreeValBool::T;
     // }
-    // if (RT_blacklevel_from_constant == ThreeValBool::X || is_pentax_dng) {
+    // if (RT_blacklevel_from_constant == ThreeValBool::X || is_camera_dng) {
     //     RT_blacklevel_from_constant = ThreeValBool::T;
     // }
     // if (RT_matrix_from_constant == ThreeValBool::X) {

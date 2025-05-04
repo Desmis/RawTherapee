@@ -806,11 +806,29 @@ HISTORY_MSG_DEHAZE_ENABLED;去雾
 HISTORY_MSG_DEHAZE_SATURATION;去雾-饱和度
 HISTORY_MSG_DEHAZE_SHOW_DEPTH_MAP;去雾-显示纵深蒙版
 HISTORY_MSG_DEHAZE_STRENGTH;去雾-力度
+HISTORY_MSG_DISTORTION_DEFISH;去鱼眼
+HISTORY_MSG_DISTORTION_DEFISH_FOCAL;去鱼眼-焦距
 HISTORY_MSG_DUALDEMOSAIC_AUTO_CONTRAST;双重去马赛克-自动阈值
 HISTORY_MSG_DUALDEMOSAIC_CONTRAST;双重去马赛克-反差阈值
 HISTORY_MSG_FILMNEGATIVE_COLORSPACE;胶片负片色彩空间
 HISTORY_MSG_FILMNEGATIVE_ENABLED;胶片负片
 HISTORY_MSG_FILMNEGATIVE_VALUES;胶片负片值
+HISTORY_MSG_FRAMING_ABSOLUTE_HEIGHT;画框-边框高度
+HISTORY_MSG_FRAMING_ABSOLUTE_WIDTH;画框-边框宽度
+HISTORY_MSG_FRAMING_ALLOW_UPSCALING;画框-上采样
+HISTORY_MSG_FRAMING_ASPECT_RATIO;画框-比例
+HISTORY_MSG_FRAMING_BASIS;画框-基于
+HISTORY_MSG_FRAMING_BORDER_BLUE;画框-色彩（蓝）
+HISTORY_MSG_FRAMING_BORDER_GREEN;画框-色彩（绿）
+HISTORY_MSG_FRAMING_BORDER_SIZE;画框-相对大小
+HISTORY_MSG_FRAMING_ENABLED;画框
+HISTORY_MSG_FRAMING_FRAMED_HEIGHT;画框-被框高度
+HISTORY_MSG_FRAMING_FRAMED_WIDTH;画框-被框宽度
+HISTORY_MSG_FRAMING_METHOD;画框-方法
+HISTORY_MSG_FRAMING_MIN_HEIGHT;画框-最低高度
+HISTORY_MSG_FRAMING_MIN_SIZE_ENABLED;画框-最小大小
+HISTORY_MSG_FRAMING_MIN_WIDTH;画框-最小宽度
+HISTORY_MSG_FRAMING_ORIENTATION;画框-方向
 HISTORY_MSG_HISTMATCHING;自适应色调曲线
 HISTORY_MSG_HLBL;色彩延伸-模糊
 HISTORY_MSG_HLTH;填色修复-增益阈值
@@ -1294,6 +1312,7 @@ PREFERENCES_TP_LABEL;工具栏
 PREFERENCES_TP_VSCROLLBAR;隐藏垂直滚动条
 PREFERENCES_USEBUNDLEDPROFILES;启用内置预设
 PREFERENCES_WBA;白平衡
+PREFERENCES_WBACORR;白平衡 - 自动色温适应
 PREFERENCES_WBAENA;显示白平衡自动色温适应设置
 PREFERENCES_WBAENACUSTOM;使用自定义色温/色调
 PREFERENCES_WORKFLOW;软件界面
@@ -1371,6 +1390,8 @@ SAVEDLG_SUBSAMP_2;平衡
 SAVEDLG_SUBSAMP_3;质量至优
 SAVEDLG_TIFFUNCOMPRESSED;无压缩TIFF
 SAVEDLG_WARNFILENAME;文件将被命名
+SORT_ASCENDING;升序
+SORT_DESCENDING;降序
 TOOLBAR_TOOLTIP_CROP;裁剪选择\n快捷键：<b>c</b>
 TOOLBAR_TOOLTIP_HAND;手形工具\n快捷键：<b>n</b>
 TOOLBAR_TOOLTIP_STRAIGHTEN;基准线选择\n快捷键：<b>s</b>
@@ -1674,6 +1695,8 @@ TP_DIRPYREQUALIZER_THRESHOLD;阈值
 TP_DIRPYREQUALIZER_TOOLTIP;尝试减少肤色（色相，色度，亮度）与图像其余部分之间交界处的杂点
 TP_DISTORTION_AMOUNT;数量
 TP_DISTORTION_AUTO_TOOLTIP;如果Raw文件内有矫正畸变的内嵌JPEG，则会将Raw图像与其对比并自动矫正畸变
+TP_DISTORTION_DEFISH;去鱼眼
+TP_DISTORTION_FOCAL_LENGTH;焦距
 TP_DISTORTION_LABEL;畸变
 TP_EPD_EDGESTOPPING;边缘敏感度
 TP_EPD_GAMMA;伽马
@@ -1742,8 +1765,9 @@ TP_FLATFIELD_BT_VERTICAL;垂直
 TP_FLATFIELD_CLIPCONTROL;溢出控制
 TP_FLATFIELD_CLIPCONTROL_TOOLTIP;溢出控制能够避免使用平场而导致的高光溢出。如果在应用平场之前就有溢出的高光，数值就会为0
 TP_FLATFIELD_LABEL;平场
-TP_FRAMING_ABSOLUTE_HEIGHT;边框高度
-TP_FRAMING_ABSOLUTE_WIDTH;边框宽度
+TP_FRAMING_ABSOLUTE_HEIGHT;画框高度
+TP_FRAMING_ABSOLUTE_WIDTH;画框宽度
+TP_FRAMING_ALLOW_UPSCALING;允许上采样至边框
 TP_FRAMING_ASPECT_RATIO;比例：
 TP_FRAMING_BASIS;基于：
 TP_FRAMING_BASIS_AUTO;自动
@@ -1751,13 +1775,19 @@ TP_FRAMING_BASIS_HEIGHT;高度
 TP_FRAMING_BASIS_LONG_SIDE;长边
 TP_FRAMING_BASIS_SHORT_SIDE;短边
 TP_FRAMING_BASIS_WIDTH;宽度
-TP_FRAMING_BLUE;蓝
-TP_FRAMING_BORDER_COLOR;边框色彩
-TP_FRAMING_BORDER_SIZE;边框大小
+TP_FRAMING_BLUE;蓝色
+TP_FRAMING_BORDER_COLOR;画框色彩
+TP_FRAMING_BORDER_SIZE;画框大小
 TP_FRAMING_BORDER_SIZE_ABSOLUTE;绝对值
 TP_FRAMING_BORDER_SIZE_METHOD;大小：
 TP_FRAMING_BORDER_SIZE_RELATIVE;相对值
-TP_FRAMING_GREEN;绿
+TP_FRAMING_FRAMED_HEIGHT;被框高度
+TP_FRAMING_FRAMED_WIDTH;被框宽度
+TP_FRAMING_GREEN;绿色
+TP_FRAMING_LABEL;添加画框
+TP_FRAMING_LIMIT_MINIMUM;最小限制
+TP_FRAMING_METHOD;方法：
+TP_FRAMING_METHOD_STANDARD;标准
 TP_FRAMING_MIN_HEIGHT;最低高度
 TP_FRAMING_MIN_WIDTH;最小宽度
 TP_FRAMING_ORIENTATION;方向
@@ -1790,6 +1820,7 @@ TP_HSVEQUALIZER_HUE;H
 TP_HSVEQUALIZER_LABEL;HSV均衡器
 TP_HSVEQUALIZER_SAT;S
 TP_HSVEQUALIZER_VAL;V
+TP_ICM_BPC;黑点补偿
 TP_ICM_GAMUT;色域控制
 TP_ICM_INPUTCAMERA;相机缺省
 TP_ICM_INPUTCAMERAICC;自适应相机档案
@@ -1865,6 +1896,8 @@ TP_LOCALLAB_ARTIF;形状检测
 TP_LOCALLAB_AUTOGRAY;自动平均亮度(Yb%)
 TP_LOCALLAB_AUTOGRAYCIE;自动
 TP_LOCALLAB_AVOID;避免偏色
+TP_LOCALLAB_AVOIDMUN;仅孟塞尔矫正
+TP_LOCALLAB_AVOIDMUN_TOOLTIP;使用Jz或CAM16时，孟塞尔矫正将被禁用
 TP_LOCALLAB_BALAN;ab-L平衡(ΔE)
 TP_LOCALLAB_BALANH;色度(C)-色相(H)平衡(ΔE)
 TP_LOCALLAB_BLCO;仅色度
@@ -1909,7 +1942,7 @@ TP_LOCALLAB_CIEMODE_TM;色调映射
 TP_LOCALLAB_CIEMODE_WAV;小波
 TP_LOCALLAB_CIETOOLEXP;曲线
 TP_LOCALLAB_CIE_TOOLNAME;色貌（Cam16 & JzCzHz）
-TP_LOCALLAB_CIRCRADIUS;点大小
+TP_LOCALLAB_CIRCRADIUS;参考点大小
 TP_LOCALLAB_COFR;色彩 & 亮度
 TP_LOCALLAB_COLORDE;ΔE预览颜色-密度
 TP_LOCALLAB_COLORSCOPE;范围（色彩工具）
@@ -2150,6 +2183,7 @@ TP_LOCALLAB_STREN;压缩力度
 TP_LOCALLAB_STRENG;力度
 TP_LOCALLAB_STRENGR;力度
 TP_LOCALLAB_STRENGTH;噪点
+TP_LOCALLAB_STRENGTHCIELOG;力度
 TP_LOCALLAB_STRGRID;力度
 TP_LOCALLAB_TARGET_GRAY;平均亮度(Yb%)
 TP_LOCALLAB_THRESDELTAE;范围
@@ -3276,30 +3310,12 @@ ZOOMPANEL_ZOOMOUT;缩放拉远\n快捷键：<b>-</b>
 !HISTORY_MSG_DEHABLACK;Dehaze Bayer Black
 !HISTORY_MSG_DEHABLACKX;Dehaze X-Trans Black
 !HISTORY_MSG_DIRPYRDENOISE_GAIN;NR - Compensate for lightness
-!HISTORY_MSG_DISTORTION_DEFISH;De-fish
-!HISTORY_MSG_DISTORTION_DEFISH_FOCAL;De-fish - Focal length
 !HISTORY_MSG_EDGEFFECT;Edge Attenuation response
 !HISTORY_MSG_FF_FROMMETADATA;Flat-Field - From Metadata
 !HISTORY_MSG_FILMNEGATIVE_BALANCE;FN - Reference output
 !HISTORY_MSG_FILMNEGATIVE_REF_SPOT;FN - Reference input
-!HISTORY_MSG_FRAMING_ABSOLUTE_HEIGHT;Framing - Border Height
-!HISTORY_MSG_FRAMING_ABSOLUTE_WIDTH;Framing - Border Width
-!HISTORY_MSG_FRAMING_ALLOW_UPSCALING;Framing - Upscaling
-!HISTORY_MSG_FRAMING_ASPECT_RATIO;Framing - Aspect Ratio
-!HISTORY_MSG_FRAMING_BASIS;Framing - Basis
-!HISTORY_MSG_FRAMING_BORDER_BLUE;Framing - Border (B)
-!HISTORY_MSG_FRAMING_BORDER_GREEN;Framing - Border (G)
 !HISTORY_MSG_FRAMING_BORDER_RED;Framing - Border (R)
-!HISTORY_MSG_FRAMING_BORDER_SIZE;Framing - Relative Size
 !HISTORY_MSG_FRAMING_BORDER_SIZE_METHOD;Framing - Border Sizing Method
-!HISTORY_MSG_FRAMING_ENABLED;Framing
-!HISTORY_MSG_FRAMING_FRAMED_HEIGHT;Framing - Framed Height
-!HISTORY_MSG_FRAMING_FRAMED_WIDTH;Framing - Framed Width
-!HISTORY_MSG_FRAMING_METHOD;Framing - Method
-!HISTORY_MSG_FRAMING_MIN_HEIGHT;Framing - Min Height
-!HISTORY_MSG_FRAMING_MIN_SIZE_ENABLED;Framing - Min Size
-!HISTORY_MSG_FRAMING_MIN_WIDTH;Framing - Min Width
-!HISTORY_MSG_FRAMING_ORIENTATION;Framing - Orientation
 !HISTORY_MSG_GAMUTMUNSEL;Gamut-Munsell
 !HISTORY_MSG_ICL_LABGRIDCIEXY;Cie xy
 !HISTORY_MSG_ICM_BLUX;Primaries Blue X
@@ -3566,7 +3582,6 @@ ZOOMPANEL_ZOOMOUT;缩放拉远\n快捷键：<b>-</b>
 !PREFERENCES_EXTEDITOR_BYPASS_OUTPUT_PROFILE;Bypass output profile
 !PREFERENCES_EXTEDITOR_FLOAT32;32-bit float TIFF output
 !PREFERENCES_INSPECT_MAXBUFFERS_TOOLTIP;Set the maximum number of images stored in cache when hovering over them in the File Browser; systems with little RAM (2GB) should keep this value set to 1 or 2.
-!PREFERENCES_WBACORR;White Balance - Automatic temperature correlation
 !PREFERENCES_WBACORR_TOOLTIP;These settings allow, depending on the images (type of raw file, colorimetry, etc.), an adaptation of the " Temperature correlation " algorithm in order to obtain the best overall results. There is no absolute rule, linking these parameters to the results obtained.\n\nThe settings are of 3 types: \n* those accessible to the user from the GUI.\n* those accessible only in reading from each pp3 file : Itcwb_minsize=20, Itcwb_delta=4 Itcwb_rgreen=1 Itcwb_nopurple=false (See Rawpedia)\n* those accessible to the user in 'options' (see Rawpedia)\n You can use "Awb temperature bias" and "Green refinement" to adjust the results. Each movement of these commands brings a new calculation of temperature, tint and correlation.\n\nPlease note that the 3 indicators 'Correlation factor', 'Patch chroma' and ΔE are given for information only. It is not because one of these indicators is better that the result will necessarily be better.
 !PREFERENCES_WBAFORC;Forces Extra algoritm
 !PREFERENCES_WBAGREENDELTA;Delta temperature in green iterate loop (if Force Extra enabled)
@@ -3609,13 +3624,11 @@ ZOOMPANEL_ZOOMOUT;缩放拉远\n快捷键：<b>-</b>
 !SHCSELECTOR_TOOLTIP;Click right mouse button to reset the position of those 3 sliders.
 !SOFTPROOF_GAMUTCHECK_TOOLTIP;Highlight pixels with out-of-gamut colors with respect to:\n- the printer profile, if one is set and soft-proofing is enabled,\n- the output profile, if a printer profile is not set and soft-proofing is enabled,\n- the monitor profile, if soft-proofing is disabled.
 !SOFTPROOF_TOOLTIP;Soft-proofing simulates the appearance of the image:\n- when printed, if a printer profile is set in Preferences > Color Management,\n- when viewed on a display that uses the current output profile, if a printer profile is not set.
-!SORT_ASCENDING;Ascending
 !SORT_BY_DATE;By Date
 !SORT_BY_EXIF;By EXIF
 !SORT_BY_LABEL;By Color Label
 !SORT_BY_NAME;By Name
 !SORT_BY_RANK;By Rank
-!SORT_DESCENDING;Descending
 !TC_LOCALLAB_PRIM_SHIFTX;Shift x
 !TC_LOCALLAB_PRIM_SHIFTX_TOOLTIP;In combination with "Refine colors", allows you to:\n 1) for low values, adjust the image purity.\n 2) for higher values, carry out moderate color toning.\nBe careful not to go outside the CIE xy diagram.
 !TC_LOCALLAB_PRIM_SHIFTY;Shift y
@@ -3691,26 +3704,16 @@ ZOOMPANEL_ZOOMOUT;缩放拉远\n快捷键：<b>-</b>
 !TP_DIRPYRDENOISE_CHROMINANCE_PMZ;Preview multi-zones
 !TP_DIRPYREQUALIZER_ALGO_TOOLTIP;Fine: closer to the colors of the skin, minimizing the action on other colors\nLarge: avoid more artifacts.
 !TP_DIRPYREQUALIZER_HUESKIN_TOOLTIP;This pyramid is for the upper part, so far as the algorithm at its maximum efficiency.\nTo the lower part, the transition zones.\nIf you need to move the area significantly to the left or right - or if there are artifacts: the <b>white balance is incorrect</b>\nYou can slightly reduce the zone to prevent the rest of the image is affected.
-!TP_DISTORTION_DEFISH;De-fish
-!TP_DISTORTION_FOCAL_LENGTH;Focal length
 !TP_FLATFIELD_FROMMETADATA;From Metadata
-!TP_FRAMING_ALLOW_UPSCALING;Allow upscaling to frame
 !TP_FRAMING_BORDER_SIZE_UNIFORM_RELATIVE;Uniform Relative
-!TP_FRAMING_FRAMED_HEIGHT;Framed Height
-!TP_FRAMING_FRAMED_WIDTH;Framed Width
-!TP_FRAMING_LABEL;Framing
-!TP_FRAMING_LIMIT_MINIMUM;Limit minimum size
-!TP_FRAMING_METHOD;Method:
 !TP_FRAMING_METHOD_BBOX;Bounding Box
 !TP_FRAMING_METHOD_FIXED;Fixed Frame
-!TP_FRAMING_METHOD_STANDARD;Standard
 !TP_ICM_APPLYBASELINEEXPOSUREOFFSET;Baseline exposure
 !TP_ICM_APPLYBASELINEEXPOSUREOFFSET_TOOLTIP;Employ the embedded DCP baseline exposure offset. The setting is only available if the selected DCP has one.
 !TP_ICM_APPLYHUESATMAP;Base table
 !TP_ICM_APPLYHUESATMAP_TOOLTIP;Employ the embedded DCP base table (HueSatMap). The setting is only available if the selected DCP has one.
 !TP_ICM_APPLYLOOKTABLE;Look table
 !TP_ICM_APPLYLOOKTABLE_TOOLTIP;Employ the embedded DCP look table. The setting is only available if the selected DCP has one.
-!TP_ICM_BPC;Black Point Compensation
 !TP_ICM_BW;Black and White
 !TP_ICM_DCPILLUMINANT;Illuminant
 !TP_ICM_DCPILLUMINANT_INTERPOLATED;Interpolated
@@ -3805,8 +3808,6 @@ ZOOMPANEL_ZOOMOUT;缩放拉远\n快捷键：<b>-</b>
 !TP_LOCALLAB_ADJ;Equalizer Color
 !TP_LOCALLAB_ARTIF_TOOLTIP;ΔE scope threshold increases the range of ΔE scope. High values are for very wide gamut images.\nIncreasing ΔE decay can improve shape detection, but can also reduce the scope.
 !TP_LOCALLAB_AVOIDCOLORSHIFT_TOOLTIP;Fit colors into gamut of the working color space and apply Munsell correction (Uniform Perceptual Lab). Default: Munsell only.\n\nMunsell only: Fixes Lab mode hue drifts due to non-linearity when chromaticity is changed (Uniform Perceptual Lab).\nLab: Applies a gamut control in relative colorimetric. Munsell is then applied.\nXYZ Absolute: Applies gamut control in absolute colorimetric. Munsell is then applied.\nXYZ Relative: Applies gamut control in relative colorimetric. Munsell is then applied. The result is not the same as Lab.
-!TP_LOCALLAB_AVOIDMUN;Munsell correction only
-!TP_LOCALLAB_AVOIDMUN_TOOLTIP;Munsell correction always disabled when Jz or CAM16 is used.
 !TP_LOCALLAB_AVOIDNEG;Pre-filter zero and negative values
 !TP_LOCALLAB_AVOIDRAD;Soft radius
 !TP_LOCALLAB_BALANEXP;Laplacian balance
@@ -4333,7 +4334,6 @@ ZOOMPANEL_ZOOMOUT;缩放拉远\n快捷键：<b>-</b>
 !TP_LOCALLAB_SPECIAL;Special use of RGB curves
 !TP_LOCALLAB_SPECIAL_TOOLTIP;The checkbox allows you to remove all other actions i.e. 'Scope', masks, sliders etc., (except for transitions) and use just the effect of the RGB tone-curve.
 !TP_LOCALLAB_STRENGRID_TOOLTIP;You can adjust the desired effect with 'strength', but you can also use the 'scope' function which allows you to delimit the action (e.g. to isolate a particular color).
-!TP_LOCALLAB_STRENGTHCIELOG;Strength
 !TP_LOCALLAB_STRUC;Structure
 !TP_LOCALLAB_STRUCCOL;Spot structure
 !TP_LOCALLAB_STRUCCOL1;Spot structure

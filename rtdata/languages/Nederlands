@@ -3562,7 +3562,7 @@ TP_LOCALLAB_MEDNONE;Geen
 TP_LOCALLAB_MERCOL;Kleur
 TP_LOCALLAB_MERDCOL;Voeg samen met achtergrond (ΔE)
 TP_LOCALLAB_MERELE;Alleen ophelderen
-TP_LOCALLAB_MERFIV;Optellinh
+TP_LOCALLAB_MERFIV;Optelling
 TP_LOCALLAB_MERFOR;Kleur tegenhouden
 TP_LOCALLAB_MERFOU;Vermenigvuldig
 TP_LOCALLAB_MERGE1COLFRA;Voeg samen met Origineel/Vorige/Achtergrond
@@ -4527,8 +4527,8 @@ TP_WAVELET_SUPE;Extra
 TP_WAVELET_THR;Drempel schaduwen
 TP_WAVELET_THRDEN_TOOLTIP;Genereert een getrapte curve die wordt gebruikt om de ruisonderdrukking aan te sturen als functie van lokaal contrast. De ruisonderdrukking zal worden toegepast op uniforme gebieden met laag lokaal contrast. Gebieden met details (hoger lokaal contrast) worden behouden.
 TP_WAVELET_THREND;Drempel lokaal contrast
-TP_WAVELET_THRESHOLD;Hoge lichten: Aantal te gebruiken niveaus (fijn naar grof - leidend)
-TP_WAVELET_THRESHOLD2;Schaduwen: Aantal te gebruiken niveaus (grof naar fijn)
+TP_WAVELET_THRESHOLD;Fijnere niveaus
+TP_WAVELET_THRESHOLD2;Grovere niveaus
 TP_WAVELET_THRESHOLD2_TOOLTIP;Alleen niveaus van de gekozen waarde tot het gekozen aantal Wavelet-niveaus zullen worden beïnvloed door het Schaduwluminantiebereik.
 TP_WAVELET_THRESHOLD_TOOLTIP;Alleen niveaus beneden en inclusief de gekozen waarde zullen worden beïnvloed door het luminantiebereik van de hoge lichten.
 TP_WAVELET_THRH;Drempel hoge lichten

@@ -1,6 +1,6 @@
 RAWTHERAPEE 5.12 RELEASE NOTES
 
-This is RawTherapee 5.12, released on 2025-05-17.
+This is RawTherapee 5.12, released on 2025-05-28.
 
 
 

@@ -2117,7 +2117,7 @@ LocallabSharp::LocallabSharp():
     sharcontrast(Gtk::manage(new Adjuster(M("TP_SHARPENING_CONTRAST"), 0, 200, 1, 20))),
     sharblur(Gtk::manage(new Adjuster(M("TP_LOCALLAB_SHARBLUR"), 0.2, 2.0, 0.05, 0.2))),
     shargam(Gtk::manage(new Adjuster(M("TP_LOCALLAB_GAMC"), 0.5, 3.0, 0.05, 1.))),
-    sharamount(Gtk::manage(new Adjuster(M("TP_LOCALLAB_SHARAMOUNT"), 0, 100, 1, 100))),
+    sharamount(Gtk::manage(new Adjuster(M("TP_LOCALLAB_SHARAMOUNT"), 1, 100, 1, 100))),
     shardamping(Gtk::manage(new Adjuster(M("TP_LOCALLAB_SHARDAMPING"), 0, 100, 1, 0))),
     shariter(Gtk::manage(new Adjuster(M("TP_LOCALLAB_SHARITER"), 5, 100, 1, 30))),
     sharradius(Gtk::manage(new Adjuster(M("TP_LOCALLAB_SHARRADIUS"), 0.4, 2.5, 0.01, 0.75))),
@@ -2413,7 +2413,7 @@ void LocallabSharp::convertParamToNormal()
     // Set hidden GUI widgets in Normal mode to default spot values
     sharcontrast->setValue((double)defSpot.sharcontrast);
     sharblur->setValue(defSpot.sharblur);
-    sharamount->setValue(defSpot.sharamount);
+   // sharamount->setValue(defSpot.sharamount);
     shardamping->setValue((double)defSpot.shardamping);
     shariter->setValue((double)defSpot.shariter);
     shargam->setValue(defSpot.shargam);
@@ -2440,12 +2440,14 @@ void LocallabSharp::convertParamToSimple()
 
 void LocallabSharp::updateGUIToMode(const modeType new_type)
 {
+    const LocallabParams::LocallabSpot defSpot;
+    
     switch (new_type) {
         case Simple:
             // Expert and Normal mode widgets are hidden in Simple mode
             sharcontrast->hide();
             sharblur->hide();
-            sharamount->hide();
+            sharamount->show();
             shardamping->hide();
             shariter->hide();
             sharFrame->hide();
@@ -2458,7 +2460,7 @@ void LocallabSharp::updateGUIToMode(const modeType new_type)
             sharcontrast->hide();
             sharblur->hide();
             shargam->hide();
-            sharamount->hide();
+            sharamount->show();
             shardamping->hide();
             shariter->hide();
             // Specific Simple mode widgets are shown in Normal mode
@@ -2475,11 +2477,25 @@ void LocallabSharp::updateGUIToMode(const modeType new_type)
             shardamping->show();
             shariter->show();
             sharFrame->show();
+            if (inverssha->get_active()) {
+                shargam->hide();
+                shargam->setValue(defSpot.shargam);
+            }
     }
 }
 
 void LocallabSharp::inversshaChanged()
 {
+    const LocallabParams::LocallabSpot defSpot;
+    const int mode = complexity->get_active_row_number();    
+    if (inverssha->get_active()) {
+        shargam->hide();
+        shargam->setValue(defSpot.shargam);      
+    } else {
+        if(mode == Expert) {
+            shargam->show();
+       }
+    }
     if (isLocActivated && exp->getEnabled()) {
         if (listener) {
             if (inverssha->get_active()) {

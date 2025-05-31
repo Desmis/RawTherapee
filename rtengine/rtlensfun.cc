@@ -668,7 +668,8 @@ LFLens LFDatabase::findLens(const LFCamera &camera, const Glib::ustring &name, b
         // if no match is found. The latter is necessary for certain adapted
         // lenses.
         const lfLens **found = nullptr;
-        lfCamera camera_without_mount(*(camera.data_));
+        lfCamera camera_without_mount;
+        camera_without_mount = *(camera.data_);
         camera_without_mount.SetMount(nullptr);
         const lfCamera *camera_without_mount_ptr = &camera_without_mount;
         for (auto camera_data : {camera.data_, camera_without_mount_ptr}) {

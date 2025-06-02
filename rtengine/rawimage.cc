@@ -22,6 +22,56 @@
 #include "utils.h"
 #include "rtengine.h"
 
+namespace
+{
+
+void calculate_black_from_mask(
+    const int mask[8][4],
+    unsigned black[],
+    const DCraw::ushort *raw_image,
+    DCraw::ushort raw_height,
+    DCraw::ushort raw_width,
+    DCraw::ushort top_margin,
+    DCraw::ushort left_margin,
+    unsigned filters)
+{
+    // Adapted from dcraw's crop_masked_pixels().
+
+    const auto FC = [filters](unsigned row, unsigned col) {
+        return filters >> (((row << 1 & 14) + (col & 1)) << 1) & 3;
+    };
+
+    std::array<unsigned, 8> black_stat = {0};
+    unsigned zero = 0;
+    for (int m = 0; m < 8; ++m) { // Each mask
+        const auto row_begin = std::max(mask[m][0], 0);
+        const auto row_end = std::min<int>(mask[m][2], raw_height);
+        const auto col_begin = std::max(mask[m][1], 0);
+        const auto col_end = std::min<int>(mask[m][3], raw_width);
+
+        // Sum values and count pixels.
+        for (int row = row_begin; row < row_end; ++row) {
+            for (int col = col_begin; col < col_end; ++col) {
+                const auto c = FC(row - top_margin, col - left_margin);
+                const auto val = raw_image[row * raw_width + col];
+                black_stat[c] += val;
+                black_stat[4 + c]++;
+                zero += !val;
+            }
+        }
+    }
+
+    // Calculate average black level for each channel.
+    if (zero < black_stat[4] && black_stat[5] && black_stat[6] && black_stat[7]) {
+        for (int c = 0; c < 4; ++c) {
+            black[c] = black_stat[c] / black_stat[4 + c];
+        }
+        black[4] = black[5] = black[6] = 0;
+    }
+}
+
+} // namespace
+
 namespace rtengine
 {
 
@@ -994,7 +1044,8 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
                 }
             }
 
-            if (cc && cc->has_rawMask(orig_raw_width, orig_raw_height, 0)) {
+            const bool has_raw_mask = cc && cc->has_rawMask(orig_raw_width, orig_raw_height, 0);
+            if (has_raw_mask) {
                 for (int i = 0; i < 2 && cc->has_rawMask(orig_raw_width, orig_raw_height, i); i++) {
                     cc->get_rawMask(orig_raw_width, orig_raw_height, i, mask[i][0], mask[i][1], mask[i][2], mask[i][3]);
                 }
@@ -1003,6 +1054,10 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
             if (decoder == Decoder::DCRAW) {
                 crop_masked_pixels();
                 free(raw_image);
+            } else if (decoder == Decoder::LIBRAW) {
+                if (has_raw_mask) {
+                    calculate_black_from_mask(mask, cblack, raw_image, raw_height, raw_width, top_margin, left_margin, filters);
+                }
             }
             raw_image = nullptr;
             adjust_margins = !float_raw_image; //true;

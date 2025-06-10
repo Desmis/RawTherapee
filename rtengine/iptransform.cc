@@ -431,7 +431,7 @@ bool ImProcFunctions::transCoord (int W, int H, const std::vector<Coord2D> &src,
     green.clear ();
     blue.clear ();
 
-    if (!needsCA() && !needsDistortion() && !needsRotation() && !needsPerspective() && !needsScale() && (!params->lensProf.useDist || pLCPMap == nullptr)) {
+    if (!needsCA() && !needsDistortion() && !needsRotation() && !needsPerspective() && !needsScaleAny() && (!params->lensProf.useDist || pLCPMap == nullptr)) {
         for (size_t i = 0; i < src.size(); i++) {
             red.push_back   (Coord2D (src[i].x, src[i].y));
             green.push_back (Coord2D (src[i].x, src[i].y));
@@ -699,7 +699,7 @@ void ImProcFunctions::transform (Imagefloat* original, Imagefloat* transformed, 
         }
     }
 
-    if (! (needsCA() || needsDistortion() || needsRotation() || needsPerspective() || needsScale() || needsLCP() || needsMetadata() || needsLensfun()) && (needsVignetting() || needsPCVignetting() || needsGradient())) {
+    if (! (needsCA() || needsDistortion() || needsRotation() || needsPerspective() || needsScaleAny() || needsLCP() || needsMetadata() || needsLensfun()) && (needsVignetting() || needsPCVignetting() || needsGradient())) {
         transformLuminanceOnly (original, transformed, cx, cy, oW, oH, fW, fH);
     } else {
         bool highQuality;
@@ -1463,6 +1463,11 @@ bool ImProcFunctions::needsScaleVertically() const
   return std::abs(1.0 - params->commonTrans.getScaleVertically()) > 1e-6;
 }
 
+bool ImProcFunctions::needsScaleAny() const
+{
+  return needsScale() || needsScaleHorizontally() || needsScaleVertically();
+}
+
 bool ImProcFunctions::needsGradient () const
 {
     return params->gradient.enabled && fabs (params->gradient.strength) > 1e-15;
@@ -1500,7 +1505,7 @@ bool ImProcFunctions::needsTransform (int oW, int oH, int rawRotationDeg, const 
         std::unique_ptr<const LensCorrection> pLCPMap = LFDatabase::getInstance()->findModifier(params->lensProf, metadata, oW, oH, params->coarse, rawRotationDeg);
         needsLf = pLCPMap.get();
     }
-    return needsCA () || needsDistortion () || needsRotation () || needsPerspective () || needsScale () || needsScaleHorizontally () || needsScaleVertically () || needsGradient () || needsPCVignetting () || needsVignetting () || needsLCP() || needsMetadata() || needsLf;
+    return needsCA () || needsDistortion () || needsRotation () || needsPerspective () || needsScaleAny() || needsGradient () || needsPCVignetting () || needsVignetting () || needsLCP() || needsMetadata() || needsLf;
 }
 
 

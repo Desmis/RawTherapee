@@ -157,6 +157,7 @@ class ImProcFunctions
     bool needsScale() const;
     bool needsScaleHorizontally() const;
     bool needsScaleVertically() const;
+    bool needsScaleAny() const;
     bool needsGradient() const;
     bool needsVignetting() const;
     bool needsLCP() const;

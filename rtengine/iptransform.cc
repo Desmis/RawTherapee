@@ -441,18 +441,18 @@ bool ImProcFunctions::transCoord (int W, int H, const std::vector<Coord2D> &src,
         return false;
     }
 
-    double oW = W, oH = H;
-    double w2 = (double) oW  / 2.0 - 0.5;
-    double h2 = (double) oH  / 2.0 - 0.5;
-    double maxRadius = sqrt ( (double) ( oW * oW + oH * oH ) ) / 2;
+    const double oW = W, oH = H;
+    const double w2 = (double) oW  / 2.0 - 0.5;
+    const double h2 = (double) oH  / 2.0 - 0.5;
+    const double maxRadius = sqrt ( (double) ( oW * oW + oH * oH ) ) / 2;
 
     // auxiliary variables for distortion correction
-    bool needsDist = needsDistortion();  // for performance
-    double distAmount = params->distortion.amount;
+    const bool needsDist = needsDistortion();  // for performance
+    const double distAmount = params->distortion.amount;
 
     // auxiliary variables for rotation
-    double cost = cos (params->rotate.degree * rtengine::RT_PI / 180.0);
-    double sint = sin (params->rotate.degree * rtengine::RT_PI / 180.0);
+    const double cost = cos (params->rotate.degree * rtengine::RT_PI / 180.0);
+    const double sint = sin (params->rotate.degree * rtengine::RT_PI / 180.0);
 
     const double ascale = ascaleDef > 0 ? ascaleDef : (params->commonTrans.autofill && params->perspective.render ? getTransformAutoFill (oW, oH, pLCPMap) : 1.0 / params->commonTrans.getScale());
     const double hscale = ascale / params->commonTrans.getScaleHorizontally();
@@ -460,14 +460,14 @@ bool ImProcFunctions::transCoord (int W, int H, const std::vector<Coord2D> &src,
 
     // auxiliary variables for perspective correction
     // Simple.
-    double vpdeg = params->perspective.vertical / 100.0 * 45.0;
-    double vpalpha = (90.0 - vpdeg) / 180.0 * rtengine::RT_PI;
-    double vpteta  = fabs (vpalpha - rtengine::RT_PI / 2) < 3e-4 ? 0.0 : acos ((vpdeg > 0 ? 1.0 : -1.0) * sqrt ((-oW * oW * tan (vpalpha) * tan (vpalpha) + (vpdeg > 0 ? 1.0 : -1.0) * oW * tan (vpalpha) * sqrt (16 * maxRadius * maxRadius + oW * oW * tan (vpalpha) * tan (vpalpha))) / (maxRadius * maxRadius * 8)));
-    double vpcospt = (vpdeg >= 0 ? 1.0 : -1.0) * cos (vpteta), vptanpt = tan (vpteta);
-    double hpdeg = params->perspective.horizontal / 100.0 * 45.0;
-    double hpalpha = (90.0 - hpdeg) / 180.0 * rtengine::RT_PI;
-    double hpteta  = fabs (hpalpha - rtengine::RT_PI / 2) < 3e-4 ? 0.0 : acos ((hpdeg > 0 ? 1.0 : -1.0) * sqrt ((-oH * oH * tan (hpalpha) * tan (hpalpha) + (hpdeg > 0 ? 1.0 : -1.0) * oH * tan (hpalpha) * sqrt (16 * maxRadius * maxRadius + oH * oH * tan (hpalpha) * tan (hpalpha))) / (maxRadius * maxRadius * 8)));
-    double hpcospt = (hpdeg >= 0 ? 1.0 : -1.0) * cos (hpteta), hptanpt = tan (hpteta);
+    const double vpdeg = params->perspective.vertical / 100.0 * 45.0;
+    const double vpalpha = (90.0 - vpdeg) / 180.0 * rtengine::RT_PI;
+    const double vpteta  = fabs (vpalpha - rtengine::RT_PI / 2) < 3e-4 ? 0.0 : acos ((vpdeg > 0 ? 1.0 : -1.0) * sqrt ((-oW * oW * tan (vpalpha) * tan (vpalpha) + (vpdeg > 0 ? 1.0 : -1.0) * oW * tan (vpalpha) * sqrt (16 * maxRadius * maxRadius + oW * oW * tan (vpalpha) * tan (vpalpha))) / (maxRadius * maxRadius * 8)));
+    const double vpcospt = (vpdeg >= 0 ? 1.0 : -1.0) * cos (vpteta), vptanpt = tan (vpteta);
+    const double hpdeg = params->perspective.horizontal / 100.0 * 45.0;
+    const double hpalpha = (90.0 - hpdeg) / 180.0 * rtengine::RT_PI;
+    const double hpteta  = fabs (hpalpha - rtengine::RT_PI / 2) < 3e-4 ? 0.0 : acos ((hpdeg > 0 ? 1.0 : -1.0) * sqrt ((-oH * oH * tan (hpalpha) * tan (hpalpha) + (hpdeg > 0 ? 1.0 : -1.0) * oH * tan (hpalpha) * sqrt (16 * maxRadius * maxRadius + oH * oH * tan (hpalpha) * tan (hpalpha))) / (maxRadius * maxRadius * 8)));
+    const double hpcospt = (hpdeg >= 0 ? 1.0 : -1.0) * cos (hpteta), hptanpt = tan (hpteta);
     // Camera-based.
     const double f =
             ((params->perspective.camera_focal_length > 0) ? params->perspective.camera_focal_length : PerspectiveParams::DEFAULT_CAMERA_FOCAL_LENGTH)

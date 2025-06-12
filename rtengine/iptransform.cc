@@ -336,6 +336,15 @@ namespace rtengine
 
 #define CLIPTOC(a,b,c,d) ((a)>=(b)?((a)<=(c)?(a):(d=true,(c))):(d=true,(b)))
 
+template<class A, class B, class C>
+void track_min_max(A & min, B & max, C const val)
+{
+    if (val < min)
+        min = val;
+    if (val > max)
+        max = val;
+}
+
 /**
  * Creates an inverse transformation matrix for camera-geometry-based
  * perspective correction. Unless otherwise specified, units are the same as the
@@ -601,55 +610,30 @@ bool ImProcFunctions::transCoord (int W, int H, int x, int y, int w, int h, int&
 
     std::vector<Coord2D> r, g, b;
 
-    bool clipped = transCoord (W, H, corners, r, g, b, ascaleDef, pLCPMap);
+    const bool clipped = transCoord (W, H, corners, r, g, b, ascaleDef, pLCPMap);
 
-    // Merge all R G Bs into one X/Y pool
-    std::vector<Coord2D> transCorners;
-    transCorners.insert (transCorners.end(), r.begin(), r.end());
-    transCorners.insert (transCorners.end(), g.begin(), g.end());
-    transCorners.insert (transCorners.end(), b.begin(), b.end());
+    // Compute bounding box by finding min/max of all coordinates
+    xv = g[0].x;
+    double x2d = g[0].x;
 
-    // find the min/max of all coordinates, so the borders
-    double x1d = transCorners[0].x;
+    yv = g[0].y;
+    double y2d = g[0].y;
 
-    for (size_t i = 1; i < transCorners.size(); i++)
-        if (transCorners[i].x < x1d) {
-            x1d = transCorners[i].x;
-        }
+    for (size_t ii = 0; ii < r.size(); ++ii) {
+        track_min_max(xv, x2d, r[ii].x);
+        track_min_max(xv, x2d, g[ii].x);
+        track_min_max(xv, x2d, b[ii].x);
 
-    int x1v = (int) (x1d);
-
-    double y1d = transCorners[0].y;
-
-    for (size_t i = 1; i < transCorners.size(); i++)
-        if (transCorners[i].y < y1d) {
-            y1d = transCorners[i].y;
-        }
-
-    int y1v = (int) (y1d);
-
-    double x2d = transCorners[0].x;
-
-    for (size_t i = 1; i < transCorners.size(); i++)
-        if (transCorners[i].x > x2d) {
-            x2d = transCorners[i].x;
-        }
+        track_min_max(yv, y2d, r[ii].y);
+        track_min_max(yv, y2d, g[ii].y);
+        track_min_max(yv, y2d, b[ii].y);
+    }
 
     int x2v = (int)ceil (x2d);
-
-    double y2d = transCorners[0].y;
-
-    for (size_t i = 1; i < transCorners.size(); i++)
-        if (transCorners[i].y > y2d) {
-            y2d = transCorners[i].y;
-        }
-
     int y2v = (int)ceil (y2d);
 
-    xv = x1v;
-    yv = y1v;
-    wv = x2v - x1v + 1;
-    hv = y2v - y1v + 1;
+    wv = x2v - xv + 1;
+    hv = y2v - yv + 1;
 
     return clipped;
 }

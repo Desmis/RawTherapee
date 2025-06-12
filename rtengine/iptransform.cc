@@ -585,22 +585,14 @@ bool ImProcFunctions::transCoord (int W, int H, int x, int y, int w, int h, int&
     corners[3].set (x2, y1);
 
     // Add several steps inbetween
-    int xstep = (x2 - x1) / DivisionsPerBorder;
-
-    if (xstep < 1) {
-        xstep = 1;
-    }
+    const int xstep = std::max(1, int((x2 - x1) / DivisionsPerBorder));
 
     for (int i = x1 + xstep; i <= x2 - xstep; i += xstep) {
         corners.push_back (Coord2D (i, y1));
         corners.push_back (Coord2D (i, y2));
     }
 
-    int ystep = (y2 - y1) / DivisionsPerBorder;
-
-    if (ystep < 1) {
-        ystep = 1;
-    }
+    const int ystep = std::max(1, int((y2 - y1) / DivisionsPerBorder));
 
     for (int i = y1 + ystep; i <= y2 - ystep; i += ystep) {
         corners.push_back (Coord2D (x1, i));

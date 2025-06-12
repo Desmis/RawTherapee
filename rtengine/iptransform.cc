@@ -496,8 +496,8 @@ bool ImProcFunctions::transCoord (int W, int H, const std::vector<Coord2D> &src,
     for (size_t i = 0; i < src.size(); i++) {
         double x_d = src[i].x, y_d = src[i].y;
 
-        y_d = hscale * (y_d - h2);     // centering x coord & scale
-        x_d = vscale * (x_d - w2);     // centering x coord & scale
+        x_d = hscale * (x_d - w2);     // centering x coord & scale
+        y_d = vscale * (y_d - h2);     // centering y coord & scale
 
         switch (perspectiveType) {
             case PerspType::NONE:

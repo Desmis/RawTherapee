@@ -578,15 +578,11 @@ bool ImProcFunctions::transCoord (int W, int H, int x, int y, int w, int h, int&
     int y2 = y1 + h - 1;
 
     // Build all edge points and half-way points
-    std::vector<Coord2D> corners (8);
+    std::vector<Coord2D> corners (4);
     corners[0].set (x1, y1);
     corners[1].set (x1, y2);
     corners[2].set (x2, y2);
     corners[3].set (x2, y1);
-    corners[4].set ((x1 + x2) / 2, y1);
-    corners[5].set ((x1 + x2) / 2, y2);
-    corners[6].set (x1, (y1 + y2) / 2);
-    corners[7].set (x2, (y1 + y2) / 2);
 
     // Add several steps inbetween
     int xstep = (x2 - x1) / DivisionsPerBorder;

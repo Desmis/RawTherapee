@@ -10,7 +10,7 @@ this file.
 If you add values for your own camera, consider sharing them with the community for everyone's benefit. You can do so
 via our forum or GitHub page:
 - https://discuss.pixls.us/c/software/rawtherapee
-- https://github.com/Beep6581/RawTherapee/issues
+- https://github.com/RawTherapee/RawTherapee/issues
 
 Value priority:
 1. If you set the dcraw matrix in your user camconst.json file for a camera entry which already exists in RT's file
@@ -1292,7 +1292,8 @@ Camera constants:
             {"frame": [3936, 2612], "crop": [156, 96, 3780, 2516]}
         ],
         "masked_areas": [
-            {"frame": [6188, 4120], "areas": [4, 4, 4116, 150, 4, 150, 92, 6184]},
+            // With electronic shutter, top masked area is not good (#7214).
+            {"frame": [6188, 4120], "areas": [40, 4, 4116, 150]},
             {"frame": [3936, 2612], "areas": [4, 4, 2608, 150, 4, 150, 92, 3932]}
         ]
     },
@@ -1856,7 +1857,7 @@ Camera constants:
     { // Quality B, no LENR samples
         "make_model": "Nikon D5",
         "dcraw_matrix": [ 9200,-3522,-992,-5755,13803,2117,-754,1486,6338 ], // DNG v13.2
-        "ranges": { "black": 0, "white": 16300 } // WL typical 16383 set to 16300 for safety
+        "ranges": { "white": 16300 } // WL typical 16383 set to 16300 for safety
     },
 
     { // Quality C
@@ -3091,7 +3092,6 @@ Camera constants:
         // "raw_crop": [ 8, 8, 6008, 4008 ], // full raw frame 6048x4024 Dcraw auto identify 6024x4024, jpeg 12,12,6000x4000
         // "ranges": { "black": 512, "white": 16300 }
         "ranges": {
-            "black": 512,
             "white": [
                 { "iso": [ 50, 64 ], "levels": 16100 }, // typical compressed 16372, non compressed 16383, LongEx iso50,16150 , 16275
                 { "iso": [ 80, 100, 125, 160 ], "levels": 16200 }, // typical compressed 16372, non compressed 16383, LongEx iso50,16150 , 16275

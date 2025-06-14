@@ -28,9 +28,9 @@
 #include "options.h"
 #include "eventmapper.h"
 
-#include "../rtengine/color.h"
-#include "../rtengine/procparams.h"
-#include "../rtengine/refreshmap.h"
+#include "rtengine/color.h"
+#include "rtengine/procparams.h"
+#include "rtengine/refreshmap.h"
 
 using namespace rtengine;
 using namespace rtengine::procparams;
@@ -585,6 +585,7 @@ void DirPyrDenoise::read (const ProcParams* pp, const ParamsEdited* pedited)
         passes->setEditedState     (pedited->dirpyrDenoise.passes ? Edited : UnEdited);
         set_inconsistent           (multiImage && !pedited->dirpyrDenoise.enabled);
         median->set_inconsistent   (!pedited->dirpyrDenoise.median);
+        lshape->setUnChanged       (!pedited->dirpyrDenoise.lcurve);
         ccshape->setUnChanged      (!pedited->dirpyrDenoise.cccurve);
 
         //      perform->set_inconsistent (!pedited->dirpyrDenoise.perform);

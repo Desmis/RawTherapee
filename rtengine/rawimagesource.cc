@@ -45,9 +45,9 @@
 #include "rtengine.h"
 #include "rtlensfun.h"
 #include "lensmetadata.h"
-#include "../rtgui/options.h"
+#include "rtgui/options.h"
 
-#define BENCHMARK
+//#define BENCHMARK
 #include "StopWatch.h"
 
 #ifdef _OPENMP
@@ -2690,14 +2690,14 @@ void RawImageSource::copyOriginalPixels(const RAWParams &raw, RawImage *src, con
 */
         
         if (ri->getSensorType() == ST_BAYER) {
-            getMinValsBayer(ri->zeroIsBad());
+            getMinValsBayer(rawData, ri->zeroIsBad());
         } else {
-            getMinValsXtrans();
+            getMinValsXtrans(rawData);
         }
         //
-        reddeha = minVals[0];
-        greendeha = minVals[1]; 
-        bluedeha = minVals[2];
+        reddeha = minVals[0] == std::numeric_limits<float>::max() ? 0.f : minVals[0];
+        greendeha = minVals[1] == std::numeric_limits<float>::max() ? 0.f : minVals[1];
+        bluedeha = minVals[2] == std::numeric_limits<float>::max() ? 0.f : minVals[2];
         if (riFlatFile && W == riFlatFile->get_width() && H == riFlatFile->get_height()) {
             processFlatField(raw, riFlatFile, rawData, black);
         }  // flatfield
@@ -8384,7 +8384,7 @@ void RawImageSource::getRawValues(int x, int y, int rotate, int &R, int &G, int 
 /*
     Copyright (c) Ingo Weyrich  2020 (heckflosse67@gmx.de)
 */
-void RawImageSource::getMinValsXtrans() {
+void RawImageSource::getMinValsXtrans(const array2D<float> &rawData) {
 #ifdef _OPENMP
     #pragma omp parallel for reduction (min:minVals)
 #endif
@@ -8409,16 +8409,30 @@ void RawImageSource::getMinValsXtrans() {
         float m5 = minVals[c5];
         int col = 0;
         for (; col < W - 5; col += 6) {
-            m0 = rtengine::min(m0, rawData[row][col] - cb0);
-            m1 = rtengine::min(m1, rawData[row][col + 1] - cb1);
-            m2 = rtengine::min(m2, rawData[row][col + 2] - cb2);
-            m3 = rtengine::min(m3, rawData[row][col + 3] - cb3);
-            m4 = rtengine::min(m4, rawData[row][col + 4] - cb4);
-            m5 = rtengine::min(m5, rawData[row][col + 5] - cb5);
+            if (LIKELY(rawData[row][col] >= cb0)) {
+                m0 = rtengine::min(m0, rawData[row][col] - cb0);
+            }
+            if (LIKELY(rawData[row][col + 1] >= cb1)) {
+                m1 = rtengine::min(m1, rawData[row][col + 1] - cb1);
+            }
+            if (LIKELY(rawData[row][col + 2] >= cb2)) {
+                m2 = rtengine::min(m2, rawData[row][col + 2] - cb2);
+            }
+            if (LIKELY(rawData[row][col + 3] >= cb3)) {
+                m3 = rtengine::min(m3, rawData[row][col + 3] - cb3);
+            }
+            if (LIKELY(rawData[row][col + 4] >= cb4)) {
+                m4 = rtengine::min(m4, rawData[row][col + 4] - cb4);
+            }
+            if (LIKELY(rawData[row][col + 5] >= cb5)) {
+                m5 = rtengine::min(m5, rawData[row][col + 5] - cb5);
+            }
         }
         for (; col < W; ++col) {
             const int c = ri->XTRANSFC(row,col);
-            minVals[c] = rtengine::min(minVals[c], rawData[row][col] - c_black[c]);
+            if (LIKELY(rawData[row][col] >= c_black[c])) {
+                minVals[c] = rtengine::min(minVals[c], rawData[row][col] - c_black[c]);
+            }
         }
         minVals[c0] = rtengine::min(m0, minVals[c0]);
         minVals[c1] = rtengine::min(m1, minVals[c1]);
@@ -8530,7 +8544,7 @@ void RawImageSource::applyDngGainMap(const float black[4], const std::vector<Gai
 /*
     Copyright (c) Ingo Weyrich  2020 (heckflosse67@gmx.de)
 */
-void RawImageSource::getMinValsBayer(bool zeroIsBad) {
+void RawImageSource::getMinValsBayer(const array2D<float> &rawData, bool zeroIsBad) {
 BENCHFUN
     if (!zeroIsBad) {
 #ifdef _OPENMP
@@ -8545,10 +8559,14 @@ BENCHFUN
             float m1 = minVals[c1];
             int col = 0;
             for (; col < W - 1; col += 2) {
-                m0 = rtengine::min(m0, rawData[row][col] - cb0);
-                m1 = rtengine::min(m1, rawData[row][col + 1] - cb1);
+                if (LIKELY(rawData[row][col] >= cb0)) {
+                    m0 = rtengine::min(m0, rawData[row][col] - cb0);
+                }
+                if (LIKELY(rawData[row][col + 1] >= cb1)) {
+                    m1 = rtengine::min(m1, rawData[row][col + 1] - cb1);
+                }
             }
-            if (col < W) {
+            if (col < W && LIKELY(rawData[row][col] >= cb0)) {
                 m0 = rtengine::min(m0, rawData[row][col] - cb0);
             }
             minVals[c0] = m0;
@@ -8567,14 +8585,14 @@ BENCHFUN
             float m1 = minVals[c1];
             int col = 0;
             for (; col < W - 1; col += 2) {
-                if (LIKELY(rawData[row][col] > 0.f)) {
+                if (LIKELY(rawData[row][col] >= cb0 && rawData[row][col] > 0.f)) {
                     m0 = rtengine::min(m0, rawData[row][col] - cb0);
                 }
-                if (LIKELY(rawData[row][col + 1] > 0.f)) {
+                if (LIKELY(rawData[row][col + 1] >= cb1 && rawData[row][col + 1] > 0.f)) {
                     m1 = rtengine::min(m1, rawData[row][col + 1] - cb1);
                 }
             }
-            if (col < W && LIKELY(rawData[row][col] > 0.f)) {
+            if (col < W && LIKELY(rawData[row][col] >= cb0 && rawData[row][col] > 0.f)) {
                 m0 = rtengine::min(m0, rawData[row][col] - cb0);
             }
             minVals[c0] = m0;

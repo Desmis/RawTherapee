@@ -34,7 +34,7 @@
 #include "procevents.h"
 #include "settings.h"
 
-#include "../rtgui/threadutils.h"
+#include "rtgui/threadutils.h"
 
 
 /**
@@ -474,6 +474,14 @@ public:
         double meanxelc;
         double meanyelc;
         int primlc;
+        double slopeglc;
+        bool linkrgblc;
+    };
+
+
+    struct locallabshGHSbw {//To draw GHS  S curve
+       int ghsbw[2];
+       double ghsbwvalue[2];
     };
 
 //select spot settings 
@@ -505,6 +513,7 @@ public:
     virtual void minmaxChanged(const std::vector<locallabRetiMinMax> &minmax, int selspot) = 0;
     virtual void denChanged(const std::vector<locallabDenoiseLC> &denlc, int selspot) = 0;
     virtual void cieChanged(const std::vector<locallabcieLC> &cielc, int selspot) = 0;
+    virtual void ghsbwChanged(const std::vector<locallabshGHSbw> &shghsbw, int selspot) = 0;
     virtual void maiChanged(const std::vector<locallabsetLC> &csetlc, int selspot) = 0;
     virtual void sigChanged(const std::vector<locallabcieSIG> &ciesig, int selspot) = 0;
     virtual void ciebefChanged(const std::vector<locallabcieBEF> &ciebef, int selspot) = 0;
@@ -530,6 +539,7 @@ public:
     virtual ~AutoprimListener() = default;
     virtual void primChanged(float rx, float ry, float bx, float by, float gx, float gy) = 0;
     virtual void iprimChanged(float r_x, float r_y, float b_x, float b_y, float g_x, float g_y, float w_x, float w_y, float m_x, float m_y) = 0;
+    virtual void wavlocChanged(double nlevel, double nmax, bool curveloc) = 0;
 };
 
 

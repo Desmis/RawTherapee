@@ -31,9 +31,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <locale.h>
-#include "../rtengine/procparams.h"
-#include "../rtengine/profilestore.h"
-#include "../rtengine/rtengine.h"
+#include "rtengine/procparams.h"
+#include "rtengine/profilestore.h"
+#include "rtengine/rtengine.h"
 #include "options.h"
 #include "soundman.h"
 #include "rtimage.h"
@@ -273,6 +273,7 @@ int processLineParams ( int argc, char **argv )
 
                 case 'O':
                     copyParamsFile = true;
+                    // fall through
 
                 case 'o': // outputfile or dir
                     if ( iArg + 1 < argc ) {
@@ -324,6 +325,7 @@ int processLineParams ( int argc, char **argv )
 
                 case 'S':
                     skipIfNoSidecar = true;
+                    // fall through
 
                 case 's': // Processing params next to file (file extension appended)
                     sideProcParams = true;
@@ -508,7 +510,7 @@ int processLineParams ( int argc, char **argv )
                     std::cout << "  Website: http://www.rawtherapee.com/" << std::endl;
                     std::cout << "  Documentation: http://rawpedia.rawtherapee.com/" << std::endl;
                     std::cout << "  Forum: https://discuss.pixls.us/c/software/rawtherapee" << std::endl;
-                    std::cout << "  Code and bug reports: https://github.com/Beep6581/RawTherapee" << std::endl;
+                    std::cout << "  Code and bug reports: https://github.com/RawTherapee/RawTherapee" << std::endl;
                     std::cout << std::endl;
                     std::cout << "Symbols:" << std::endl;
                     std::cout << "  <Chevrons> indicate parameters you can change." << std::endl;

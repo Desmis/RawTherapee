@@ -26,8 +26,8 @@
 #include "pathutils.h"
 #include "rtimage.h"
 
-#include "../rtengine/procparams.h"
-#include "../rtengine/procevents.h"
+#include "rtengine/procparams.h"
+#include "rtengine/procevents.h"
 
 using namespace rtengine;
 using namespace rtengine::procparams;
@@ -138,12 +138,12 @@ ProfilePanel::~ProfilePanel ()
 
 bool ProfilePanel::isCustomSelected()
 {
-    return profiles->getCurrentLabel() == Glib::ustring ("(" + M("PROFILEPANEL_PCUSTOM") + ")");
+    return profiles->getCurrentLabel().collate_key() == Glib::ustring ("(" + M("PROFILEPANEL_PCUSTOM") + ")").collate_key();
 }
 
 bool ProfilePanel::isLastSavedSelected()
 {
-    return profiles->getCurrentLabel() == Glib::ustring ("(" + M("PROFILEPANEL_PLASTSAVED") + ")");
+    return profiles->getCurrentLabel().collate_key() == Glib::ustring ("(" + M("PROFILEPANEL_PLASTSAVED") + ")").collate_key();
 }
 
 Gtk::TreeIter ProfilePanel::getCustomRow()

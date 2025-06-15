@@ -538,10 +538,6 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
 
         auto &d = libraw->imgdata.idata;
         is_raw = d.raw_count;
-        strncpy(make, d.normalized_make, sizeof(make)-1);
-        make[sizeof(make)-1] = 0;
-        strncpy(model, d.normalized_model, sizeof(model)-1);
-        model[sizeof(model)-1] = 0;
         RT_software = d.software;
         dng_version = d.dng_version;
         filters = d.filters;
@@ -549,10 +545,16 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
         colors = d.colors;
         tiff_bps = 0;
 
+        auto rt_strncpy = [](char* dest, char* src, size_t n) {
+            memset(dest, 0, n);
+            memcpy(dest, src, strnlen(src, n - 1));
+        };
+
+        rt_strncpy(make, d.normalized_make, sizeof(make));
+        rt_strncpy(model, d.normalized_model, sizeof(model));
         if (!strcmp("Hasselblad", make)) {
             // For Hasselblad, "model" provides the better name.
-            strncpy(model, d.model, sizeof(model) - 1);
-            model[sizeof(model) - 1] = 0;
+            rt_strncpy(model, d.model, sizeof(model));
         }
 
         if (merged_pixelshift.is_merged_pixelshift ||

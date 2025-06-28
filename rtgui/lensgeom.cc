@@ -35,8 +35,8 @@ LensGeometry::LensGeometry () : FoldableToolPanel(this, TOOL_NAME, M("TP_LENSGEO
 {
     auto m = ProcEventMapper::getInstance();
     EvTransScale  = m->newEvent(TRANSFORM, "HISTORY_MSG_TRANS_SCALE");
-    EvTransScale  = m->newEvent(TRANSFORM, "HISTORY_MSG_TRANS_SCALE_HORIZONTALLY");
-    EvTransScale  = m->newEvent(TRANSFORM, "HISTORY_MSG_TRANS_SCALE_VERTICALLY");
+    EvTransScaleHorizontally  = m->newEvent(TRANSFORM, "HISTORY_MSG_TRANS_SCALE_HORIZONTALLY");
+    EvTransScaleVertically  = m->newEvent(TRANSFORM, "HISTORY_MSG_TRANS_SCALE_VERTICALLY");
     EvTransMethod = m->newEvent(TRANSFORM, "HISTORY_MSG_TRANS_METHOD");
 
     Gtk::Box* hb1 = Gtk::manage (new Gtk::Box ());

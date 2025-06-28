@@ -9456,18 +9456,12 @@ int ProcParams::load(const Glib::ustring& fname, ParamsEdited* pedited)
             }
             if (keyFile.has_key("Common Properties for Transformations", "Scale")) {
                 assignFromKeyfile(keyFile, "Common Properties for Transformations", "Scale", commonTrans.scale, pedited->commonTrans.scale);
-            } else {
-                commonTrans.scale = 1.0;
             }
             if (keyFile.has_key("Common Properties for Transformations", "Scale horizontally")) {
                 assignFromKeyfile(keyFile, "Common Properties for Transformations", "Scale horizontally", commonTrans.scale_horizontally, pedited->commonTrans.scale_horizontally);
-            } else {
-                commonTrans.scale_horizontally = CommonTransformParams().scale_horizontally;
             }
             if (keyFile.has_key("Common Properties for Transformations", "Scale vertically")) {
                 assignFromKeyfile(keyFile, "Common Properties for Transformations", "Scale vertically", commonTrans.scale_vertically, pedited->commonTrans.scale_vertically);
-            } else {
-                commonTrans.scale_vertically = CommonTransformParams().scale_vertically;
             }
             assignFromKeyfile(keyFile, "Common Properties for Transformations", "AutoFill", commonTrans.autofill, pedited->commonTrans.autofill);
         }

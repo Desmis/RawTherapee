@@ -249,7 +249,7 @@ void CropHandler::setAnchorPosition(ImageCoord pos, bool update_)
 
     compDim();
 
-    if (update_) {
+    if (enabled && update_) {
         update();
     }
 }
@@ -261,7 +261,7 @@ void CropHandler::moveAnchor(ImageCoord delta, bool update_)
 
     compDim();
 
-    if (update_) {
+    if (enabled && update_) {
         update();
     }
 }

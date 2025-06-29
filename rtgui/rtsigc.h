@@ -32,7 +32,7 @@ public:
     {
         m_connection.disconnect();
         m_connection = other.m_connection;
-        m_connection = {};
+        other.m_connection = {};
     }
 
     ~RtScopedConnection() { m_connection.disconnect(); }
@@ -49,4 +49,3 @@ public:
 private:
     sigc::connection m_connection;
 };
-

@@ -284,7 +284,6 @@ void FileBrowserEntry::_updateImage(ThumbImageUpdateListener::ImageUpdate&& upda
 
     if (update.size == previewSize && update.device_scale == pendingDeviceScale) {
         activeDeviceScale = pendingDeviceScale;
-        previewSize = update.size;
 
         // Check if image has been rotated since last time
         rotated = !preview.empty() && newLandscape != landscape;

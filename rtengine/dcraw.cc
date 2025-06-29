@@ -7842,6 +7842,8 @@ void CLASS parse_qt (int end)
   while (ftell(ifp)+7 < end) {
     save = ftell(ifp);
     if ((size = get4()) < 8) return;
+    if ((int)size < 0) return; // 2+GB is too much
+    if (save + size < save) return; // 32bit overflow
     fread (tag, 4, 1, ifp);
     if (!memcmp(tag,"moov",4) ||
 	!memcmp(tag,"udta",4) ||
@@ -10722,6 +10724,27 @@ canon_a5:
         filters = 0x16161616;
         load_flags = 0;
         flip = 6;
+    }
+    if (raw_width == 6384) { // From LibRaw: X-T3, X-T4, X100V, X-S10, X-T30, X-Pro3
+        top_margin = 0;
+        switch (read_crop.crop_mode) {
+            case CropMode::NA:
+                // RT: Use full raw dimensions.
+                width = raw_width;
+                height = raw_height;
+                break;
+            case CropMode::SportsFinderMode:
+                left_margin = 624;
+                width = 5004;
+                height = raw_height;
+                break;
+            case CropMode::ElectronicShutter1_25xCrop:
+                left_margin = 624;
+                width = 5004;
+                break;
+            case CropMode::FullFrameOnGfx:
+                break;
+        }
     }
     if (!strcmp(model,"HS50EXR") ||
 	!strcmp(model,"F900EXR")) {

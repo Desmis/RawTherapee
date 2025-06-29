@@ -465,6 +465,7 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
 {
     ifname = filename.c_str();
     image = nullptr;
+    image_from_float.reset();
     verbose = settings->verbose;
     oprof = nullptr;
 
@@ -531,7 +532,7 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
         } else if (err != LIBRAW_SUCCESS) {
             decoder = Decoder::LIBRAW;
             return err;
-        } else if (libraw->is_floating_point() && libraw->imgdata.idata.dng_version) {
+        } else if (libraw->is_floating_point() && libraw->imgdata.idata.dng_version && libraw->imgdata.idata.filters) {
             return err;
         }
 
@@ -785,6 +786,7 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
             (this->*load_raw)();
         } else if (decoder == Decoder::LIBRAW) {
             libraw->imgdata.rawparams.shot_select = shot_select;
+            libraw->imgdata.rawparams.options &= ~LIBRAW_RAWOPTIONS_CONVERTFLOAT_TO_INT;
 
             int err = libraw->open_buffer(ifp->data, ifp->size);
             if (err) {
@@ -794,11 +796,21 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
 #ifdef LIBRAW_USE_OPENMP
                 MyMutex::MyLock lock(*librawMutex);
 #endif
+
+                // For some cameras like Minolta RD175, the real white level is
+                // read with LibRaw::unpack(). Here, we initialize LibRaw's
+                // maximum with the value read earlier. Later, we read the value
+                // back in case it has changed.
+                libraw->imgdata.color.maximum = maximum;
+
                 err = libraw->unpack();
             }
             if (err) {
                 return err;
             }
+
+            // Update white level in case LibRaw::unpack() read a new value.
+            maximum = libraw->imgdata.color.maximum;
 
             auto &rd = libraw->imgdata.rawdata;
             raw_image = rd.raw_image;
@@ -808,6 +820,24 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
                     for (int x = 0; x < raw_width; ++x) {
                         size_t idx = y * raw_width + x;
                         float_raw_image[idx] = rd.float_image[idx];
+                    }
+                }
+            } else if (rd.float3_image) {
+                const auto image_size = static_cast<unsigned int>(height) * static_cast<unsigned int>(width);
+                try {
+                    image_from_float.reset(new std::remove_pointer<dcrawImage_t>::type[image_size]);
+                } catch (const std::bad_alloc &e) {
+                    return 200;
+                }
+                std::fill(&image_from_float[0][0], &image_from_float[0][0] + image_size, 0);
+
+                float_raw_image = new float[3 * raw_width * raw_height];
+                for (int y = 0; y < raw_height; ++y) {
+                    for (int x = 0; x < raw_width; ++x) {
+                        const size_t idx = y * raw_width + x;
+                        for (int c = 0; c < 3; ++c) {
+                            float_raw_image[3 * idx + c] = rd.float3_image[idx][c];
+                        }
                     }
                 }
             } else {
@@ -828,6 +858,16 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
             auto wl = RT_whitelevel_from_constant;
             RT_blacklevel_from_constant = ThreeValBool::F;
             RT_whitelevel_from_constant = ThreeValBool::F;
+
+            if (get_colors() < 4 && get_pre_mul(3) > 0.f) {
+                if (get_pre_mul(1) != get_pre_mul(3)) {
+                    printf("Warning: Number of colors is less than 4, but pre-multiplier for color 4 is set and different from pre-multiplier for color 1\n");
+                } else {
+                    // This will be calculated later. adobe_coeff() does not
+                    // handle pre-multipliers beyond the number of colors.
+                    pre_mul[3] = 0;
+                }
+            }
 
             adobe_coeff(make, model);
 
@@ -1101,9 +1141,14 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
     return 0;
 }
 
+DCraw::dcrawImage_t RawImage::get_image()
+{
+    return image ? image : image_from_float.get();
+}
+
 float** RawImage::compress_image(unsigned int frameNum, bool freeImage)
 {
-    if (!image) {
+    if (!image && !image_from_float) {
         return nullptr;
     }
 
@@ -1139,7 +1184,7 @@ float** RawImage::compress_image(unsigned int frameNum, bool freeImage)
     }
 
     // copy pixel raw data: the compressed format earns space
-    if (float_raw_image) {
+    if (float_raw_image && filters) {
 #ifdef _OPENMP
         #pragma omp parallel for
 #endif
@@ -1147,6 +1192,20 @@ float** RawImage::compress_image(unsigned int frameNum, bool freeImage)
         for (int row = 0; row < height; row++)
             for (int col = 0; col < width; col++) {
                 this->data[row][col] = float_raw_image[(row + top_margin) * raw_width + col + left_margin];
+            }
+
+        delete [] float_raw_image;
+        float_raw_image = nullptr;
+    } else if (float_raw_image) {
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+
+        for (int row = 0; row < height; row++)
+            for (int col = 0; col < width; col++) {
+                for (int c = 0; c < 3; ++c) {
+                    this->data[row][3 * col + c] = float_raw_image[3 * ((row + top_margin) * raw_width + col + left_margin) + c];
+                }
             }
 
         delete [] float_raw_image;
@@ -1240,6 +1299,7 @@ float** RawImage::compress_image(unsigned int frameNum, bool freeImage)
             libraw->recycle();
         }
         image = nullptr;
+        image_from_float.reset();
     }
 
     return data;

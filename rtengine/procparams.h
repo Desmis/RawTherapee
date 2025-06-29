@@ -949,13 +949,17 @@ struct CoarseTransformParams {
   * Common transformation parameters
   */
 struct CommonTransformParams {
-    Glib::ustring method;
-    bool autofill;
-    double scale;
+    Glib::ustring method = "log";
+    bool autofill = true;
+    double scale = 1.0;
+    double scale_horizontally = 1.0;
+    double scale_vertically = 1.0;
 
     CommonTransformParams();
 
     double getScale() const;
+    double getScaleHorizontally() const;
+    double getScaleVertically() const;
 
     bool operator ==(const CommonTransformParams& other) const;
     bool operator !=(const CommonTransformParams& other) const;
@@ -1118,6 +1122,7 @@ struct LocallabParams {
         double transitgrad;
         bool hishow;
         bool activ;
+        bool avoidneg;
         bool blwh;
         bool recurs;
         bool laplac;
@@ -1255,6 +1260,22 @@ struct LocallabParams {
         bool expshadhigh;
         int complexshadhigh;
         Glib::ustring shMethod; // std, tone
+        Glib::ustring ghsMethod; // rgb, lum, sat
+        Glib::ustring ghsMode; // lin, ghs
+        double ghs_D;
+        double ghs_slope;
+        double ghs_chro;
+        double ghs_B;
+        double ghs_SP;
+        double ghs_LP;
+        double ghs_HP;
+        double ghs_LC;
+        double ghs_MID;
+        double ghs_BLP;
+        double ghs_HLP;
+        bool ghs_smooth;
+        bool ghs_inv;
+
         int multsh[6];
         int highlights;
         int h_tonalwidth;
@@ -1384,6 +1405,7 @@ struct LocallabParams {
         int nlpat;
         int nlrad;
         double nlgam;
+        int nliter;
         int sensiden;
         double reparden;
         int detailthr;
@@ -1505,6 +1527,7 @@ struct LocallabParams {
         double lcdarkness;
         double lclightness;
         double sigmalc;
+        double offslc;
         int levelwav;
         double residcont;
         double residsha;
@@ -1556,6 +1579,7 @@ struct LocallabParams {
         bool wavgradl;
         bool wavcompre;
         bool origlc;
+        bool processwav;
         Glib::ustring localcontMethod; // loc, wav
         Glib::ustring localedgMethod; // fir, sec, thr
         Glib::ustring localneiMethod; // none, low, high
@@ -1693,11 +1717,11 @@ struct LocallabParams {
         double reparcie;
         int sensicie;
         bool Autograycie;
-        bool forcejz;
-        bool forcebw;
+        bool sigybjz12;
         bool qtoj;
         bool jabcie;
         bool comprcieauto;
+        bool normcie12;
         bool normcie;
         bool gamutcie;
         bool bwcie;
@@ -1706,10 +1730,17 @@ struct LocallabParams {
         bool satcie;
         bool logcieq;
         bool smoothcie;
+        bool smoothcietrc;
+        bool smoothcietrcrel;
         bool smoothcieyb;
         bool smoothcielum;
+        bool smoothciehigh;
+        bool smoothcielnk;
         bool logjz;
+        bool sigjz12;
         bool sigjz;
+        bool forcebw;
+        bool sigq12;
         bool sigq;
         bool chjzcie;
         double sourceGraycie;
@@ -1717,6 +1748,8 @@ struct LocallabParams {
         Glib::ustring sursourcie;
         Glib::ustring modecie;
         Glib::ustring modecam;
+        Glib::ustring modeQJ;
+        Glib::ustring bwevMethod12;
         Glib::ustring bwevMethod;
         double saturlcie;
         double rstprotectcie;
@@ -1764,6 +1797,9 @@ struct LocallabParams {
         double blackEvjz;
         double whiteEvjz;
         double targetjz;
+        double sigmoidldacie12;
+        double sigmoidthcie12;
+        double sigmoidblcie12;
         double sigmoidldacie;
         double sigmoidthcie;
         double sigmoidsenscie;
@@ -1772,11 +1808,19 @@ struct LocallabParams {
         double strcielog;
         double comprcieth;
         double gamjcie;
+        double smoothcieth;
         double slopjcie;
+        double contsig;
+        double skewsig;
+        double whitsig;
         double slopesmo;
+        double slopesmoq;
         double slopesmor;
         double slopesmog;
         double slopesmob;
+        double kslopesmor;
+        double kslopesmog;
+        double kslopesmob;
         int midtcie;
         double grexl;
         double greyl;
@@ -1804,6 +1848,9 @@ struct LocallabParams {
         Glib::ustring smoothciemet;
         Glib::ustring primMethod;
         Glib::ustring catMethod;
+        double sigmoidldajzcie12;
+        double sigmoidthjzcie12;
+        double sigmoidbljzcie12;
         double sigmoidldajzcie;
         double sigmoidthjzcie;
         double sigmoidbljzcie;
@@ -2148,9 +2195,15 @@ struct ColorManagementParams {
     Illuminant will;
     Primaries wprim;
     Cat wcat;
-    double workingTRCGamma;
-    double workingTRCSlope;
+    double wGamma;
+    double wSlope;
     double wmidtcie;
+    double sigmatrc;
+    double offstrc;
+    double residtrc;
+    int pyrwavtrc;
+    std::vector<double> opacityCurveWLI;
+    
     bool wsmoothcie;
     double redx;
     double redy;
@@ -2164,6 +2217,7 @@ struct ColorManagementParams {
     double preser;
     bool fbw;
     bool trcExp;
+    bool wavExp;
     bool gamut;
     double labgridcieALow;
     double labgridcieBLow;
@@ -2188,6 +2242,11 @@ struct ColorManagementParams {
 
     bool operator ==(const ColorManagementParams& other) const;
     bool operator !=(const ColorManagementParams& other) const;
+    
+    void getCurves(
+    WavOpacityCurveWL& opacityCurveLUTWLI
+    ) const;
+
 };
 
 /**
@@ -2480,7 +2539,7 @@ struct WaveletParams {
         WavOpacityCurveSH& opacityCurveLUTSH,
         WavOpacityCurveBY& opacityCurveLUTBY,
         WavOpacityCurveW& opacityCurveLUTW,
-        WavOpacityCurveWL& opacityCurveLUTWL
+        WavOpacityCurveWL& opacityCurveLUTWL 
     ) const;
 };
 

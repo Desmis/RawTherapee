@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.25)
 
-cmake_policy(SET CMP0177 OLD) # Added in CMake 3.31
+if(POLICY CMP0177)
+    cmake_policy(SET CMP0177 OLD) # Added in CMake 3.31
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 

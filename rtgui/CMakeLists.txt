@@ -234,27 +234,27 @@ set_target_properties(rth-cli PROPERTIES OUTPUT_NAME rawtherapee-cli)
 target_include_directories(rth PRIVATE ${EXTRA_INCDIR})
 target_include_directories(rth-cli PRIVATE ${EXTRA_INCDIR})
 
-# Add linked libraries dependencies to executables targets
-target_link_libraries(rth
-    rtengine
-    PkgConfig::GTKMM
-    ${EXTRA_LIB_RTGUI}
-    ${EXTRA_LIBDIR}
-)
+target_link_directories(rth PRIVATE ${EXTRA_LIBDIR})
+target_link_directories(rth-cli PRIVATE ${EXTRA_LIBDIR})
 
-target_link_libraries(rth-cli
+# Add linked libraries dependencies to executables targets
+target_link_libraries(rth PRIVATE
     rtengine
     PkgConfig::GTKMM
     ${EXTRA_LIB_RTGUI}
-    ${EXTRA_LIBDIR}
+)
+target_link_libraries(rth-cli PRIVATE
+    rtengine
+    PkgConfig::GTKMM
+    ${EXTRA_LIB_RTGUI}
 )
 
 if(TCMALLOC_FOUND)
-    target_link_libraries(rth TCMALLOC::TCMALLOC)
-    target_link_libraries(rth-cli TCMALLOC::TCMALLOC)
+    target_link_libraries(rth PRIVATE TCMALLOC::TCMALLOC)
+    target_link_libraries(rth-cli PRIVATE TCMALLOC::TCMALLOC)
 endif()
 if(USE_LIBCANBERRA)
-    target_link_libraries(rth PkgConfig::CANBERRA)
+    target_link_libraries(rth PRIVATE PkgConfig::CANBERRA)
 endif()
 
 # Install executables

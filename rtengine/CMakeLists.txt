@@ -168,14 +168,14 @@ target_include_directories(rtengine
 target_include_directories(rtengine BEFORE PRIVATE ${CMAKE_BINARY_DIR})
 
 if(EXTRA_INCDIR)
-    target_include_directories(rtengine "${EXTRA_INCDIR}")
+    target_include_directories(rtengine PUBLIC "${EXTRA_INCDIR}")
 endif()
 
 rt_setup_target(rtengine)
 target_compile_options(rtengine PRIVATE ${RTENGINE_CXX_FLAGS})
 
 if(WITH_BENCHMARK)
-    target_compile_definitions(rtengine "BENCHMARK")
+    target_compile_definitions(rtengine PUBLIC "BENCHMARK")
 endif()
 
 # When linking against RT's version of libraw, there will be linking issues for

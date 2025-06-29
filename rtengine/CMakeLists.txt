@@ -192,9 +192,12 @@ target_link_libraries(rtengine
     PUBLIC
         fmt::fmt
         JPEG::JPEG
+        PkgConfig::CAIROMM
         PkgConfig::EXIV2
         PkgConfig::EXPAT
         PkgConfig::FFTW3F
+        PkgConfig::GLIBMM
+        PkgConfig::GTKMM
         PkgConfig::IPTCDATA
         PkgConfig::LCMS
         PkgConfig::LENSFUN
@@ -203,11 +206,6 @@ target_link_libraries(rtengine
         TIFF::TIFF
         ZLIB::ZLIB
         ${EXTRA_LIB}
-    PRIVATE
-        # FIXME: rtengine really shouldn't need GTKMM or GLIBMM
-        PkgConfig::CAIROMM
-        PkgConfig::GLIBMM
-        PkgConfig::GTKMM
 )
 
 # Atomic is required in some builds: #6821

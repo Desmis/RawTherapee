@@ -50,8 +50,7 @@ protected:
     int dtlabw, dtlabh; // dimensions of the date/time label
     int exlabw, exlabh; // dimensions of the exif label
     hidpi::LogicalSize previewSize;
-    int prex;
-    int prey;
+    hidpi::LogicalCoord prevPos;
 
     int activeDeviceScale;
     int pendingDeviceScale;

@@ -128,8 +128,7 @@ ThumbBrowserEntryBase::ThumbBrowserEntryBase (const Glib::ustring& fname, Thumbn
     exlabw(0),
     exlabh(0),
     previewSize(0, 0),
-    prex(0),
-    prey(0),
+    prevPos(0, 0),
     activeDeviceScale(1),
     pendingDeviceScale(1),
     upperMargin(6),
@@ -238,12 +237,11 @@ void ThumbBrowserEntryBase::updateBackBuffer ()
 
     // draw thumbnail image
     if ((activeDeviceScale == pendingDeviceScale) && !preview.empty()) {
-        prex = borderWidth + (expected.width - previewSize.width) / 2;
+        prevPos.x = borderWidth + (expected.width - previewSize.width) / 2;
         const int hh = expected.height - (upperMargin + bsHeight + borderWidth + infoh + lowerMargin);
-        prey = upperMargin + bsHeight + borderWidth + std::max((hh - previewSize.height) / 2, 0);
+        prevPos.y = upperMargin + bsHeight + borderWidth + std::max((hh - previewSize.height) / 2, 0);
 
-        hidpi::LogicalCoord logicalOffset(prex, prey);
-        hidpi::DeviceCoord deviceOffset = logicalOffset.scaleToDevice(activeDeviceScale);
+        hidpi::DeviceCoord deviceOffset = prevPos.scaleToDevice(activeDeviceScale);
 
         // clang-format off
         backBuffer->copyRGBCharData(
@@ -261,8 +259,8 @@ void ThumbBrowserEntryBase::updateBackBuffer ()
     bbSpecificityIcons = getSpecificityIconsOnImageArea ();
 
     int iofs_x = 4, iofs_y = 4;
-    int istartx = prex;
-    int istarty = prey;
+    int istartx = prevPos.x;
+    int istarty = prevPos.y;
 
     if ((parent->getLocation() != ThumbBrowserBase::THLOC_EDITOR && options.showFileNames && options.overlayedFileNames)
             || (parent->getLocation() == ThumbBrowserBase::THLOC_EDITOR && options.filmStripShowFileNames && options.filmStripOverlayedFileNames)) {
@@ -322,8 +320,8 @@ void ThumbBrowserEntryBase::updateBackBuffer ()
 
     if (!bbSpecificityIcons.empty()) {
         int igap = 2;
-        int istartx2 = prex + previewSize.width - 1 + igap;
-        int istarty2 = prey + previewSize.height - igap - 1;
+        int istartx2 = prevPos.x + previewSize.width - 1 + igap;
+        int istarty2 = prevPos.y + previewSize.height - igap - 1;
 
         for (size_t i = 0; i < bbSpecificityIcons.size(); ++i) {
             istartx2 -= bbSpecificityIcons[i]->getWidth() - igap;
@@ -371,7 +369,7 @@ void ThumbBrowserEntryBase::updateBackBuffer ()
             textposx_ex = istartx;
             textposx_dt = istartx;
             textposy = istarty;
-            textw = previewSize.width - (istartx - prex);
+            textw = previewSize.width - (istartx - prevPos.x);
             cc->set_source_rgb(texts.get_red(), texts.get_green(), texts.get_blue());
         }
 
@@ -701,9 +699,10 @@ rtengine::Coord2D ThumbBrowserEntryBase::getPosInImgSpace (int x, int y) const
         x -= ofsX + startx;
         y -= ofsY + starty;
 
-        if (x >= prex && x <= prex + previewSize.width && y >= prey && y <= prey + previewSize.height) {
-            coord.x = double(x - prex) / double(previewSize.width);
-            coord.y = double(y - prey) / double(previewSize.height);
+        if (x >= prevPos.x && x <= prevPos.x + previewSize.width
+                && y >= prevPos.y && y <= prevPos.y + previewSize.height) {
+            coord.x = double(x - prevPos.x) / double(previewSize.width);
+            coord.y = double(y - prevPos.y) / double(previewSize.height);
         }
     }
     return coord;

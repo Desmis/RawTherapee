@@ -184,7 +184,7 @@ void FileBrowserEntry::customBackBufferUpdate (Cairo::RefPtr<Cairo::Context> c)
 
     auto drawScaled = [&](const rtengine::procparams::CropParams& crop) {
         double zoom = scale / activeDeviceScale;
-        drawCrop(c, prex, prey, previewSize.width, previewSize.height,
+        drawCrop(c, prevPos.x, prevPos.y, previewSize.width, previewSize.height,
                  previewSize.width, previewSize.height,
                  0, 0, zoom, crop, true, false);
     };
@@ -436,7 +436,7 @@ bool FileBrowserEntry::motionNotify (int x, int y)
         parent->redrawNeeded (this);
     } else if (state == SCropSelecting && cropgl) {
         int cx1 = press_x, cy1 = press_y;
-        int cx2 = (ix - prex) / scale, cy2 = (iy - prey) / scale;
+        int cx2 = (ix - prevPos.x) / scale, cy2 = (iy - prevPos.y) / scale;
         cropgl->cropResized (cx1, cy1, cx2, cy2);
 
         if (cx2 > cx1) {
@@ -563,15 +563,15 @@ bool FileBrowserEntry::pressNotify   (int button, int type, int bstate, int x, i
                     rot_deg = 0;
                     b = true;
                 } else if (tm == TMSpotWB) {
-                    iatlistener->spotWBselected ((ix - prex) / scale, (iy - prey) / scale, thumbnail);
+                    iatlistener->spotWBselected ((ix - prevPos.x) / scale, (iy - prevPos.y) / scale, thumbnail);
                     b = true;
                 } else if (tm == TMCropSelect) {
                     cropgl = iatlistener->startCropEditing (thumbnail);
 
                     if (cropgl) {
                         state = SCropSelecting;
-                        press_x = cropParams->x = (ix - prex) / scale;
-                        press_y = cropParams->y = (iy - prey) / scale;
+                        press_x = cropParams->x = (ix - prevPos.x) / scale;
+                        press_y = cropParams->y = (iy - prevPos.y) / scale;
                         cropParams->w = cropParams->h = 1;
                         cropgl->cropInit (cropParams->x, cropParams->y, cropParams->w, cropParams->h);
                         b = true;
@@ -631,14 +631,21 @@ bool FileBrowserEntry::onArea (CursorArea a, int x, int y)
         return false;
     }
 
-    int x1 = (x - prex) / scale;
-    int y1 = (y - prey) / scale;
-    int cropResizeBorder = CROPRESIZEBORDER / scale;
+    double adjustedScale = scale / activeDeviceScale;
+
+    int x1 = (x - prevPos.x) / adjustedScale;
+    int y1 = (y - prevPos.y) / adjustedScale;
+    int cropResizeBorder = CROPRESIZEBORDER / adjustedScale;
 
     switch (a) {
     case CropImage:
-        return x >= prex && x < prex + previewSize.width && y >= prey && y < prey + previewSize.height;
+    {
+        hidpi::DeviceCoord pos = hidpi::LogicalCoord(x, y)
+                .scaleToDevice(activeDeviceScale);
 
+        return pos.x >= prevPos.x && pos.x < prevPos.x + previewSize.width
+                && pos.y >= prevPos.y && pos.y < prevPos.y + previewSize.height;
+    }
     case CropTopLeft:
         return cropParams->enabled &&
                y1 >= cropParams->y - cropResizeBorder &&
@@ -832,20 +839,20 @@ void FileBrowserEntry::drawStraightenGuide (Cairo::RefPtr<Cairo::Context> cr)
 
     {
     MYREADERLOCK(l, lockRW);
-    if (x2 < prex + ofsX + startx) {
-        y2 = y1 - (double)(y1 - y2) * (x1 - (prex + ofsX + startx)) / (x1 - x2);
-        x2 = prex + ofsX + startx;
-    } else if (x2 >= previewSize.width + prex + ofsX + startx) {
-        y2 = y1 - (double)(y1 - y2) * (x1 - (previewSize.width + prex + ofsX + startx - 1)) / (x1 - x2);
-        x2 = previewSize.width + prex + ofsX + startx - 1;
+    if (x2 < prevPos.x + ofsX + startx) {
+        y2 = y1 - (double)(y1 - y2) * (x1 - (prevPos.x + ofsX + startx)) / (x1 - x2);
+        x2 = prevPos.x + ofsX + startx;
+    } else if (x2 >= previewSize.width + prevPos.x + ofsX + startx) {
+        y2 = y1 - (double)(y1 - y2) * (x1 - (previewSize.width + prevPos.x + ofsX + startx - 1)) / (x1 - x2);
+        x2 = previewSize.width + prevPos.x + ofsX + startx - 1;
     }
 
-    if (y2 < prey + ofsY + starty) {
-        x2 = x1 - (double)(x1 - x2) * (y1 - (prey + ofsY + starty)) / (y1 - y2);
-        y2 = prey + ofsY + starty;
-    } else if (y2 >= previewSize.height + prey + ofsY + starty) {
-        x2 = x1 - (double)(x1 - x2) * (y1 - (previewSize.height + prey + ofsY + starty - 1)) / (y1 - y2);
-        y2 = previewSize.height + prey + ofsY + starty - 1;
+    if (y2 < prevPos.y + ofsY + starty) {
+        x2 = x1 - (double)(x1 - x2) * (y1 - (prevPos.y + ofsY + starty)) / (y1 - y2);
+        y2 = prevPos.y + ofsY + starty;
+    } else if (y2 >= previewSize.height + prevPos.y + ofsY + starty) {
+        x2 = x1 - (double)(x1 - x2) * (y1 - (previewSize.height + prevPos.y + ofsY + starty - 1)) / (y1 - y2);
+        y2 = previewSize.height + prevPos.y + ofsY + starty - 1;
     }
     }
 

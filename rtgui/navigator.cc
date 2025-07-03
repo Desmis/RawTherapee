@@ -29,8 +29,8 @@ using namespace rtengine;
 
 Navigator::Navigator() :
     pointer_moved_delayed_call(50, 100),
-    currentRGBUnit(options.navRGBUnit),
-    currentHSVUnit(options.navHSVUnit)
+    currentRGBUnit(App::get().options().navRGBUnit),
+    currentHSVUnit(App::get().options().navHSVUnit)
 {
     pointer_moved_delayed_call.setFunction(
         [this](bool validPos, const rtengine::procparams::ColorManagementParams *cmp, int x, int y, int r, int g, int b, bool isRaw)
@@ -67,8 +67,7 @@ Navigator::Navigator() :
                         static_cast<std::uint8_t>(g),
                         static_cast<std::uint8_t>(b),
                         LAB_l, LAB_a, LAB_b,
-                        cmp != nullptr
-                            ? *cmp : procparams::ColorManagementParams::getDefault(),
+                        cmp != nullptr ? *cmp : App::get().fallbackColorCmp(),
                         true);
                     LAB_l /= 327.68f;
                     LAB_a /= 327.68f;
@@ -350,7 +349,7 @@ void Navigator::cycleUnitsRGB (GdkEventButton *event) {
     if (v == (uint16_t)Options::NavigatorUnit::_COUNT) {
         v = 0;
     }
-    options.navRGBUnit = currentRGBUnit = (Options::NavigatorUnit)v;
+    App::get().mut_options().navRGBUnit = currentRGBUnit = (Options::NavigatorUnit)v;
 
     switch (currentRGBUnit) {
     case Options::NavigatorUnit::R0_1:
@@ -379,7 +378,7 @@ void Navigator::cycleUnitsHSV (GdkEventButton *event) {
     if (v == (uint16_t)Options::NavigatorUnit::_COUNT) {
         v = 0;
     }
-    options.navHSVUnit = currentHSVUnit = (Options::NavigatorUnit)v;
+    App::get().mut_options().navHSVUnit = currentHSVUnit = (Options::NavigatorUnit)v;
 
     switch (currentHSVUnit) {
     case Options::NavigatorUnit::R0_1:

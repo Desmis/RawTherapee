@@ -47,6 +47,7 @@ void LockableColorPicker::updateBackBuffer ()
 
         Glib::RefPtr<Pango::Context> pangoContext = iArea->get_pango_context ();
         Pango::FontDescription fontd = iArea->get_style_context()->get_font();
+        const auto& options = App::get().options();
         // set font family and size
         fontd.set_family(options.CPFontFamily == "default" ? "sans" : options.CPFontFamily);
         const int fontSize = options.CPFontFamily == "default" ? 8 : options.CPFontSize; // pt
@@ -281,14 +282,13 @@ void LockableColorPicker::setRGB (const float R, const float G, const float B, c
     bpreview = previewB;
 
     rtengine::Color::rgb2hsv01(r, g, b, hue, sat, val);
-    using ColorManagementParams = rtengine::procparams::ColorManagementParams;
     rtengine::ImProcFunctions::rgb2lab(
         static_cast<std::uint8_t>(255 * r),
         static_cast<std::uint8_t>(255 * g),
         static_cast<std::uint8_t>(255 * b),
         L, a, bb,
         color_management_params != nullptr
-            ? *color_management_params : ColorManagementParams::getDefault(),
+            ? *color_management_params : App::get().fallbackColorCmp(),
         true);
     L /= 327.68f;
     a /= 327.68f;

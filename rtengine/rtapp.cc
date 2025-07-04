@@ -37,7 +37,6 @@ App& App::get()
 
 App::App()
     : m_options(new Options())
-    , m_fallback_color_cmp(new rtengine::procparams::ColorManagementParams())
     , m_simple_editor(false)
     , m_gimp_plugin(false)
     , m_remote(false)
@@ -47,4 +46,12 @@ App::App()
 const rtengine::Settings& App::settings() const
 {
     return m_options->rtSettings;
+}
+
+const rtengine::procparams::ColorManagementParams& App::fallbackColorCmp() const
+{
+    // Constructor accesses App::get().options(), so we can't initialize this
+    // in the constructor of App. It would be a recursive init.
+    static rtengine::procparams::ColorManagementParams cmp;
+    return cmp;
 }

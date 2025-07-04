@@ -357,6 +357,8 @@ int main (int argc, char **argv)
     }
 #endif
 
+    auto& app = App::get();
+
 #ifdef BUILD_BUNDLE
     char exname[512] = {0};
     Glib::ustring exePath;
@@ -371,10 +373,8 @@ int main (int argc, char **argv)
         strncpy (exname, argv[0], 511);
     }
 
-#endif
+#endif // _WIN32
     exePath = Glib::path_get_dirname (exname);
-
-    auto& app = App::get();
 
     // set paths
     if (Glib::path_is_absolute (DATA_SEARCH_PATH)) {
@@ -398,7 +398,7 @@ int main (int argc, char **argv)
     app.setArgv0(DATA_SEARCH_PATH);
     app.setCreditsPath(CREDITS_SEARCH_PATH);
     app.setLicensePath(LICENCE_SEARCH_PATH);
-#endif
+#endif // BUILD_BUNDLE
 
     app.mut_options().rtSettings.lensfunDbDirectory = LENSFUN_DB_PATH;
     app.mut_options().rtSettings.lensfunDbBundleDirectory = LENSFUN_DB_PATH;

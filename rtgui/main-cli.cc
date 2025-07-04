@@ -82,7 +82,7 @@ int main (int argc, char **argv)
 
     Gio::init ();
 
-    //mainThread = Glib::Threads::Thread::self();
+    auto& app = App::get();
 
 #ifdef BUILD_BUNDLE
     char exname[512] = {0};
@@ -98,34 +98,34 @@ int main (int argc, char **argv)
         strncpy (exname, argv[0], 511);
     }
 
-#endif
+#endif // _WIN32
     exePath = Glib::path_get_dirname (exname);
 
     // set paths
     if (Glib::path_is_absolute (DATA_SEARCH_PATH)) {
-        App::get().setArgv0(DATA_SEARCH_PATH);
+        app.setArgv0(DATA_SEARCH_PATH);
     } else {
-        App::get().setArgv0(Glib::build_filename(exePath, DATA_SEARCH_PATH));
+        app.setArgv0(Glib::build_filename(exePath, DATA_SEARCH_PATH));
     }
 
     if (Glib::path_is_absolute (CREDITS_SEARCH_PATH)) {
-        App::get().setCreditsPath(CREDITS_SEARCH_PATH);
+        app.setCreditsPath(CREDITS_SEARCH_PATH);
     } else {
-        App::get().setCreditsPath(Glib::build_filename(exePath, CREDITS_SEARCH_PATH));
+        app.setCreditsPath(Glib::build_filename(exePath, CREDITS_SEARCH_PATH));
     }
 
     if (Glib::path_is_absolute (LICENCE_SEARCH_PATH)) {
-        App::get().setLicensePath(LICENCE_SEARCH_PATH);
+        app.setLicensePath(LICENCE_SEARCH_PATH);
     } else {
-        App::get().setLicensePath(Glib::build_filename(exePath, LICENCE_SEARCH_PATH));
+        app.setLicensePath(Glib::build_filename(exePath, LICENCE_SEARCH_PATH));
     }
 #else
-    App::get().setArgv0(DATA_SEARCH_PATH);
-    App::get().setCreditsPath(CREDITS_SEARCH_PATH);
-    App::get().setLicensePath(LICENCE_SEARCH_PATH);
-#endif
+    app.setArgv0(DATA_SEARCH_PATH);
+    app.setCreditsPath(CREDITS_SEARCH_PATH);
+    app.setLicensePath(LICENCE_SEARCH_PATH);
+#endif // BUILD_BUNDLE
 
-    Options& options = App::get().mut_options();
+    Options& options = app.mut_options();
     options.rtSettings.lensfunDbDirectory = LENSFUN_DB_PATH;
     options.rtSettings.lensfunDbBundleDirectory = LENSFUN_DB_PATH;
 

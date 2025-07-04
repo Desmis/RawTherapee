@@ -45,10 +45,7 @@ public:
     Options& mut_options() { return *m_options; }
     const rtengine::Settings& settings() const;
 
-    const rtengine::procparams::ColorManagementParams& fallbackColorCmp() const
-    {
-        return *m_fallback_color_cmp;
-    }
+    const rtengine::procparams::ColorManagementParams& fallbackColorCmp() const;
 
     const Glib::ustring& argv0() const { return m_argv0; }
     const Glib::ustring& argv1() const { return m_argv1; }
@@ -77,7 +74,6 @@ private:
     Glib::ustring m_license_path;
 
     std::unique_ptr<Options> m_options;
-    std::unique_ptr<rtengine::procparams::ColorManagementParams> m_fallback_color_cmp;
 
     bool m_simple_editor;
     bool m_gimp_plugin;

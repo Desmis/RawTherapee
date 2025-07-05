@@ -646,11 +646,12 @@ public:
 
     void reset ()
     {
+        const auto& options = App::get().options();
+
         ConnectionBlocker intentBlocker (intentConn);
 #if !defined(__APPLE__) // monitor profile not supported on apple
         ConnectionBlocker profileBlocker (profileConn);
 
-        const auto& options = App::get().options();
         if (!defprof.empty() && options.rtSettings.autoMonitorProfile) {
             profileBox.set_active (1);
         } else {

@@ -1270,7 +1270,7 @@ Camera constants:
         "ranges" : { "white" : 16300 } // 16382 without LENR, add margin for LENR. Dual-pixel frame 2 is lower for low ISOs.
     },
 
-    { // Quality B: Electronic shutter and dual pixel not verified.
+    { // Quality A
         "make_model": "Canon EOS R5m2",
         "raw_crop" : [
             { "frame" : [ 8480, 5650 ], "crop" : [ 256, 160, 8224, 5490 ] },

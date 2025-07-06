@@ -95,12 +95,15 @@ macro(rt_setup_dependencies)
     endif()
 endmacro()
 
-function(rt_fetch_content)
+macro(rt_fetch_content)
     # fmt::fmt
+    set(FMT_INSTALL OFF) # Static library doesn't need separate install
+    set(FMT_SYSTEM_HEADERS ON) # Exclude headers from linters
+    set(FMT_UNICODE ON)
     FetchContent_Declare(
         fmt
         GIT_REPOSITORY https://github.com/fmtlib/fmt
-        GIT_TAG 11.1.4
+        GIT_TAG 40626af88bd7df9a5fb80be7b25ac85b122d6c21 # 11.2.0
         GIT_SHALLOW ON
     )
 
@@ -109,7 +112,7 @@ function(rt_fetch_content)
     FetchContent_MakeAvailable(
         fmt
     )
-endfunction()
+endmacro()
 
 function(rt_add_fftw3f_omp_support)
     # Check for libfftw3f_omp

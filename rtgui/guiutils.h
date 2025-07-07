@@ -62,7 +62,7 @@ Gtk::Border getPadding(const Glib::RefPtr<Gtk::StyleContext> style);
  * @class IdleRegister
  * 
  * @brief A helper class for registering functions to be called asynchronously when there are no higher priority events pending.
- * Purpose of the IdleRegister is to make sure in-flight idle functions queued by `IdleRegister::add() are unegistered and not
+ * Purpose of the IdleRegister is to make sure in-flight idle functions queued by `IdleRegister::add()` are unregistered and not
  * called after destruction.
  * 
  * Uses gdk_threads_add_idle_full

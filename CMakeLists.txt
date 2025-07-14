@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.15)
 
+if(POLICY CMP0127)
+    cmake_policy(SET CMP0127 NEW) # Added in CMake 3.22
+endif()
 if(POLICY CMP0177)
     cmake_policy(SET CMP0177 OLD) # Added in CMake 3.31
 endif()
@@ -199,7 +202,7 @@ option(
 cmake_dependent_option(
     TRACE_MYRWMUTEX
     "Trace custom R/W Mutex (Debug builds only); redirecting std::out to a file is strongly recommended!"
-    OFF "CMAKE_BUILD_TYPE STREQUAL \"Debug\""
+    OFF "IS_DEBUG"
     OFF # otherwise
 )
 option(
@@ -214,7 +217,7 @@ set(TCMALLOC_LIB_DIR
 
 cmake_dependent_option(
     USE_LIBCANBERRA "Build with libcanberra"
-    ON "UNIX AND (NOT APPLE)"
+    ON "UNIX;NOT APPLE"
     OFF # otherwise
 )
 
@@ -236,12 +239,7 @@ if(NOT DEFINED BUNDLE_BASE_INSTALL_DIR)
     if(APPLE)
         set(BUNDLE_BASE_INSTALL_DIR "${PROJECT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/MacOS")
     else()
-        if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-            set(BUNDLE_BASE_INSTALL_DIR "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
-        else()
-            # Install path already set by user or CMake preset
-            set(BUNDLE_BASE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
-        endif()
+        set(BUNDLE_BASE_INSTALL_DIR "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
     endif()
 endif()
 
@@ -436,7 +434,7 @@ add_subdirectory(rtgui)
 add_subdirectory(rtdata)
 
 include(cmake/AboutThisBuild.cmake)
-rt_generate_about_command(ABOUT_COMMAND_WITH_ARGS rtengine)
+rt_generate_about_command(ABOUT_COMMAND_WITH_ARGS rtengine rth)
 add_custom_target(
     UpdateInfo ALL
     COMMAND ${ABOUT_COMMAND_WITH_ARGS}

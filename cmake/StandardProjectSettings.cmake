@@ -31,6 +31,12 @@ macro(rt_basic_build_settings)
         )
     endif()
 
+    if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+        set(IS_DEBUG ON)
+    else()
+        set(IS_DEBUG OFF)
+    endif()
+
     # Generate compile_commands.json to make it easier to work with clang based tools
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endmacro()

@@ -6,7 +6,7 @@ include(FindX87Math)
 # If generator expressions are used, make sure to update rt_get_target_flags()
 # to remove the generator expression. Otherwise, configuration will fail with
 # and error about using generator expressions in add_custom_target().
-# This is specifically about add_custom_target(UpdateInfo ...)
+# This comment is specifically about add_custom_target(UpdateInfo ...)
 function(rt_setup_target CXX_TARGET)
     # Set globally in project CMakeLists.txt
     # target_compile_features(${CXX_TARGET} PUBLIC cxx_std_11)
@@ -71,6 +71,16 @@ function(rt_setup_target CXX_TARGET)
         endif()
     endif()
 
+    if(WARNINGS_AS_ERRORS)
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+            list(APPEND COMPILE_OPTS /WX)
+        else()
+            # Works for GCC, Clang, and AppleClang
+            list(APPEND COMPILE_OPTS -Werror)
+        endif()
+        # (CMake >= 3.24): set_target_properties(${CXX_TARGET} PROPERTIES COMPILE_WARNING_AS_ERROR ON)
+    endif()
+
     # list(APPEND COMPILE_OPTS -Wall -Wextra)
     list(APPEND COMPILE_OPTS
         -Wall -Wuninitialized -Wcast-qual
@@ -101,11 +111,14 @@ function(rt_setup_target CXX_TARGET)
     target_compile_options(${CXX_TARGET} PUBLIC ${COMPILE_OPTS})
     target_compile_options(${CXX_TARGET} PUBLIC
                            $<$<COMPILE_LANGUAGE:CXX>:${CXX_ONLY_COMPILE_OPTS}>)
-    target_link_options(${CXX_TARGET} PUBLIC ${LINK_OPTS})
 
-    if(WARNINGS_AS_ERRORS)
-        set_target_properties(${CXX_TARGET} PROPERTIES COMPILE_WARNING_AS_ERROR ON)
+    get_target_property(TARGET_TYPE ${CXX_TARGET} TYPE)
+    # Ignoring shared library targets since previous code only modifies
+    # CMAKE_EXE_LINKER_FLAGS which only affects executable targets.
+    if(TARGET_TYPE STREQUAL "EXECUTABLE")
+        target_link_options(${CXX_TARGET} PUBLIC ${LINK_OPTS})
     endif()
+
     if(WITH_LTO)
         set_target_properties(${CXX_TARGET} PROPERTIES INTERPROCEDURAL_OPTIMIZATION ON)
     endif()
@@ -115,9 +128,7 @@ function(rt_get_target_flags OUTPUT_VAR CXX_TARGET PROPERTY_NAME GLOBAL_VAR)
     get_target_property(PROP ${CXX_TARGET} ${PROPERTY_NAME})
 
     set(PROPERTY_VALUE "")
-    if(PROP STREQUAL "PROP-NOTFOUND")
-        message(VERBOSE "Property ${PROPERTY_NAME} not set for ${CXX_TARGET}!")
-    else()
+    if(NOT PROP STREQUAL "PROP-NOTFOUND")
         string(REGEX REPLACE "\\$<.*:(.*)>" "\\1" NO_GENERATOR_EXPR_PROP "${PROP}")
         string(REPLACE ";" " " PROPERTY_VALUE "${NO_GENERATOR_EXPR_PROP}")
     endif()

@@ -1270,6 +1270,19 @@ Camera constants:
         "ranges" : { "white" : 16300 } // 16382 without LENR, add margin for LENR. Dual-pixel frame 2 is lower for low ISOs.
     },
 
+    { // Quality A
+        "make_model": "Canon EOS R5m2",
+        "raw_crop" : [
+            { "frame" : [ 8480, 5650 ], "crop" : [ 256, 160, 8224, 5490 ] },
+            { "frame" : [ 5376, 3574 ], "crop" : [ 256, 160, 5120, 3414 ] }
+        ],
+        "masked_areas" : [
+            { "frame" : [ 8480, 5650 ], "areas": [ 10, 266, 150, 8000 ] },
+            { "frame" : [ 5376, 3574 ], "areas": [ 74, 266, 150, 3564 ] }
+        ],
+        "ranges" : { "white" : 16000 } // 16382 without LENR, add margin for LENR.
+    },
+
     { // Quality C
         "make_model": "Canon EOS R6",
         "dcraw_matrix" : [8293, -1611, -1132, -4759, 12710, 2275, -1013, 2415, 5508],

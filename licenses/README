@@ -1,2 +1,18 @@
-This folder contains the licenses and supporting documentation for third party components of RawTherapee.
-Filename of each license file corresponds to the related component.
+This folder contains the licenses and supporting documentation for third party
+components of RawTherapee.
+
+The filename of each license file corresponds to the related component.
+
+The following code snippet or library licenses are satisfied or subsumed by
+RawTherapee's GPL-3.0-or-later license:
+
+- ART (GPL-3.0-or-later)
+- darktable (GPL-3.0-or-later)
+- gtkmm (LGPL-3.0) (if distributed with RawTherapee)
+- LibRaw (LGPL-2.1)
+
+The following GPL libraries are re-licensed under GPL-3.0-or-later for
+compatibility with RawTherapee's license:
+
+- dcraw (GPL-2.0-or-later)
+- gtk (GPL-2.0-or-later) (if distributed with RawTherapee)

@@ -2874,6 +2874,16 @@ Camera constants:
         }
     },
 
+    { // Quality A
+        "make_model": [ "Pentax K20D", "Samsung GX20" ], // Based on Samsung GX20 data.
+        "ranges": {
+            "white": [
+                { "iso": 100, "levels": 4000 },
+                { "iso": 200, "levels": 4095 }
+            ]
+        }
+    },
+
     { // Quality C, only raw crop
         "make_model": "Samsung EX2F",
         "raw_crop": [ 16, 7, -4, -4 ]

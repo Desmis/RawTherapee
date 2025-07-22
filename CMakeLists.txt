@@ -408,6 +408,10 @@ if(APPLE)
         set(CODESIGNID
             "${CODESIGNID}"
             CACHE STRING "Codesigning Identity")
+    else()
+        set(CODESIGNID
+            -
+            CACHE STRING "Codesign ID set to ad-hoc")
     endif()
     if("${NOTARY}")
         set(NOTARY

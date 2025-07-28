@@ -682,7 +682,7 @@ int RawImage::loadRaw(bool loadData, unsigned int imageNum, bool closeFile, Prog
         } else if (!strcmp("Pentax", make) && !strcmp("Samsung", d.make)) {
             // For Samsung cameras that have a Pentax counterpart.
             rt_strncpy(make, d.make, sizeof(make));
-            rt_strncpu(model, d.model, sizeof(model));
+            rt_strncpy(model, d.model, sizeof(model));
         }
 
         if (merged_pixelshift.is_merged_pixelshift ||

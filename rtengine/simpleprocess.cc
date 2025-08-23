@@ -43,8 +43,6 @@
 #include "rtgui/multilangmgr.h"
 #include "rtgui/options.h"
 
-#undef THREAD_PRIORITY_NORMAL
-
 namespace rtengine
 {
 

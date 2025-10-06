@@ -608,6 +608,8 @@ private:
     Adjuster* const ghs_chro;
     Adjuster* const ghs_B;
     Adjuster* const ghs_SP;
+    Gtk::Label* const ghssymLabel;
+    
     Adjuster* const ghs_LP;
     Adjuster* const ghs_HP;
     Gtk::Frame* const LC_Frame;
@@ -615,6 +617,7 @@ private:
     Adjuster* const ghs_MID;
     
     Gtk::Frame* const BP_Frame;
+    Gtk::CheckButton* const ghs_autobw;
     Adjuster* const ghs_BLP;
     Adjuster* const ghs_HLP;
     Gtk::Label* const ghsbpwpLabels;
@@ -662,9 +665,10 @@ private:
     rtengine::ProcEvent Evlocallabghs_BLP;
     rtengine::ProcEvent Evlocallabghs_HLP;
     rtengine::ProcEvent Evlocallabghs_smooth;
+    rtengine::ProcEvent Evlocallabghs_autobw;
     rtengine::ProcEvent Evlocallabghs_inv;
 
-    sigc::connection shMethodConn, ghsMethodConn, previewshConn, inversshConn, ghs_smoothConn, ghs_invConn, showmaskSHMethodConn, showmaskSHMethodConninv, enaSHMaskConn;
+    sigc::connection shMethodConn, ghsMethodConn, previewshConn, inversshConn, ghs_smoothConn, ghs_autobwConn, ghs_invConn, showmaskSHMethodConn, showmaskSHMethodConninv, enaSHMaskConn;
 
 public:
     LocallabShadow();
@@ -682,7 +686,8 @@ public:
     void updateguiscopesahd(int scope);
     int nbmasksh;
 
-    void updateghsbw(int bp, int wp, double minbp, double maxwp);
+    void updateghsbw2(double ghsb, double ghsw, bool ghsaut);
+    void updateghsbw(int bp, int wp, double minbp, double maxwp, double symev);
     void setDefaultExpanderVisibility() override;
     void disableListener() override;
     void enableListener() override;
@@ -705,6 +710,7 @@ private:
     void ghsMethodChanged();
     void inversshChanged();
     void ghs_smoothChanged();
+    void ghs_autobwChanged();
     void ghs_invChanged();
     void showmaskSHMethodChanged();
     void showmaskSHMethodChangedinv();

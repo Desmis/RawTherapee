@@ -4581,6 +4581,8 @@ LocallabShadow::LocallabShadow():
     BP_Frame->add(*BPBox);
     ghsBox2->pack_start(*BP_Frame);
     ghsBox2->pack_start(*ghs_inv);
+    ghs_inv->set_sensitive(false);//issue 7528
+
     pack_start(*ghsBox2);
     
     
@@ -5087,7 +5089,8 @@ void LocallabShadow::read(const rtengine::procparams::ProcParams* pp, const Para
         inverssh->set_active(spot.inverssh);
         ghs_smooth->set_active(spot.ghs_smooth);
         ghs_autobw->set_active(spot.ghs_autobw);
-        ghs_inv->set_active(spot.ghs_inv);
+       // ghs_inv->set_active(spot.ghs_inv);
+        ghs_inv->set_active(false);//issue 7528
         enaSHMask->set_active(spot.enaSHMask);
         CCmaskSHshape->setCurve(spot.CCmaskSHcurve);
         LLmaskSHshape->setCurve(spot.LLmaskSHcurve);
@@ -5112,6 +5115,7 @@ void LocallabShadow::read(const rtengine::procparams::ProcParams* pp, const Para
         ghs_HP->getValue(),
         ghs_inv->get_active(),
         *labgridghs);
+        ghs_inv->set_active(false);   //issue 7528 
     // Enable all listeners
     enableListener();
 
@@ -5745,6 +5749,8 @@ void LocallabShadow::convertParamToSimple()
     disableListener();
     // Set hidden specific GUI widgets in Simple mode to default spot values
     ghsMethod->set_active(0);
+    ghs_inv->set_active(false);//issue 7528
+    ghs_inv->set_sensitive(false);//issue 7528
 
     gamSH->setValue(defSpot.gamSH);
     sloSH->setValue(defSpot.sloSH);
@@ -6033,8 +6039,8 @@ void LocallabShadow::ghs_smoothChanged()
     }
 }
 
-
 void LocallabShadow::ghs_invChanged()
+
 {
     const bool maskPreviewActivated = isMaskViewActive();
 
@@ -6047,7 +6053,7 @@ void LocallabShadow::ghs_invChanged()
             listener->panelChanged(EvlocallabshowmaskMethod, "");
         }
     }
-
+/* //issue 7528
     if (isLocActivated && exp->getEnabled()) {
         if (listener) {
             if (ghs_inv->get_active()) {
@@ -6059,7 +6065,7 @@ void LocallabShadow::ghs_invChanged()
             }
         }
     }
-
+*/  
     update_ghs_curve(
         ghs_B->getValue(),
         ghs_D->getValue(),
@@ -6296,7 +6302,8 @@ void LocallabShadow::updateShadowGUIshmet()
         Lab_Frame->hide();
         BP_Frame->show();
         ghs_inv->show();
-
+        ghs_inv->set_active(false);//issue 7528
+        ghs_inv->set_sensitive(false);//issue 7528
         if(ghs_D->getValue() > 0.002  || ghs_D->getValue() == 0.f) {
             ghs_BLP->set_sensitive(false);
             ghs_HLP->set_sensitive(false);

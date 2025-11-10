@@ -993,7 +993,8 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 whitslog = new int[sizespot];
                 int *blackslog = nullptr;
                 blackslog = new int[sizespot];
-
+                bool *blackredu = nullptr;
+                blackredu = new bool[sizespot];
                 bool *autoradius = nullptr;
                 autoradius = new bool[sizespot];
                 float *caprad = nullptr;
@@ -1034,6 +1035,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                     locyT[sp] = params->locallab.spots.at(sp).loc.at(3) / 2000.0;
                     centx[sp] = params->locallab.spots.at(sp).centerX / 2000.0 + 0.5;
                     centy[sp] = params->locallab.spots.at(sp).centerY / 2000.0 + 0.5;
+                    blackredu[sp] = (params->locallab.spots.at(sp).smoothciemet == "gamnorol") || (params->locallab.spots.at(sp).smoothciemet == "gam") || (params->locallab.spots.at(sp).smoothciemet == "level") || (params->locallab.spots.at(sp).smoothciemet == "sigm") || (params->locallab.spots.at(sp).sigq12) || (params->locallab.spots.at(sp).sigjz12);
 
                    // const bool fullimstd = params->locallab.spots.at(sp).fullimage;//for log encoding standard
                    // const bool fullimjz = true;//always force fullimage in log encoding Jz - always possible to put a checkbox if need
@@ -1099,7 +1101,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                             xsta = 0.f;
                             xend = 1.f;
                         }
-                        ipf.getAutoLogloc(sp, imgsrc, sourceg, blackev, whiteev, Autogr, sourceab, whits, blacks, whitslog, blackslog, fw, fh, xsta, xend, ysta, yend, SCALE);
+                        ipf.getAutoLogloc(sp, imgsrc, sourceg, blackev, whiteev, blackredu, Autogr, sourceab, whits, blacks, whitslog, blackslog, fw, fh, xsta, xend, ysta, yend, SCALE);
                         params->locallab.spots.at(sp).blackEv = blackev[sp];
                         params->locallab.spots.at(sp).whiteEv = whiteev[sp];
                         params->locallab.spots.at(sp).blackEvjz = blackev[sp];
@@ -1148,6 +1150,7 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 delete [] blacks;
                 delete [] whitslog;
                 delete [] blackslog;
+                delete [] blackredu;
                 delete [] sourceg;
                 delete [] cie;
                 delete [] log;
@@ -2189,8 +2192,12 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 }
 
                 std::unique_ptr<Imagefloat> tmpImage1(new Imagefloat(GW, GH));
+                std::unique_ptr<Imagefloat> tmpImage2(new Imagefloat(GW, GH));
+
+
 
                 ipf.lab2rgb(*nprevl, *tmpImage1, params->icm.workingProfile);
+                tmpImage1.get()->copyData(tmpImage2.get());
 
                 const float gamtone = params->icm.wGamma;
                 const float slotone = params->icm.wSlope;
@@ -2206,9 +2213,6 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                 int locprim = 0;
                 float rdx, rdy, grx, gry, blx, bly = 0.f;
                 float meanx, meany, meanxe, meanye = 0.f;
-
-                ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, -5, prof, 2.4, 12.92310, 0, ill, 0, 0,  rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, dummy, true, false, false, false);
-                ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, 5, prof, gamtone, slotone, catc, illum, prim, locprim,  rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, dummy, false, true, true, gamutcontrol);
                 const int midton = params->icm.wmidtcie;
                 if(midton != 0) {
                     ToneEqualizerParams params;
@@ -2227,8 +2231,17 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                     }
                     ipf.toneEqualizer(tmpImage1.get(), params, prof, scale, false);
                 }
-                const bool smoothi = params->icm.wsmoothcie;
-                if(smoothi) {
+
+                ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, -5, prof, 2.4, 12.92310, 0, ill, 0, 0,  rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, dummy, true, false, false, false);
+                ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, 5, prof, gamtone, slotone, catc, illum, prim, locprim,  rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, dummy, false, true, true, gamutcontrol);
+                float satu = params->icm.wapsat;
+                if(satu > 0.f) {
+                    ipf.apsatur(0, tmpImage1.get(), tmpImage2.get(), GW, GH, satu) ;      
+                }
+ 
+                const float smoothisli = params->icm.wsmoothciesli;
+
+                if(smoothisli > 0.f) {
                     ToneEqualizerParams params;
                     params.enabled = true;
                     params.regularization = 0.f;
@@ -2241,12 +2254,13 @@ void ImProcCoordinator::updatePreviewImage(int todo, bool panningRelatedChange)
                     params.bands[5] = -80;//8 Ev and above
                     bool Evsix = true;
                     if(Evsix) {//EV = 6 majority of images
-                        params.bands[4] = -15;
-                    }
-                
+                        params.bands[4] = -30 * smoothisli;
+                        float smmothsli5 = std::min(smoothisli, 1.f);
+                        params.bands[5] = -80 * smmothsli5;                     
+                    }               
                     ipf.toneEqualizer(tmpImage1.get(), params, prof, scale, false);
                 }
-
+                
                 ipf.rgb2lab(*tmpImage1, *nprevl, params->icm.workingProfile);
 
                 //nprevl and provis

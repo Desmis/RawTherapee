@@ -917,6 +917,7 @@ struct local_params {
     int detailsh;
     int whitescie;
     int midtcie;
+    int midtmet;
     double tePivot;
     float threshol;
     float chromacb;
@@ -1047,6 +1048,7 @@ struct local_params {
     int moka;
     int sursouci;
     int smoothciem;
+    float smoothtrc;
     
     float denocontra;
     float denorati;
@@ -1120,6 +1122,15 @@ static void calcLocalParams(int sp, int oW, int oH,  const LocallabParams& local
         lp.gridmet = 1;
     }
 
+
+    if (locallab.spots.at(sp).midtciemet == "one") {
+        lp.midtmet = 0;
+    } else if (locallab.spots.at(sp).midtciemet == "two") {
+        lp.midtmet = 1;
+    } else if (locallab.spots.at(sp).midtciemet == "thr") {
+        lp.midtmet = 2;
+    }
+
     /*
         if (locallab.spots.at(sp).expMethod == "std") {
             lp.expmet = 0;
@@ -1149,10 +1160,12 @@ static void calcLocalParams(int sp, int oW, int oH,  const LocallabParams& local
         lp.smoothciem = 3;
     } else if (locallab.spots.at(sp).smoothciemet == "level") {
         lp.smoothciem = 4;
-	//if need I will add an other smoothciemet  with variable 		
     } else if (locallab.spots.at(sp).smoothciemet == "sigm") {
         lp.smoothciem = 6;
+    } else if (locallab.spots.at(sp).smoothciemet == "trc") {
+        lp.smoothciem = 7;
     }
+    lp.smoothtrc = locallab.spots.at(sp).smoothciethtrc;
 
 
     if (locallab.spots.at(sp).spotMethod == "norm") {
@@ -2752,7 +2765,7 @@ void ImProcFunctions::log_encode(Imagefloat *rgb, struct local_params & lp, bool
 }
  
 // Copyright 2018 Alberto Griggio <alberto.griggio@gmail.com>
-void ImProcFunctions::getAutoLogloc(int sp, ImageSource *imgsrc, float *sourceg, float *blackev, float *whiteev, bool *Autogr, float *sourceab,  int *whits,  int *blacks, int *whitslog,  int *blackslog, int fw, int fh, float xsta, float xend, float ysta, float yend, int SCALE)
+void ImProcFunctions::getAutoLogloc(int sp, ImageSource *imgsrc, float *sourceg, float *blackev, float *whiteev, bool *blackredu,  bool *Autogr, float *sourceab,  int *whits,  int *blacks, int *whitslog,  int *blackslog, int fw, int fh, float xsta, float xend, float ysta, float yend, int SCALE)
 {
     //BENCHFUN
 //adpatation to local adjustments Jacques Desmis 12 2019 and 11 2021 (from ART)
@@ -2819,8 +2832,12 @@ void ImProcFunctions::getAutoLogloc(int sp, ImageSource *imgsrc, float *sourceg,
     }
 
 
-    maxVal *= 1.5f;
-    minVal *= 0.5f;
+    if (!blackredu[sp]){//reduces white point when Freeman algo  or Sigmoid
+        maxVal *= 1.5f;  
+    } 
+    if (!blackredu[sp]){//reduces blackpoint when Freeman algo  or Sigmoid
+        minVal *= 0.5f;
+    }
 
     //E = 2.5*2^EV => e=2.5 depends on the sensor type C=250 e=2.5 to C=330 e=3.3
     //repartition with 2.5 between 1.45 Light and shadows 0.58 => a little more 0.55...
@@ -2954,6 +2971,10 @@ void tone_eqsmooth(ImProcFunctions *ipf, Imagefloat *rgb, const struct local_par
     params.bands[5] = -100;//8 Ev and above
     if(lp.whiteevjz < 6) {//EV = 6 majority of images
         params.bands[4] = -15;
+    }
+    if(lp.smoothtrc != 0) {//RGB TRC
+        params.bands[4] = -30 * lp.smoothtrc;
+        params.bands[5] = -6.6f * lp.smoothtrc;
     }
     if(lp.islogcie || lp.issmoothghs) {//with log encoding Cie and GHS shadows Highlight
         if(!lp.issmoothghs) {
@@ -3147,11 +3168,12 @@ void ImProcFunctions::tonemapFreeman(float target_slope, float target_sloper, fl
         float sloplimb = 1.f;
         if(limslope) {
             rolloff = true;
-            
-            sloplimr *= smooththreshold;
-            sloplimg *= smooththreshold;
-            sloplimb *= smooththreshold;
-        }
+        }  
+        //always apply threshold
+        sloplimr *= smooththreshold;
+        sloplimg *= smooththreshold;
+        sloplimb *= smooththreshold;
+        
         for (int i = 0; i < 65536; ++i) {// i - value image RGB
             lutr[i] = get_freeman_parameters(float(i) / 65535.f, rolloff, mid_gray_scene_, gammar, sloplimr, dr, b, c, kmid);//call main function
             lutg[i] = get_freeman_parameters(float(i) / 65535.f, rolloff, mid_gray_scene_, gammag, sloplimg, dr, b, c, kmid);//call main function
@@ -22188,15 +22210,23 @@ void ImProcFunctions::Lab_Local(
                         {wprof[1][0], wprof[1][1], wprof[1][2]},
                         {wprof[2][0], wprof[2][1], wprof[2][2]}
                     };
-    
-    
                     Imagefloat *tmpImage = nullptr;
                     tmpImage = new Imagefloat(bfw, bfh);
+                    Imagefloat *tmpImage2 = nullptr;
+                    tmpImage2 = new Imagefloat(bfw, bfh);
                     Imagefloat *tmpImagelog = nullptr;
                     tmpImagelog = new Imagefloat(bfw, bfh);
                     
                     lab2rgb(*bufexpfin, *tmpImage, params->icm.workingProfile);
                     Glib::ustring prof = params->icm.workingProfile;
+                        
+                        //LUT to inverse color
+                    LUTf rCurve;
+                    LUTf gCurve;
+                    LUTf bCurve;
+                    CurveFactory::RGBCurve(params->locallab.spots.at(sp).invcurve, rCurve, sk);//generated curve with inverse color
+                    CurveFactory::RGBCurve(params->locallab.spots.at(sp).invcurve, gCurve, sk);
+                    CurveFactory::RGBCurve(params->locallab.spots.at(sp).invcurve, bCurve, sk);
 
                     float gamtone = params->locallab.spots.at(sp).gamjcie;
                     float slotone = params->locallab.spots.at(sp).slopjcie;
@@ -22287,17 +22317,26 @@ void ImProcFunctions::Lab_Local(
                     } else if (params->locallab.spots.at(sp).catMethod == "xyz") {
                         catx = 4;
                     }
+                    tmpImage->copyData(tmpImage2);
 
                     params->locallab.spots.at(sp).catMethod;
                     int locprim = 1;
                     bool gamcie = params->locallab.spots.at(sp).gamutcie;
                     float rx, ry, gx, gy, bx, by = 0.f;
                     float mx, my, mxe, mye = 0.f;
+                    
+                    if(lp.midtcie != 0 && lp.midtmet == 0) {
+                        ImProcFunctions::tone_eqcam(this, tmpImage, lp.midtcie, params->icm.workingProfile, sk, multiThread);
+                    }
 
                     workingtrc(sp, tmpImage, tmpImage, bfw, bfh, -5, prof, 2.4, 12.92310, 0, ill, 0, 0, rx, ry, gx, gy, bx, by, mx, my, mxe, mye, dummy, true, false, false, false);
                     workingtrc(sp, tmpImage, tmpImage, bfw, bfh, typ, prof, gamtone, slotone, catx, ill, prim, locprim, rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, dummy, false, true, true, gamcie);//with gamut control
-
-                    if(lp.midtcie != 0) {
+                    float satu = params->locallab.spots.at(sp).satjcie;
+                    if (satu > 0.f) {//saturation
+                        ImProcFunctions::apsatur(sp, tmpImage, tmpImage2, bfw, bfh, satu) ;
+                    }
+ 
+                    if(lp.midtcie != 0 && lp.midtmet == 1) {
                         ImProcFunctions::tone_eqcam(this, tmpImage, lp.midtcie, params->icm.workingProfile, sk, multiThread);
                     }
                     
@@ -22323,17 +22362,16 @@ void ImProcFunctions::Lab_Local(
                         }
                     }
                     
-                   bool gambas = false;
                    float ksr = 1.f;
                    float ksb = 1.f;
                    float ksg = 1.f;
-                   //gamtone, slotone
-                   /* comment this code - will probably not used with new PR GHS
-                   if(lp.smoothciem == 5) {
+
+                   if(lp.smoothciem == 7) {//TRC mode
+                                            
                         ksr = params->locallab.spots.at(sp).kslopesmor;
                         float gamr = 2.4f * ksr;
                         float slr = 12.92f;
-                        if(!params->locallab.spots.at(sp).smoothcietrcrel) {
+                        if(!params->locallab.spots.at(sp).smoothcietrcrel) {//relative gamma
                             gamr = 2.4f * ksr;
                             slr = 12.92f;
                             if(gamr < 2.f) {
@@ -22404,6 +22442,7 @@ void ImProcFunctions::Lab_Local(
                         Color::calcGamma(pwrb, slb, g_ab); // call to calcGamma with selected gamma and slope
                         Imagefloat *srcp = nullptr;
                         srcp = new Imagefloat(bfw, bfh);
+  
 
 #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic, 16) if (multiThread)
@@ -22420,6 +22459,7 @@ void ImProcFunctions::Lab_Local(
                                 srcp->r(i, j) =  r;
                                 srcp->g(i, j) =  g;
                                 srcp->b(i, j) =  b;
+
                             }
             
 #ifdef _OPENMP
@@ -22445,15 +22485,40 @@ void ImProcFunctions::Lab_Local(
                             }
                         }
                         delete srcp;
+                        
+                       if(params->locallab.spots.at(sp).smoothcietrc) {//invert color 
+#ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic, 16) if (multiThread)
+#endif
 
-                        tone_eqsmooth(this, tmpImage, lp, params->icm.workingProfile, sk, multiThread);//reduce Ev > 0 < 12
-                        if(params->locallab.spots.at(sp).smoothcietrc) {//add more control on highlights with gamma based 
-                            gambas = true;
+                            for (int i = 0; i < bfh; ++i)
+                                for (int j = 0; j < bfw; ++j) {
+                                    float rr = tmpImage->r(i, j); 
+                                    float gg = tmpImage->g(i, j);
+                                    float bb = tmpImage->b(i, j);
+                                    if (rCurve) {
+                                        setUnlessOOG(rr, rCurve[rr]);
+                                    }
+                                    if (gCurve) {
+                                        setUnlessOOG(gg, gCurve[gg]);
+                                    }
+                                    if (bCurve) {
+                                        setUnlessOOG(bb, bCurve[bb]);
+                                    }
+                                    tmpImage->r(i, j) = rr;
+                                    tmpImage->g(i, j) = gg;
+                                    tmpImage->b(i, j) = bb;
+                               
+                                }
                         }
-
+                        
+                        if(lp.smoothtrc > 0.f) {
+                            tone_eqsmooth(this, tmpImage, lp, params->icm.workingProfile, sk, multiThread);//reduce Ev > 0 < 12
+                        }
+                        
                     }
 					
-					*/
+				
                     if(lp.smoothciem == 6) {//Sigmoid - from Darktable
                         float middle_grey_contrast = params->locallab.spots.at(sp).contsig;
                         float contrast_skewness = params->locallab.spots.at(sp).skewsig;
@@ -22489,7 +22554,7 @@ void ImProcFunctions::Lab_Local(
                     }
                     if(lp.smoothciem == 1) {
                         tone_eqsmooth(this, tmpImage, lp, params->icm.workingProfile, sk, multiThread);//reduce Ev > 0 < 12
-                    } else if(lp.smoothciem == 2  || lp.smoothciem == 3 || lp.smoothciem == 4 || (gambas && lp.smoothciem == 5)) {//  2 - only smmoth highlightd  - 3 - Tone mapping with slope and mid_grey
+                    } else if(lp.smoothciem == 2  || lp.smoothciem == 3 || lp.smoothciem == 4) {//  2 - only smmoth highlightd  - 3 - Tone mapping with slope and mid_grey
 
                         //TonemapFreeman - Copyright (c) 2023 Thatcher Freeman
                         float mid_gray = 0.01f * lp.sourcegraycie;//Mean luminance Yb Scene
@@ -22511,11 +22576,6 @@ void ImProcFunctions::Lab_Local(
                         float slopsmootb = 1.f - ((float) params->locallab.spots.at(sp).slopesmob - 1.f);
                         slopeg = params->locallab.spots.at(sp).slopesmog; 
                         linkrgb = params->locallab.spots.at(sp).smoothcielnk;
-                        if(gambas  && lp.smoothciem == 5) {
-                            slopsmootr = 1.f - (ksr - 1.f);
-                            slopsmootg = 1.f - (ksg - 1.f);
-                            slopsmootb = 1.f - (ksb - 1.f);
-                        }
                         float smooththreshold = params->locallab.spots.at(sp).smoothcieth;
                         bool takeyb = params->locallab.spots.at(sp).smoothcieyb;
                         bool lummod = params->locallab.spots.at(sp).smoothcielum;
@@ -22536,11 +22596,8 @@ void ImProcFunctions::Lab_Local(
                             slopegrayb = slopsmoot;
                             mode = 3;
                         }//modify slope
-                        if(lp.smoothciem == 4 || (gambas && lp.smoothciem == 5)) {//levels
+                        if(lp.smoothciem == 4) {//levels
                             rolloff = false;//allows tone-mapping slope
-                            if(gambas && lp.smoothciem == 5) {
-                                rolloff = true;
-                            }
                             if(slopsmootr < 0.1f) {
                                 slopsmootr = aa * slopsmootr + bb;
                             }
@@ -22563,11 +22620,8 @@ void ImProcFunctions::Lab_Local(
                         
                         bool scale = lp.issmoothcie;//scale Yb mid_gray - WhiteEv and BlavkEv
                         bool limslope = lumhigh;
-                        if(gambas && lp.smoothciem == 5) {
-                           limslope = true;
-                        }
                         tonemapFreeman(slopegray, slopegrayr, slopegrayg, slopegrayb, white_point, black_point, mid_gray, mid_gray_view, rolloff, smooththreshold, limslope, lut, lutr, lutg, lutb, mode, scale, takeyb);
-                        if(lp.smoothciem == 4 || (gambas && lp.smoothciem == 5)) {
+                        if(lp.smoothciem == 4) {
                             if(lummod  && lp.smoothciem == 4) {//luminosity mode by Lab conversion
  #ifdef _OPENMP
         #pragma omp parallel for
@@ -22632,16 +22686,56 @@ void ImProcFunctions::Lab_Local(
                                 }
                             }
                         }
+                        
+                       if(params->locallab.spots.at(sp).smoothcieinv && lp.smoothciem == 4) {//invert color with RGB slope
+#ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic, 16) if (multiThread)
+#endif
+
+                            for (int i = 0; i < bfh; ++i)
+                                for (int j = 0; j < bfw; ++j) {
+                                    float rr = tmpImage->r(i, j); 
+                                    float gg = tmpImage->g(i, j);
+                                    float bb = tmpImage->b(i, j);
+                                    if (rCurve) {
+                                        setUnlessOOG(rr, rCurve[rr]);
+                                    }
+                                    if (gCurve) {                                    
+                                        setUnlessOOG(gg, gCurve[gg]);
+                                    }
+                                    if (bCurve) {                                   
+                                        setUnlessOOG(bb, bCurve[bb]);
+                                    }
+                                    tmpImage->r(i, j) = rr;
+                                    tmpImage->g(i, j) = gg;
+                                    tmpImage->b(i, j) = bb;                              
+                                }
+                        }
+                        
                     } 
                     rgb2lab(*tmpImage, *bufexpfin, params->icm.workingProfile);
 
                     delete tmpImage;
+                    delete tmpImage2;
                     delete tmpImagelog;
                 }
 
                 if (params->locallab.spots.at(sp).expcie) {
                         ImProcFunctions::ciecamloc_02float(lp, sp, bufexpfin.get(), bfw, bfh, 0, sk, cielocalcurve, localcieutili, cielocalcurve2, localcieutili2, jzlocalcurve, localjzutili, czlocalcurve, localczutili, czjzlocalcurve, localczjzutili, locchCurvejz, lochhCurvejz, loclhCurvejz, HHcurvejz, CHcurvejz, LHcurvejz, locwavCurvejz, locwavutilijz, maxicam, contsig, lightsig);
                 }
+                
+                if(lp.midtcie != 0 && lp.midtmet == 2) {
+                    Imagefloat *tmpImageaft = nullptr;
+                    tmpImageaft = new Imagefloat(bfw, bfh);
+                    
+                    lab2rgb(*bufexpfin, *tmpImageaft, params->icm.workingProfile);
+                    ImProcFunctions::tone_eqcam(this, tmpImageaft, lp.midtcie, params->icm.workingProfile, sk, multiThread);
+                    
+                    rgb2lab(*tmpImageaft, *bufexpfin, params->icm.workingProfile);
+
+                    delete tmpImageaft;
+                }
+                
             }
             
             if (lp.strgradcie != 0.f) {
@@ -22722,6 +22816,7 @@ void ImProcFunctions::Lab_Local(
 
                     ImProcFunctions::localContrast(bufexpfin.get(), bufexpfin->L, localContrastParams, fftwlc, sk);
             }
+            
             if (params->locallab.spots.at(sp).bwcie) {
 #ifdef _OPENMP
                     #pragma omp parallel for schedule(dynamic,16) if (multiThread)

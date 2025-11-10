@@ -1102,6 +1102,7 @@ public:
         bool smoothcielum;
         bool smoothciehigh;
         bool smoothcielnk;
+        bool smoothcieinv;
         bool logjz;
         bool sigjz12;
         bool sigjz;
@@ -1134,6 +1135,7 @@ public:
         bool jzcurve;
         bool czcurve;
         bool czjzcurve;
+        bool invcurve;
         bool HHcurvejz;
         bool CHcurvejz;
         bool LHcurvejz;
@@ -1169,7 +1171,9 @@ public:
         bool comprcieth;
         bool gamjcie;
         bool smoothcieth;
+        bool smoothciethtrc;
         bool slopjcie;
+        bool satjcie;
         bool contsig;
         bool skewsig;
         bool whitsig;
@@ -1181,6 +1185,7 @@ public:
         bool kslopesmor;
         bool kslopesmog;
         bool kslopesmob;
+        bool midtciemet;
         bool midtcie;
         bool redxl;
         bool redyl;
@@ -1432,7 +1437,9 @@ struct ColorManagementParamsEdited {
     bool pyrwavtrc;
     bool opacityCurveWLI;
 
+    bool wapsat;
     bool wsmoothcie;
+    bool wsmoothciesli;
     bool will;
     bool wprim;
     bool wcat;

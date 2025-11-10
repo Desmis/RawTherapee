@@ -1769,6 +1769,7 @@ struct LocallabParams {
         bool smoothcielum;
         bool smoothciehigh;
         bool smoothcielnk;
+        bool smoothcieinv;
         bool logjz;
         bool sigjz12;
         bool sigjz;
@@ -1842,7 +1843,9 @@ struct LocallabParams {
         double comprcieth;
         double gamjcie;
         double smoothcieth;
+        double smoothciethtrc;
         double slopjcie;
+        double satjcie;
         double contsig;
         double skewsig;
         double whitsig;
@@ -1854,6 +1857,8 @@ struct LocallabParams {
         double kslopesmor;
         double kslopesmog;
         double kslopesmob;
+        std::vector<double> invcurve;//inverse color negative
+        Glib::ustring midtciemet;
         int midtcie;
         double grexl;
         double greyl;
@@ -2230,14 +2235,15 @@ struct ColorManagementParams {
     Cat wcat;
     double wGamma;
     double wSlope;
+    double wapsat;
     double wmidtcie;
     double sigmatrc;
     double offstrc;
     double residtrc;
     int pyrwavtrc;
-    std::vector<double> opacityCurveWLI;
-    
+    std::vector<double> opacityCurveWLI;   
     bool wsmoothcie;
+    double wsmoothciesli;
     double redx;
     double redy;
     double grex;

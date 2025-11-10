@@ -5798,6 +5798,7 @@ void LocallabShadow::updateGUIToMode(const modeType new_type)
             ghs_slope->hide();
             Lab_Frame->hide();
             ghs_inv->hide();
+            
             break;
 
         case Normal:
@@ -5840,7 +5841,6 @@ void LocallabShadow::updateGUIToMode(const modeType new_type)
             }
             ghs_slope->hide();
             ghs_inv->show();
-
             break;
 
         case Expert:
@@ -6270,7 +6270,7 @@ void LocallabShadow::updateShadowGUIshmet()
         ghsMethod->hide();
         BP_Frame->hide();
         ghs_inv->hide();
-        
+        ghsMethod->hide();        
     } else if (shMethod->get_active_row_number() == 1) {
         for (const auto multiplier : multipliersh) {
             multiplier->show();
@@ -6291,6 +6291,7 @@ void LocallabShadow::updateShadowGUIshmet()
         ghsMethod->hide();
         BP_Frame->hide();
         ghs_inv->hide();
+        ghsMethod->hide();        
 
     } else if (shMethod->get_active_row_number() == 2) {
         for (const auto multiplier : multipliersh) {

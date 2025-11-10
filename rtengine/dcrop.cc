@@ -1705,8 +1705,10 @@ void Crop::update(int todo)
             }
 
             const std::unique_ptr<Imagefloat> tmpImage1(new Imagefloat(GW, GH));
+            const std::unique_ptr<Imagefloat> tmpImage2(new Imagefloat(GW, GH));
 
             parent->ipf.lab2rgb(*labnCrop, *tmpImage1, params.icm.workingProfile);
+            tmpImage1.get()->copyData(tmpImage2.get());
 
             const float gamtone = parent->params->icm.wGamma;
             const float slotone = parent->params->icm.wSlope;
@@ -1721,10 +1723,7 @@ void Crop::update(int todo)
             int locprim = 0;
             bool gamutcontrol = params.icm.gamut;
             int catc = rtengine::toUnderlying(params.icm.wcat);
-            float rdx, rdy, grx, gry, blx, bly = 0.f;
-            float meanx, meany, meanxe, meanye = 0.f;
-            parent->ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, -5, prof, 2.4, 12.92310, 0, ill, 0, 0, rdx, rdy, grx, gry, blx, bly,meanx, meany, meanxe, meanye, cmsDummy, true, false, false, false);
-            parent->ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, 5, prof, gamtone, slotone, catc,  illum, prim, locprim, rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, cmsDummy, false, true, true, gamutcontrol);
+            
             const int midton = params.icm.wmidtcie;
 
             if(midton != 0) {
@@ -1743,28 +1742,40 @@ void Crop::update(int todo)
                     params.bands[3] = sign(midton) * (mid - threshmid);     
                 }
                 parent->ipf.toneEqualizer(tmpImage1.get(), params, prof, skip, false);
-                }
+            }
+            
+            float rdx, rdy, grx, gry, blx, bly = 0.f;
+            float meanx, meany, meanxe, meanye = 0.f;
+            parent->ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, -5, prof, 2.4, 12.92310, 0, ill, 0, 0, rdx, rdy, grx, gry, blx, bly,meanx, meany, meanxe, meanye, cmsDummy, true, false, false, false);
+            parent->ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, 5, prof, gamtone, slotone, catc,  illum, prim, locprim, rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, cmsDummy, false, true, true, gamutcontrol);
+            float satu = params.icm.wapsat;
+            if(satu > 0.f) {
+                parent->ipf.apsatur(0, tmpImage1.get(), tmpImage2.get(), GW, GH, satu) ;    
+            }
 
-                const bool smoothi = params.icm.wsmoothcie;
-                if(smoothi) {
-                    ToneEqualizerParams params;
-                    params.enabled = true;
-                    params.regularization = 0.f;
-                    params.pivot = 0.f;
-                    params.bands[0] = 0;
-                    params.bands[1] = 0;
-                    params.bands[2] = 0;
-                    params.bands[3] = 0;
-                    params.bands[4] = -40;//arbitrary value to adapt with WhiteEvjz - here White Ev # 10
-                    params.bands[5] = -80;//8 Ev and above
-                    bool Evsix = true;
-                    if(Evsix) {//EV = 6 majority of images
-                        params.bands[4] = -15;
-                    }
+
+            const float smoothisli = params.icm.wsmoothciesli;
+            if(smoothisli > 0.f) {
+                ToneEqualizerParams params;
+                params.enabled = true;
+                params.regularization = 0.f;
+                params.pivot = 0.f;
+                params.bands[0] = 0;
+                params.bands[1] = 0;
+                params.bands[2] = 0;
+                params.bands[3] = 0;
+                params.bands[4] = -40;//arbitrary value to adapt with WhiteEvjz - here White Ev # 10
+                params.bands[5] = -80;//8 Ev and above
+                bool Evsix = true;
+                if(Evsix) {//EV = 6 majority of images
+                    params.bands[4] = -30 * smoothisli;
+                    float smmothsli5 = std::min(smoothisli, 1.f);
+                    params.bands[5] = -80 * smmothsli5;                     
+                }
                 
-                    parent->ipf.toneEqualizer(tmpImage1.get(), params, prof, skip, false);
-                }
-
+                parent->ipf.toneEqualizer(tmpImage1.get(), params, prof, skip, false);
+            }
+                
             parent->ipf.rgb2lab(*tmpImage1, *labnCrop, params.icm.workingProfile);
             //labnCrop and provis
             if (provis) {

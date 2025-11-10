@@ -1768,8 +1768,10 @@ private:
             }
 
             const std::unique_ptr<Imagefloat> tmpImage1(new Imagefloat(GW, GH));
+            const std::unique_ptr<Imagefloat> tmpImage2(new Imagefloat(GW, GH));
 
             ipf.lab2rgb(*labView, *tmpImage1, params.icm.workingProfile);
+            tmpImage1.get()->copyData(tmpImage2.get());
 
             const float gamtone = params.icm.wGamma;
             const float slotone = params.icm.wSlope;
@@ -1784,10 +1786,6 @@ private:
             bool gamutcontrol = params.icm.gamut;
             int catc = toUnderlying(params.icm.wcat);
             int locprim = 0;
-            float rdx, rdy, grx, gry, blx, bly = 0.f;
-            float meanx, meany, meanxe, meanye = 0.f;
-            ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, -5, prof, 2.4, 12.92310, 0, ill, 0, 0, rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, dummy, true, false, false, false);
-            ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, 5, prof, gamtone, slotone, catc, illum, prim, locprim, rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, dummy, false, true, true, gamutcontrol);
             const int midton = params.icm.wmidtcie;
             if(midton != 0) {
                 ToneEqualizerParams params;
@@ -1806,25 +1804,39 @@ private:
                 }
                 ipf.toneEqualizer(tmpImage1.get(), params, prof, 1, false);
             }
+            
+            
+            float rdx, rdy, grx, gry, blx, bly = 0.f;
+            float meanx, meany, meanxe, meanye = 0.f;
+            ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, -5, prof, 2.4, 12.92310, 0, ill, 0, 0, rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, dummy, true, false, false, false);
+            ipf.workingtrc(0, tmpImage1.get(), tmpImage1.get(), GW, GH, 5, prof, gamtone, slotone, catc, illum, prim, locprim, rdx, rdy, grx, gry, blx, bly, meanx, meany, meanxe, meanye, dummy, false, true, true, gamutcontrol);
+            float satu = params.icm.wapsat;
 
-            const bool smoothi = params.icm.wsmoothcie;
-                if(smoothi) {
-                    ToneEqualizerParams params;
-                    params.enabled = true;
-                    params.regularization = 0.f;
-                    params.pivot = 0.f;
-                    params.bands[0] = 0;
-                    params.bands[1] = 0;
-                    params.bands[2] = 0;
-                    params.bands[3] = 0;
-                    params.bands[4] = -40;//arbitrary value to adapt with WhiteEvjz - here White Ev # 10
-                    params.bands[5] = -80;//8 Ev and above
-                    bool Evsix = true;
-                    if(Evsix) {//EV = 6 majority of images
-                        params.bands[4] = -15;
-                    }
+            if(satu > 0.f) {
+                ipf.apsatur(0, tmpImage1.get(), tmpImage2.get(), GW, GH, satu) ;
+            }
+
+            const float smoothisli = params.icm.wsmoothciesli;
+
+            if(smoothisli > 0.f) {
+                ToneEqualizerParams params;
+                params.enabled = true;
+                params.regularization = 0.f;
+                params.pivot = 0.f;
+                params.bands[0] = 0;
+                params.bands[1] = 0;
+                params.bands[2] = 0;
+                params.bands[3] = 0;
+                params.bands[4] = -40;//arbitrary value to adapt with WhiteEvjz - here White Ev # 10
+                params.bands[5] = -80;//8 Ev and above
+                bool Evsix = true;
+                if(Evsix) {//EV = 6 majority of images
+                    params.bands[4] = -30 * smoothisli;
+                    float smmothsli5 = std::min(smoothisli, 1.f);
+                    params.bands[5] = -80 * smmothsli5;                    
+                }
                 
-                    ipf.toneEqualizer(tmpImage1.get(), params, prof, 1, false);
+                ipf.toneEqualizer(tmpImage1.get(), params, prof, 1, false);
             }
 
             ipf.rgb2lab(*tmpImage1, *labView, params.icm.workingProfile);
